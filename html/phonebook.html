@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=1080, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Apache Phone Book</title>
+
+    <!-- CSS -->
+    
+    <link href="phonebook.css" rel="stylesheet" media="all">
+  </head>
+  <body onload="getAsyncJSON('committers.json', null, renderPhonebook)">
+   <h1><img src='logo.png' style='width: 200px; height: 61px; vertical-align: middle;'/>Apache committer and project index</h1>
+   <div id="search">
+    <b>Find a project: </b> <input type="text" placeholder="Enter a name to search for..." onkeyup="searchProjects(this.value)"/> &nbsp;
+    <b>Find a committer: </b> <input type="text" placeholder="Enter a name to search for..." onkeyup="searchCommitters(this.value)"/> &nbsp; 
+   </div>
+   <div id="phonebook">
+    
+   </div>
+   <script src="phonebook.js"></script>
+  </body>
+</html>
+

@@ -82,18 +82,7 @@ function showCommitter(obj, uid) {
 		details.setAttribute("id", 'details_committer_' + uid)
 		var cl = []
 		var pl = []
-		var isMember = false
 		for (var i in json.projects) {
-			if (i == 'committers' || i == 'member' ) {
-				if (i == 'member') {
-					for (var n in json.projects[i]) {
-						if (json.projects[i][n] == uid) {
-							isMember = true
-						}
-					}
-				}
-				continue
-			}
 			for (var n in json.projects[i]) {
 				if (json.projects[i][n] == uid) {
 					cl.push(i)
@@ -107,7 +96,7 @@ function showCommitter(obj, uid) {
 				}
 			}
 		}
-		if (isMember) {
+		if (isMember(uid)) {
 			details.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
 		if (cl.length > 0) {
@@ -151,18 +140,7 @@ function hoverCommitter(parent, uid) {
 		div.innerHTML = "<h4>" + json.committers[uid] + "</h4>"
 		var cl = []
 		var pl = []
-		var isMember = false
 		for (var i in json.projects) {
-			if (i == 'committers' || i == 'member' ) {
-				if (i == 'member') {
-					for (var n in json.projects[i]) {
-						if (json.projects[i][n] == uid) {
-							isMember = true
-						}
-					}
-				}
-				continue
-			}
 			for (var n in json.projects[i]) {
 				if (json.projects[i][n] == uid) {
 					cl.push(i)
@@ -176,7 +154,7 @@ function hoverCommitter(parent, uid) {
 				}
 			}
 		}
-		if (isMember == true) {
+		if (isMember(uid) == true) {
 			div.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
 		if (cl.length > 0) {
@@ -190,6 +168,18 @@ function hoverCommitter(parent, uid) {
 	}
 }
 
+function isMember(uid) {
+    return json.projects['member'].indexOf(uid) > -1
+}
+
+function hiliteMember(uid) {
+    if (isMember(uid)) {
+        return "<b>" + uid + "</b>"
+    } else {
+        return uid
+    }
+}
+
 function showProject(obj, uid) {
 	var details = document.getElementById('details_project_' + uid)
 	if (!details) {
@@ -200,10 +190,10 @@ function showProject(obj, uid) {
 		cl.sort()
 		pl.sort()
 		for (var i in cl) {
-			cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + cl[i] + "</kbd> - " + json.committers[cl[i]] + "</li>"
+			cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + json.committers[cl[i]] + "</li>"
 		}
 		for (var i in pl) {
-			pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + pl[i] + "</kbd> - " + json.committers[pl[i]] + "</li>"
+			pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd> - " + json.committers[pl[i]] + "</li>"
 		}
 		
 		if (pl.length > 0) {

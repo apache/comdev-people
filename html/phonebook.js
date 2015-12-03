@@ -75,27 +75,37 @@ function renderPMC() {
 	window.setTimeout(renderPMC, 50)
 }
 
+function getProjects(uid) {
+    var cl = []
+    for (var i in json.projects) {
+        for (var n in json.projects[i]) {
+            if (json.projects[i][n] == uid) {
+                cl.push(i)
+            }
+        }
+    }
+    return cl
+}
+
+function getCommittees(uid) {
+    var pl = []
+    for (var i in json.committees) {
+        for (var n in json.committees[i]) {
+            if (json.committees[i][n] == uid) {
+                pl.push(i)
+            }
+        }
+    }
+    return pl
+}
+
 function showCommitter(obj, uid) {
 	var details = document.getElementById('details_committer_' + uid)
 	if (!details) {
 		details = document.createElement('p')
 		details.setAttribute("id", 'details_committer_' + uid)
-		var cl = []
-		var pl = []
-		for (var i in json.projects) {
-			for (var n in json.projects[i]) {
-				if (json.projects[i][n] == uid) {
-					cl.push(i)
-				}
-			}
-		}
-		for (var i in json.committees) {
-			for (var n in json.committees[i]) {
-				if (json.committees[i][n] == uid) {
-					pl.push(i)
-				}
-			}
-		}
+		var cl = getProjects(uid)
+        var pl = getCommittees(uid)
 		if (isMember(uid)) {
 			details.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
@@ -138,22 +148,8 @@ function hoverCommitter(parent, uid) {
 	if (uid) {
 		div.style.display = "block"
 		div.innerHTML = "<h4>" + json.committers[uid] + "</h4>"
-		var cl = []
-		var pl = []
-		for (var i in json.projects) {
-			for (var n in json.projects[i]) {
-				if (json.projects[i][n] == uid) {
-					cl.push(i)
-				}
-			}
-		}
-		for (var i in json.committees) {
-			for (var n in json.committees[i]) {
-				if (json.committees[i][n] == uid) {
-					pl.push(i)
-				}
-			}
-		}
+		var cl = getProjects(uid)
+		var pl = getCommittees(uid)
 		if (isMember(uid) == true) {
 			div.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}

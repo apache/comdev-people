@@ -253,6 +253,8 @@ function searchCommitters(keyword, open) {
 	}
 }
 
+// Called by phonebook.html: body onload="getAsyncJSON('committers.json', null, renderPhonebook)"
+
 function renderPhonebook(xjson) {
 	json = xjson
 	pmcs = []

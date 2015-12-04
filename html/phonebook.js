@@ -11,8 +11,8 @@ function getAsyncJSON(theUrl, xstate, callback) {
 	xmlHttp.open("GET", theUrl, true);
 	xmlHttp.send(null);
 	xmlHttp.onprogress = function(state) {
-		var s = parseInt(xmlHttp.getResponseHeader('Content-Length'))
 		if (document.getElementById('pct')) {
+			var s = parseInt(xmlHttp.getResponseHeader('Content-Length'))
 			document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: " + parseInt((100 * (xmlHttp.responseText.length / s))) + "% done</i></b></p>";
 		}
 	}

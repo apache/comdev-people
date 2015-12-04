@@ -33,48 +33,6 @@ function getAsyncJSON(theUrl, xstate, callback) {
 	}
 }
 
-function hoverUID(args) {
-	//code
-}
-
-
-function renderPMC() {
-	if (pmcs.length == 0) {
-		return
-	}
-	var k = pmcs.shift()
-	if (!k) {
-		return
-	}
-	var obj = document.getElementById('phonebook')
-	var seg = "<div class='group'><h3>" + k + " project:</h3><ul>"
-	var list = json.committees[k]
-	if (list) {
-		list.sort()
-		seg += "<li><h4>Committee members: </h4>"
-		for (var i in list) {
-			var uid = list[i]
-			var name = json.committers[uid]
-			seg += "<li onmouseout=\"hoverUID(null);\" onmouseover=\"hoverUID('" + uid + "');\">" + uid + " - " + name + "</li>"
-		}
-		seg += "</li><li><h4>Committers:</h4>"
-		var list = json.projects[k]
-		if (list) {
-			list.sort()
-			for (var i in list) {
-				var uid = list[i]
-				var name = json.committers[uid]
-				seg += "<li onmouseout=\"hoverUID(null);\" onmouseover=\"hoverUID('" + uid + "');\">" + uid + " - " + name + "</li>"
-			}
-		}
-		
-		seg += "</ul></li></ul></div>"
-		obj.innerHTML += seg
-	}
-	
-	window.setTimeout(renderPMC, 50)
-}
-
 function getProjects(uid) {
     var cl = []
     for (var i in json.projects) {

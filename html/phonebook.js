@@ -53,13 +53,19 @@ function getProjects(uid) {
 function getCommittees(uid) {
     var pl = []
     for (var i in committees.committees) {
-        for (var n in committees.committees[i]) {
-            if (committees.committees[i][n] == uid) {
-                pl.push(i)
-            }
+        if (uid in committees.committees[i].roster) {
+            pl.push(i)
         }
     }
     return pl
+}
+
+function getCommitterName(uid) {
+    var name = json.committers[uid]
+    if (!name) {
+        name = iclainfo.committers[uid]
+    }
+    return name
 }
 
 function showCommitter(obj, uid) {
@@ -110,7 +116,7 @@ function hoverCommitter(parent, uid) {
 	
 	if (uid) {
 		div.style.display = "block"
-		div.innerHTML = "<h4>" + json.committers[uid] + "</h4>"
+		div.innerHTML = "<h4>" + getCommitterName(uid) + "</h4>"
 		var cl = getProjects(uid)
 		var pl = getCommittees(uid)
 		if (isMember(uid) == true) {
@@ -165,10 +171,10 @@ function showProject(obj, uid) {
 		cl.sort()
 		pl.sort()
 		for (var i in cl) {
-			cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + json.committers[cl[i]] + "</li>"
+			cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + getCommitterName(cl[i]) + "</li>"
 		}
 		for (var i in pl) {
-			pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd> - " + json.committers[pl[i]] + "</li>"
+			pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd> - " + getCommitterName(pl[i]) + "</li>"
 		}
 		
 		if (pl.length > 0) {
@@ -208,7 +214,7 @@ function searchCommitters(keyword, open) {
 	var obj = document.getElementById('phonebook')
 	obj.innerHTML = "<h3>Search results:</h3><hr/>"
 	for (var uid in json.committers) {
-		var name = json.committers[uid]
+		var name = getCommitterName(uid)
 		if (uid.search(keyword.toLowerCase()) != -1 || name.toLowerCase().search(keyword.toLowerCase()) != -1) {
 			n++
 			if (n > 50) {
@@ -261,7 +267,7 @@ function allDone() {
 	}
     // copy across the members info
 	committees.committees['member'] = {'roster': mMap,
-        'display_name': 'Members',
+        'display_name': 'Foundation Members',
         'description': "ASF membership (PMC members == current members, Committers == those with member karma"}
 	var u = document.location.search.match(/user=([-.a-z0-9]+)/i)
 	var p = document.location.search.match(/project=([-.a-z0-9]+)/i)

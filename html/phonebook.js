@@ -145,6 +145,16 @@ function hiliteMember(uid) {
     }
 }
 
+function getChair(uid) {
+    var chair = committees.committees[uid].chair
+    if (chair) {
+        for (var x in chair) {
+            return chair[x].name
+        }
+    }
+    return null
+}
+
 function showProject(obj, uid) {
 	var details = document.getElementById('details_project_' + uid)
 	if (!details) {
@@ -154,6 +164,10 @@ function showProject(obj, uid) {
 		if (!desc) {
             desc = 'TBA (please ensure that <a href="http://www.apache.org/index.html#projects-list">the projects list</a> is updated)'
 		}
+		var chair = getChair(uid)
+		if (chair) {
+            details.innerHTML += "<b>Chair:</b> " + chair + "<br/><br/>"
+        }
 		details.innerHTML += "<b>Description:</b><br/><br/>" + desc + "<br/><br/>"
 		var cl
 		try { 

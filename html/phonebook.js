@@ -50,14 +50,19 @@ function getProjects(uid) {
     return cl
 }
 
-function getCommittees(uid) {
+function getCommitteeRoles(uid) {
     var pl = []
+    var ch = []
     for (var i in committees.committees) {
         if (uid in committees.committees[i].roster) {
             pl.push(i)
         }
+        var chair = committees.committees[i].chair // might not be one (eg members)
+        if (chair && uid in committees.committees[i].chair) {
+            ch.push(i)
+        }
     }
-    return pl
+    return [pl, ch]
 }
 
 function getCommitterName(uid) {
@@ -74,10 +79,15 @@ function showCommitter(obj, uid) {
 		details = document.createElement('p')
 		details.setAttribute("id", 'details_committer_' + uid)
 		var cl = getProjects(uid)
-        var pl = getCommittees(uid)
+		var roles = getCommitteeRoles(uid)
+        var pl = roles[0]
+        var ch = roles[1]
 		if (isMember(uid)) {
 			details.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
+        if (ch.length > 0) {
+            details.innerHTML += "<b>Chair of:</b> " + ch.join(", ") + "<br/><br/>"
+        }
 		if (cl.length > 0) {
 			details.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br/><br/>"
 		}
@@ -118,10 +128,15 @@ function hoverCommitter(parent, uid) {
 		div.style.display = "block"
 		div.innerHTML = "<h4>" + getCommitterName(uid) + "</h4>"
 		var cl = getProjects(uid)
-		var pl = getCommittees(uid)
+        var roles = getCommitteeRoles(uid)
+        var pl = roles[0]
+        var ch = roles[1]
 		if (isMember(uid) == true) {
 			div.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
+        if (ch.length > 0) {
+            div.innerHTML += "<b>Chair of:</b> " + ch.join(", ") + "<br/><br/>"
+        }
 		if (cl.length > 0) {
 			div.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br/><br/>"
 		}

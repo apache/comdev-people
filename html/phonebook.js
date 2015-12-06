@@ -272,6 +272,20 @@ function saveData(xjson, xdata) {
 
 function renderPhonebook(xjson) {
 	json = xjson
+	
+	// INFRA-10891: Fix up base64-encoded names
+	for (var uid in json.committers) {
+		var name = json.committers[uid]
+		if (name.search(/=/) != -1) { // Base64 name
+			try {
+				name = btoa(name)
+				json.committers[uid] = name
+			} catch (e) {
+				// do nothing
+			}
+			
+		}
+	}
 	delete json.committees // not needed currently
 	asyncCalls = 3 // how many async GETs need to complete before were are done
     getAsyncJSON('https://whimsy.apache.org/public/member-info.json',    members,    saveData)

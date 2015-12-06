@@ -17,17 +17,16 @@ body {
 #header {
      width: 100%;
      background-color: #9E4F3D;
+     color: #FFF;
      height: 128px;
      border-bottom: 1px solid #CCC;
      background-image: url(matt.png);
      background-position: left center;
      background-size: auto;
      background-repeat: no-repeat;
-     color: #FFF;
      text-align: center;
      font-family: sans-serif;
      margin: 0px;
-     color: #FFF;
 }
 
 #intro {

@@ -276,9 +276,9 @@ function renderPhonebook(xjson) {
 	// INFRA-10891: Fix up base64-encoded names
 	for (var uid in json.committers) {
 		var name = json.committers[uid]
-		if (name.search(/=/) != -1) { // Base64 name
+		if (name.search(/b64==/) != -1) { // Base64 name
 			try {
-				name = atob(name)
+				name = atob(name.substring(5))
 				json.committers[uid] = decodeURIComponent(escape(name))
 			} catch (e) {
 				// do nothing

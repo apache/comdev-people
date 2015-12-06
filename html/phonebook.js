@@ -272,13 +272,13 @@ function saveData(xjson, xdata) {
 
 function renderPhonebook(xjson) {
 	json = xjson
-	
+	var b64Marker = 'b64==' // Prefix to indicate a Base64-encoded name
 	// INFRA-10891: Fix up base64-encoded names
 	for (var uid in json.committers) {
 		var name = json.committers[uid]
-		if (name.search(/b64==/) != -1) { // Base64 name
+		if (name.indexOf(b64Marker) == 0) { // starts with Base64 name marker
 			try {
-				name = atob(name.substring(5))
+				name = atob(name.substring(b64Marker.length)) // drop the marker
 				json.committers[uid] = decodeURIComponent(escape(name))
 			} catch (e) {
 				// do nothing

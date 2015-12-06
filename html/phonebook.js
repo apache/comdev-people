@@ -279,7 +279,7 @@ function renderPhonebook(xjson) {
 		if (name.search(/=/) != -1) { // Base64 name
 			try {
 				name = atob(name)
-				json.committers[uid] = name
+				json.committers[uid] = decodeURIComponent(escape(name))
 			} catch (e) {
 				// do nothing
 			}

@@ -278,7 +278,7 @@ function renderPhonebook(xjson) {
 		var name = json.committers[uid]
 		if (name.search(/=/) != -1) { // Base64 name
 			try {
-				name = btoa(name)
+				name = atob(name)
 				json.committers[uid] = name
 			} catch (e) {
 				// do nothing

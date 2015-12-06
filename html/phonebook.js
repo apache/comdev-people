@@ -311,7 +311,7 @@ function allDone() {
     // copy across the members info
 	committees.committees['member'] = {'roster': mMap,
         'display_name': 'Foundation Members',
-        'description': "ASF membership (PMC members == current members, Committers == those with member karma"}
+        'description': "ASF membership (PMC members == current members, Committers == those with member karma)"}
 	var u = document.location.search.match(/user=([-.a-z0-9]+)/i)
 	var p = document.location.search.match(/project=([-.a-z0-9]+)/i)
     if (u) {

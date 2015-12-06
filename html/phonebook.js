@@ -191,7 +191,12 @@ function showProject(obj, uid) {
 	      cl = []
 	    }
 		var pl = []
-		var pmc = committees.committees[uid] 
+		var pmc = committees.committees[uid]
+
+		var pmcnoctte = [] // on pmc but not in LDAP committee
+		var ldappmc = json.committees[uid] // array
+		var pmcnounix = [] // on PMC but not in LDAP unix group
+		var cttenounix = [] // In LDAP ctte but not in LDAP unix
 		if (pmc) {
             for(var c in pmc.roster) {
               pl.push(c)
@@ -199,13 +204,30 @@ function showProject(obj, uid) {
 		}
 		cl.sort()
 		pl.sort()
-		for (var i in cl) {
-			cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + getCommitterName(cl[i]) + "</li>"
-		}
+
+        // Must use cl before it is re-used to hold the entries
+        for (var i in ldappmc) {
+            var id = pl[i]
+            if (cl.indexOf(id) < 0) { // in LDAP cttee but not in LDAP unix
+                cttenounix.push(id)
+            }
+        }
+
 		for (var i in pl) {
-			pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd> - " + getCommitterName(pl[i]) + "</li>"
+		    var id = pl[i]
+            pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd> - " + getCommitterName(pl[i]) + "</li>"
+		    if (cl.indexOf(id) < 0) { // On PMC but not in LDAP unix group
+                pmcnounix.push(id)
+		    }
+            if (ldappmc.indexOf(id) < 0) { // in PMC but not in LDAP committee
+                pmcnoctte.push(id)
+            }
 		}
 		
+        for (var i in cl) {
+            cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + getCommitterName(cl[i]) + "</li>"
+        }
+
 		if (pl.length > 0) {
 			details.innerHTML += "<b>PMC members:</b> <ul>" + pl.join("\n") + "</ul><br/>"
 		}
@@ -213,6 +235,19 @@ function showProject(obj, uid) {
 		if (cl && cl.length > 0) {
 			details.innerHTML += "<b>Committers:</b> <ul>" + cl.join("\n") + "</ul><br/>"
 		}
+
+        var errors = cttenounix.length + pmcnounix.length + pmcnoctte.length
+        if (errors > 0) {
+            if (pmcnoctte.length) {
+                details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + pmcnoctte.join(',') + "<br/><br/>"
+            }
+            if (pmcnounix.length) {
+                details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + pmcnounix.join(',') + "<br/><br/>"
+            }
+            if (cttenounix.length) {
+                details.innerHTML += "<span class='error'>LDAP cttee members not in committers(unix) group:</span> " + cttenounix.join(',') + "<br/><br/>"
+            }
+        }
 		
 		obj.appendChild(details)
 	} else {
@@ -286,7 +321,6 @@ function renderPhonebook(xjson) {
 			
 		}
 	}
-	delete json.committees // not needed currently
 	asyncCalls = 3 // how many async GETs need to complete before were are done
     getAsyncJSON('https://whimsy.apache.org/public/member-info.json',    members,    saveData)
     getAsyncJSON('https://whimsy.apache.org/public/committee-info.json', committees, saveData) 

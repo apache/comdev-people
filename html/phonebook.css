@@ -65,5 +65,7 @@ ul, li {
     margin: 5px;
 }
 
-
-
+.error {
+    color: #FF0000;
+    font-weight: bold;
+}

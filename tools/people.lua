@@ -59,7 +59,7 @@ function getCommitters()
     local committers = {}
     local ldapdata = io.popen([[ldapsearch -x -LLL -b ou=people,dc=apache,dc=org cn]])
     local data = ldapdata:read("*a")
-    for uid, name in data:gmatch("dn: uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n?cn: ([^\r\n]+)") do
+    for uid, name in data:gmatch("dn: uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n?cn::? ([^\r\n]+)") do
         committers[uid] = name
     end
     if #committers > 2000 then

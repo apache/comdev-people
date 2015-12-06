@@ -195,6 +195,9 @@ function showProject(obj, uid) {
 
 		var pmcnoctte = [] // on pmc but not in LDAP committee
 		var ldappmc = json.committees[uid] // array
+		if (!(ldappmc instanceof Array)) { // e.g. member
+		    ldappmc = null // This is different from an empty array
+		}
 		var pmcnounix = [] // on PMC but not in LDAP unix group
 		var cttenounix = [] // In LDAP ctte but not in LDAP unix
 		if (pmc) {
@@ -219,7 +222,7 @@ function showProject(obj, uid) {
 		    if (cl.indexOf(id) < 0) { // On PMC but not in LDAP unix group
                 pmcnounix.push(id)
 		    }
-            if (ldappmc.indexOf(id) < 0) { // in PMC but not in LDAP committee
+            if (ldappmc && ldappmc.indexOf(id) < 0) { // in PMC but not in LDAP committee
                 pmcnoctte.push(id)
             }
 		}

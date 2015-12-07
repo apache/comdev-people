@@ -282,6 +282,32 @@ function searchProjects(keyword, open) {
 	}
 }
 
+// Show a single PMC
+
+function showPMC(pmc) {
+    var obj = document.getElementById('phonebook')
+    if (pmc in committees.committees) {
+        var ppmc = committees.committees[pmc].display_name
+        obj.innerHTML += "<div id='project_" + pmc + "' class='group'><h3 onclick=\"showProject(this.parentNode, '" + pmc + "');\">Apache " + ppmc + "</h3></div>"
+        showProject(document.getElementById('project_' + pmc), pmc)
+    } else {
+        obj.innerHTML = "<h3>Could not find PMC: '"+ pmc +"'</h3>"
+    }
+}
+
+// Show a single User
+
+function showUid(uid) {
+    var obj = document.getElementById('phonebook')
+    if (uid in json.committers) {
+        var name = getCommitterName(uid)
+        obj.innerHTML += "<div class='group' id='committer_" + uid + "'><h4 onclick=\"showCommitter(this.parentNode, '" + uid + "');\">" + name + " (<kbd>" + uid + "</kbd>)</h4></div>"
+        showCommitter(document.getElementById('committer_' + uid), uid)
+    } else {
+        obj.innerHTML = "<h3>Could not find user id: '"+ uid +"'</h3>"
+    }
+}
+
 function searchCommitters(keyword, open) {
 	if (keyword.length < 2) {
 		return
@@ -361,12 +387,24 @@ function allDone() {
         'description': "ASF membership (PMC members == current members, Committers == those with member karma)",
         'site': 'http://www.apache.org/foundation/'
         }
+
+    // Match user=name and project=name
 	var u = document.location.search.match(/user=([-.a-z0-9]+)/i)
 	var p = document.location.search.match(/project=([-.a-z0-9]+)/i)
+
+	// Match ?uid=id
+    var uid = document.location.search.match(/^\?uid=([-.a-z0-9]+)/i)
+    // Match ?pmc=id
+    var pmc = document.location.search.match(/^\?pmc=([-.a-z0-9]+)/i)
+
     if (u) {
 		searchCommitters(u[1], true)
 	} else if (p) {
 		searchProjects(p[1], true)
+    } else if (uid) {
+        showUid(uid[1])
+    } else if (pmc) {
+        showPMC(pmc[1])
 	} else {
 		searchProjects("")
 	}

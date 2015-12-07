@@ -265,7 +265,11 @@ function showProject(obj, uid) {
 
 function searchProjects(keyword, open) {
 	var obj = document.getElementById('phonebook')
-	obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	if (keyword != '') {
+	   obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	} else {
+	   obj.innerHTML = ''
+	}
 	for (var i in pmcs) {
 		var pmc = pmcs[i]
 		if (pmc.search(keyword.toLowerCase()) != -1) {

@@ -183,7 +183,12 @@ function showProject(obj, uid) {
 		if (chair) {
             details.innerHTML += "<b>Chair:</b> " + chair + "<br/><br/>"
         }
-		details.innerHTML += "<b>Description:</b><br/><br/>" + desc + "<br/><br/>"
+        var url = committees.committees[uid].site
+        if (url) {
+            details.innerHTML += "<a href='"+url+"' target='_blank'><b>Description:</b></a><br/><br/>" + desc + "<br/><br/>"
+        } else {
+            details.innerHTML += "<b>Description:</b><br/><br/>" + desc + "<br/><br/>"
+        }
 		var cl
 		try { 
 		  cl = json.projects[uid].slice()
@@ -346,9 +351,12 @@ function allDone() {
 	    mMap[members.members[m]] = {}
 	}
     // copy across the members info
-	committees.committees['member'] = {'roster': mMap,
+	committees.committees['member'] = {
+	    'roster': mMap,
         'display_name': 'Foundation Members',
-        'description': "ASF membership (PMC members == current members, Committers == those with member karma)"}
+        'description': "ASF membership (PMC members == current members, Committers == those with member karma)",
+        'site': 'http://www.apache.org/foundation/'
+        }
 	var u = document.location.search.match(/user=([-.a-z0-9]+)/i)
 	var p = document.location.search.match(/project=([-.a-z0-9]+)/i)
     if (u) {

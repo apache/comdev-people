@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>About the Apache Phone Book</title>
+    <link href="phonebook.css" rel="stylesheet" media="all">
+  </head>
+
+  <body>
+   <h1><img src='logo.png' style='width: 200px; height: 61px; vertical-align: middle;'/>Apache Phone Book application</h1>
+  <h2>Usage</h2>
+  <p>
+  As well as using the search fields to find projects or people, the application supports direct query access:
+  </p>
+  <ul>
+  <li>http://home.apache.org/phonebook.html?project=tom - matches all project names containing the string 'tom' (excluding the Apache prefix)</li>
+  <li>http://home.apache.org/phonebook.html?user=tom - matches all user names containing the string 'tom'</li>
+  <li>http://home.apache.org/phonebook.html?pmc=tomcat - find exact match for project (case-insensitive)</li>
+  <li>http://home.apache.org/phonebook.html?uid=tomcat - find exact match for user id (case-insensitive)</li>
+  </ul>
+  <h2>About</h2>
+  <p>This site is generated from various data sources:
+  <ul>
+    <li><a href=https://whimsy.apache.org/public/committee-info.json">PMC committee information (Whimsy)</a></li>
+    <li><a href="https://whimsy.apache.org/public/member-info.json">ASF member information (Whimsy)</a></li>
+    <li><a href="https://whimsy.apache.org/public/icla-info.json">ICLA information (Whimsy)</a></li>
+    <li><a href="http://home.apache.org/committers.json">committers.json (created by a cron job on home.apache.org)</a></li>
+  </ul>
+  <h2>Contributing</h2>
+   <p>
+   This web application is maintained by the Infrastructure team.
+   </p>
+  <p>The source code is currently stored at:</p>
+  <pre style="border:1px solid #999; padding: 12px; margin: 1em 7px 1em 7px;">svn co <a href="https://svn.apache.org/repos/infra/infrastructure/trunk/projects/home">https://svn.apache.org/repos/infra/infrastructure/trunk/projects/home</a></pre>
+</div>
+    <div id="footer">
+     Copyright&copy; 2015, the Apache Software Foundation. Licensed under the <a href="http://www.apache.org/licenses/LICENSE-2.0">Apache License, Version 2.0</a><br/>
+     Apache and the Apache feather logo are trademarks of The Apache Software Foundation.
+    </div>
+  </body>
+</html>
+

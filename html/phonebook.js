@@ -165,11 +165,15 @@ function isMember(uid) {
     return members['members'].indexOf(uid) > -1
 }
 
+function linkifyUid(uid) {
+    return "<a href='?uid="+ uid+ "'>" + uid +"</a>"
+}
+
 function hiliteMember(uid) {
     if (isMember(uid)) {
-        return "<b>" + uid + "</b>"
+        return "<b>" + linkifyUid(uid) + "</b>"
     } else {
-        return uid
+        return linkifyUid(uid)
     }
 }
 

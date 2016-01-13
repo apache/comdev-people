@@ -73,6 +73,19 @@ function getCommitterName(uid) {
     return name
 }
 
+// Linkify PMC names
+function projectList(pa) {
+    var text = ''
+    var index, len
+    for (index = 0, len = pa.length; index < len; ++index) {
+        if (index > 0) {
+            text = text + ", "
+        }
+        text = text + "<a href='?pmc=" + pa[index] + "'>" + pa[index] + "</a>"
+    }
+    return text
+}
+
 function showCommitter(obj, uid) {
 	var details = document.getElementById('details_committer_' + uid)
 	if (!details) {
@@ -86,13 +99,13 @@ function showCommitter(obj, uid) {
 			details.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
         if (ch.length > 0) {
-            details.innerHTML += "<b>Chair of:</b> " + ch.join(", ") + "<br/><br/>"
+            details.innerHTML += "<b>Chair of:</b> " + projectList(ch) + "<br/><br/>"
         }
 		if (cl.length > 0) {
-			details.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br/><br/>"
+			details.innerHTML += "<b>Committer on:</b> " + projectList(cl) + "<br/><br/>"
 		}
 		if (pl.length > 0) {
-			details.innerHTML += "<b>PMC member of:</b> " + pl.join(", ") + "<br/><br/>"
+			details.innerHTML += "<b>PMC member of:</b> " + projectList(pl) + "<br/><br/>"
 		}
 		obj.appendChild(details)
 	} else {

@@ -340,7 +340,7 @@ function searchCommitters(keyword, open) {
 	var obj = document.getElementById('phonebook')
 	obj.innerHTML = "<h3>Search results:</h3><hr/>"
 	for (var uid in people) {
-	  if (!people[uid].noLogin) { // TODO
+	  if (!people[uid].noLogin) { // don't display disabled logins
 		var name = getCommitterName(uid)
 		if (uid.search(keyword.toLowerCase()) != -1 || name.toLowerCase().search(keyword.toLowerCase()) != -1) {
 			n++

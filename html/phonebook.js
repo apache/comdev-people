@@ -45,7 +45,7 @@ function getProjects(uid) {
     var cl = []
     for (var i in ldapgroups) {
         for (var n in ldapgroups[i]) {
-            if (ldapgroups[i][n] == uid) {
+            if (ldapgroups[i].roles.indexOf(uid) > -1) {
                 cl.push(i)
             }
         }

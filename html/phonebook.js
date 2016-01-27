@@ -383,9 +383,13 @@ function renderPhonebook(xjson) {
 	// Cache data for an hour - no sense in continuously reloading this
 	var now = parseInt(new Date().getTime() / (3600*1000))
 	if (typeof(window.localStorage) !== "undefined") {
-        var old_data = window.localStorage.getItem("phonebook_" + now)
+        var xdata = window.localStorage.getItem("phonebook_" + now)
+		var old_data = []
+		if (xdata && xdata.length) {
+            old_data = JSON.parse(xdata)
+        }
 		if (old_data && old_data.length == 5) {
-            members = old_data[0]
+			members = old_data[0]
 			committees = old_data[1]
 			iclainfo = old_data[2]
 			ldapgroups = old_data[3]

@@ -44,10 +44,8 @@ function getAsyncJSON(theUrl, xstate, callback) {
 function getProjects(uid) {
     var cl = []
     for (var i in ldapgroups) {
-        for (var n in ldapgroups[i]) {
-            if (ldapgroups[i].roles.indexOf(uid) > -1) {
-                cl.push(i)
-            }
+        if (ldapgroups[i].roster.indexOf(uid) > -1) {
+            cl.push(i)
         }
     }
     return cl

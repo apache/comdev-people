@@ -45,7 +45,7 @@ function getProjects(uid) {
     var cl = []
     for (var i in ldapgroups) {
 		// Are we here? and is this not one of those 'non-project' groups?
-        if (ldapgroups[i].roster.indexOf(uid) > -1 && i !== "committers" && i !== "member") {
+        if (i !== "committers" && i !== "member" && ldapgroups[i].roster.indexOf(uid) > -1) {
             cl.push(i)
         }
     }

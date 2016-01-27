@@ -361,6 +361,17 @@ function saveData(xjson, xdata) {
     }
     asyncCalls -= 1
     if (asyncCalls <= 0) {
+		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 1 hour)
+		var now = parseInt(new Date().getTime() / (3600*1000))
+		if (typeof(window.localStorage) !== "undefined") {
+			var new_data = new Array()
+			new_data[0] = members
+			new_data[1] = committees
+			new_data[2] = iclainfo
+			new_data[3] = ldapgroups
+			new_data[4] = ldapcttees
+			window.localStorage.setItem("phonebook_" + now, JSON.stringify(new_data))
+		}
         allDone()
     }
 }
@@ -368,6 +379,22 @@ function saveData(xjson, xdata) {
 // Called by phonebook.html: body onload="getAsyncJSON('https://whimsy.apache.org/public_ldap_people.json', null, renderPhonebook)"
 
 function renderPhonebook(xjson) {
+	
+	// Cache data for an hour - no sense in continuously reloading this
+	var now = parseInt(new Date().getTime() / (3600*1000))
+	if (typeof(window.localStorage) !== "undefined") {
+        var old_data = window.localStorage.getItem("phonebook_" + now)
+		if (old_data && old_data.length == 5) {
+            members = old_data[0]
+			committees = old_data[1]
+			iclainfo = old_data[2]
+			ldapgroups = old_data[3]
+			ldapcttees = old_data[4]
+			allDone()
+			return
+        }
+    }
+	
     people = xjson.people
 	asyncCalls = 5 // how many async GETs need to complete before were are done
     getAsyncJSON('https://whimsy.apache.org/public/member-info.json',    members,    saveData)

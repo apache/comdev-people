@@ -370,6 +370,7 @@ function saveData(xjson, xdata) {
 			new_data[2] = iclainfo
 			new_data[3] = ldapgroups
 			new_data[4] = ldapcttees
+			new_data[6] = people
 			window.localStorage.setItem("phonebook_" + now, JSON.stringify(new_data))
 		}
         allDone()
@@ -388,12 +389,13 @@ function renderPhonebook(xjson) {
 		if (xdata && xdata.length) {
             old_data = JSON.parse(xdata)
         }
-		if (old_data && old_data.length == 5) {
+		if (old_data && old_data.length == 6) {
 			members = old_data[0]
 			committees = old_data[1]
 			iclainfo = old_data[2]
 			ldapgroups = old_data[3]
 			ldapcttees = old_data[4]
+			people = old_data[6]
 			allDone()
 			return
         }

@@ -44,7 +44,8 @@ function getAsyncJSON(theUrl, xstate, callback) {
 function getProjects(uid) {
     var cl = []
     for (var i in ldapgroups) {
-        if (ldapgroups[i].roster.indexOf(uid) > -1) {
+		// Are we here? and is this not one of those 'non-project' groups?
+        if (ldapgroups[i].roster.indexOf(uid) > -1 && i !== "committers" && i !== "member") {
             cl.push(i)
         }
     }

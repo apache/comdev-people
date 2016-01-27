@@ -362,7 +362,7 @@ function saveData(xjson, xdata) {
     asyncCalls -= 1
     if (asyncCalls <= 0) {
 		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 1 hour)
-		var now = parseInt(new Date().getTime() / (3600*1000))
+		var now = parseInt(new Date().getTime() / (7200*1000))
 		if (typeof(window.localStorage) !== "undefined") {
 			var new_data = new Array()
 			new_data[0] = members
@@ -381,7 +381,7 @@ function saveData(xjson, xdata) {
 function renderPhonebook(xjson) {
 	
 	// Cache data for an hour - no sense in continuously reloading this
-	var now = parseInt(new Date().getTime() / (3600*1000))
+	var now = parseInt(new Date().getTime() / (7200*1000))
 	if (typeof(window.localStorage) !== "undefined") {
         var xdata = window.localStorage.getItem("phonebook_" + now)
 		var old_data = []

@@ -11,7 +11,7 @@
     
     <link href="phonebook.css" rel="stylesheet" media="all">
   </head>
-  <body onload="getAsyncJSON('https://whimsy.apache.org/public/public_ldap_people.json', null, renderPhonebook)">
+  <body onload="preRender()">
    <h1><img src='logo.png' style='width: 200px; height: 61px; vertical-align: middle;'/>Apache committer and project index</h1>
    <div id="search">
     <b>Find a project: </b> <input type="text" placeholder="Enter a name to search for..." onkeyup="searchProjects(this.value)"/> &nbsp;

@@ -361,7 +361,7 @@ function saveData(xjson, xdata) {
     }
     asyncCalls -= 1
     if (asyncCalls <= 0) {
-		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 1 hour)
+		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 2 hours)
 		var now = parseInt(new Date().getTime() / (7200*1000))
 		if (typeof(window.localStorage) !== "undefined") {
 			var new_data = new Array()
@@ -377,11 +377,22 @@ function saveData(xjson, xdata) {
     }
 }
 
-// Called by phonebook.html: body onload="getAsyncJSON('https://whimsy.apache.org/public_ldap_people.json', null, renderPhonebook)"
-
+// Called by preRender
 function renderPhonebook(xjson) {
 	
-	// Cache data for an hour - no sense in continuously reloading this
+    people = xjson.people
+	asyncCalls = 5 // how many async GETs need to complete before were are done
+    getAsyncJSON('https://whimsy.apache.org/public/member-info.json',    members,    saveData)
+    getAsyncJSON('https://whimsy.apache.org/public/committee-info.json', committees, saveData) 
+    getAsyncJSON('https://whimsy.apache.org/public/icla-info.json',      iclainfo,   saveData)
+    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_groups.json', ldapgroups,   saveData)
+    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_committees.json', ldapcttees,   saveData)
+}
+
+// pre-rendering: check if cache is available, otherwise fetch the JSON objects
+function preRender() {
+	
+	// Data is cached for two hours if possible, so we won't need to fetch it over and over.
 	var now = parseInt(new Date().getTime() / (7200*1000))
 	if (typeof(window.localStorage) !== "undefined") {
         var xdata = window.localStorage.getItem("phonebook_" + now)
@@ -397,18 +408,14 @@ function renderPhonebook(xjson) {
 			ldapcttees = old_data[4]
 			people = old_data[5]
 			allDone()
+			// All good, let's bail!
 			return
         }
     }
-	
-    people = xjson.people
-	asyncCalls = 5 // how many async GETs need to complete before were are done
-    getAsyncJSON('https://whimsy.apache.org/public/member-info.json',    members,    saveData)
-    getAsyncJSON('https://whimsy.apache.org/public/committee-info.json', committees, saveData) 
-    getAsyncJSON('https://whimsy.apache.org/public/icla-info.json',      iclainfo,   saveData)
-    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_groups.json', ldapgroups,   saveData)
-    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_committees.json', ldapcttees,   saveData)
+	// No cache found, fetch from whimsy
+    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_people.json', null, renderPhonebook)
 }
+
 
 // Called when all the async GETs have been completed
 

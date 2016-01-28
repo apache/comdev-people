@@ -68,9 +68,20 @@ function getCommitteeRoles(uid) {
 }
 
 function getCommitterName(uid) {
-    var name = people[uid].name
+    var noicla = {
+        'andrei' : '(Andrei Zmievski)',
+        'pcs'    : '(Paul Sutton)',
+        'rasmus' : '(Rasmus Lerdorf)'
+    }
+    var name
+    if (uid in people) { // it's possible for a list to contain a uid that is not in people (e.g. andrei in member)
+      name = people[uid].name
+    }
     if (!name) {
         name = iclainfo.committers[uid]
+    }
+    if (!name) { // try the backup specials
+        name = noicla[uid]
     }
     return name
 }
@@ -225,7 +236,10 @@ function showProject(obj, prj) {
 		var pmc = committees.committees[prj]
 
 		var pmcnoctte = [] // on pmc but not in LDAP committee
-		var ldappmc = ldapcttees[prj].roster // array
+		var ldappmc = []
+		if (prj != 'member') { // does not exist for 'member' PMC
+		    ldappmc = ldapcttees[prj].roster
+		}
 		var pmcnounix = [] // on PMC but not in LDAP unix group
 		var cttenounix = [] // In LDAP ctte but not in LDAP unix
 		if (pmc) {
@@ -237,11 +251,13 @@ function showProject(obj, prj) {
 		pl.sort()
 
         // Must use cl before it is re-used to hold the entries
-        for (var i in ldappmc) {
+        if (prj != 'member') { // does not exist for 'member' PMC
+          for (var i in ldappmc) {
             var id = pl[i]
             if (cl.indexOf(id) < 0) { // in LDAP cttee but not in LDAP unix
                 cttenounix.push(id)
             }
+          }
         }
 
 		for (var i in pl) {
@@ -250,7 +266,7 @@ function showProject(obj, prj) {
 		    if (cl.indexOf(id) < 0) { // On PMC but not in LDAP unix group
                 pmcnounix.push(id)
 		    }
-            if (ldappmc && ldappmc.indexOf(id) < 0) { // in PMC but not in LDAP committee
+            if (prj != 'member' && ldappmc && ldappmc.indexOf(id) < 0) { // in PMC but not in LDAP committee (does not apply to member)
                 pmcnoctte.push(id)
             }
 		}

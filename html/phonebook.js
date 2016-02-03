@@ -407,6 +407,7 @@ function renderPhonebook(xjson) {
 }
 
 // pre-rendering: check if cache is available, otherwise fetch the JSON objects
+// called by HTML page body onLoad()
 function preRender() {
 	
 	// Data is cached for two hours if possible, so we won't need to fetch it over and over.

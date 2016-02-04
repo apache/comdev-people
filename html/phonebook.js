@@ -175,12 +175,15 @@ function hoverCommitter(parent, uid) {
 			div.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
         if (ch.length > 0) {
+            ch.sort()
             div.innerHTML += "<b>Chair of:</b> " + ch.join(", ") + "<br/><br/>"
         }
 		if (cl.length > 0) {
+		    cl.sort()
 			div.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br/><br/>"
 		}
 		if (pl.length > 0) {
+		    pl.sort()
 			div.innerHTML += "<b>PMC member of:</b> " + pl.join(", ") + "<br/><br/>"
 		}
 	} else {

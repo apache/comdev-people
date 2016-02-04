@@ -279,7 +279,7 @@ function showProject(obj, prj) {
         // Must use cl before it is re-used to hold the entries
         if (prj != 'member') { // does not exist for 'member' PMC
           for (var i in ldappmc) {
-            var id = pl[i]
+            var id = ldappmc[i]
             if (cl.indexOf(id) < 0) { // in LDAP cttee but not in LDAP unix
                 cttenounix.push(id)
             }

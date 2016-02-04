@@ -90,6 +90,7 @@ function getCommitterName(uid) {
 function projectList(pa) {
     var text = ''
     var index, len
+    pa.sort()
     for (index = 0, len = pa.length; index < len; ++index) {
         if (index > 0) {
             text = text + ", "
@@ -120,9 +121,20 @@ function showCommitter(obj, uid) {
 		if (cl.length > 0) {
 			details.innerHTML += "<b>Committer on:</b> " + projectList(cl) + "<br/><br/>"
 		}
+		var nc = []
 		if (pl.length > 0) {
 			details.innerHTML += "<b>PMC member of:</b> " + projectList(pl) + "<br/><br/>"
+			for (p in pl) {
+			    pn = pl[p]
+			    if (pn != 'member' && cl.indexOf(pn) < 0) 
+			    {
+			        nc.push(pn)
+			    }
+			}
 		}
+        if (nc.length > 0) {
+            details.innerHTML += "<i>On PMC, but not a Committer on:</i> " + projectList(nc) + "<br/><br/>"
+        }
 		obj.appendChild(details)
 	} else {
 		obj.removeChild(details)

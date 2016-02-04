@@ -182,10 +182,22 @@ function hoverCommitter(parent, uid) {
 		    cl.sort()
 			div.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br/><br/>"
 		}
+        var nc = []
 		if (pl.length > 0) {
 		    pl.sort()
 			div.innerHTML += "<b>PMC member of:</b> " + pl.join(", ") + "<br/><br/>"
+            for (p in pl) {
+                pn = pl[p]
+                if (pn != 'member' && cl.indexOf(pn) < 0) {
+                    nc.push(pn)
+                }
+            }
 		}
+        if (nc.length > 0) {
+            div.innerHTML += "<i>On PMC, but not a Committer on:</i> " + nc.join(", ") + "<br/><br/>"
+        }
+
+
 	} else {
 		div.style.display = "none"
 	}

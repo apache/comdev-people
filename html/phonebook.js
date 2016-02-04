@@ -126,8 +126,7 @@ function showCommitter(obj, uid) {
 			details.innerHTML += "<b>PMC member of:</b> " + projectList(pl) + "<br/><br/>"
 			for (p in pl) {
 			    pn = pl[p]
-			    if (pn != 'member' && cl.indexOf(pn) < 0) 
-			    {
+			    if (pn != 'member' && cl.indexOf(pn) < 0) {
 			        nc.push(pn)
 			    }
 			}

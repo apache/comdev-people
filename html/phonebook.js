@@ -406,7 +406,7 @@ function saveData(xjson, xdata) {
     if (asyncCalls <= 0) {
 		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 2 hours)
 		var now = parseInt(new Date().getTime() / (7200*1000))
-		if (typeof(window.localStorage) !== "undefined") {
+		if (hasLocalStorage && typeof(window.localStorage) !== "undefined") {
 			var new_data = new Array()
 			new_data[0] = members
 			new_data[1] = committees
@@ -414,7 +414,10 @@ function saveData(xjson, xdata) {
 			new_data[3] = ldapgroups
 			new_data[4] = ldapcttees
 			new_data[5] = people
-			window.localStorage.setItem("phonebook_" + now, JSON.stringify(new_data))
+			try {
+			    window.localStorage.setItem("phonebook_" + now, JSON.stringify(new_data))
+			} catch (QuotaExceededError) {
+			}
 		}
         allDone()
     }
@@ -432,14 +435,18 @@ function renderPhonebook(xjson) {
     getAsyncJSON('https://whimsy.apache.org/public/public_ldap_committees.json', ldapcttees,   saveData)
 }
 
+var hasLocalStorage // does browser allow local data to be saved?
+
 // pre-rendering: check if cache is available, otherwise fetch the JSON objects
 // called by HTML page body onLoad()
 function preRender() {
 	
 	// Data is cached for two hours if possible, so we won't need to fetch it over and over.
 	var now = parseInt(new Date().getTime() / (7200*1000))
+  try {
 	if (typeof(window.localStorage) !== "undefined") {
         var xdata = window.localStorage.getItem("phonebook_" + now)
+        hasLocalStorage = true
 		var old_data = []
 		if (xdata && xdata.length) {
             old_data = JSON.parse(xdata)
@@ -456,6 +463,9 @@ function preRender() {
 			return
         }
     }
+  } catch (SecurityError) {
+    hasLocalStorage = false
+  }
 	// No cache found, fetch from whimsy
     getAsyncJSON('https://whimsy.apache.org/public/public_ldap_people.json', null, renderPhonebook)
 }

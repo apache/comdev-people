@@ -56,7 +56,8 @@ function getCommitteeRoles(uid) {
     var pl = []
     var ch = []
     for (var i in committees.committees) {
-        if (uid in committees.committees[i].roster) {
+        // Only list actual PMCs
+        if (committees.committees[i].pmc && uid in committees.committees[i].roster) {
             pl.push(i)
         }
         var chair = committees.committees[i].chair // might not be one (eg members)

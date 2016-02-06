@@ -176,6 +176,9 @@ function hoverCommitter(parent, uid) {
 		if (isMember(uid) == true) {
 			div.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
+        if (isNologin(uid)) {
+            div.innerHTML += "<b>Login is currently disabled</b><br/><br/>"
+        }
         if (ch.length > 0) {
             ch.sort()
             div.innerHTML += "<b>Chair of:</b> " + ch.join(", ") + "<br/><br/>"
@@ -214,7 +217,10 @@ function isMember(uid) {
 }
 
 function linkifyUid(uid) {
-    return "<a href='?uid="+ uid+ "'>" + uid +"</a>"
+    if (isNologin(uid)) {
+        return "<del><a href='?uid="+ uid+ "'>" + uid + "</a></del>"
+    }
+    return "<a href='?uid="+ uid+ "'>" + uid + "</a>"
 }
 
 function hiliteMember(uid) {

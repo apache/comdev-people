@@ -21,7 +21,7 @@ function getAsyncJSON(theUrl, xstate, callback) {
 	xmlHttp.onprogress = function(state) {
 		if (document.getElementById('pct')) {
 			var s = parseInt(xmlHttp.getResponseHeader('Content-Length')) // not allowed with CORS
-			document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: " + parseInt((100 * (xmlHttp.responseText.length / s))) + "% done</i></b></p>";
+			document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: " + (100 * (xmlHttp.responseText.length / s)) + "% done</i></b></p>";
 		}
 	}
 	xmlHttp.onreadystatechange = function(state) {
@@ -413,7 +413,7 @@ function saveData(xjson, xdata) {
     asyncCalls -= 1
     if (asyncCalls <= 0) {
 		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 2 hours)
-		var now = parseInt(new Date().getTime() / (7200*1000))
+		var now = new Date().getTime() / (7200*1000)
 		if (hasLocalStorage && typeof(window.localStorage) !== "undefined") {
 			var new_data = new Array()
 			new_data[0] = members
@@ -450,7 +450,7 @@ var hasLocalStorage // does browser allow local data to be saved?
 function preRender() {
 	
 	// Data is cached for two hours if possible, so we won't need to fetch it over and over.
-	var now = parseInt(new Date().getTime() / (7200*1000))
+	var now = new Date().getTime() / (7200*1000)
   try {
 	if (typeof(window.localStorage) !== "undefined") {
         var xdata = window.localStorage.getItem("phonebook_" + now)

@@ -7,6 +7,11 @@ var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
 var iclainfo = {} // copy of icla-info.json
 
+// This is faster than parseInt, and it's more obvious why it is being done
+function toInt(number) {
+    return number | 0 //
+}
+
 var asyncCalls = 0 // number of async GETs to wait for
 
 function getAsyncJSON(theUrl, xstate, callback) {
@@ -21,7 +26,7 @@ function getAsyncJSON(theUrl, xstate, callback) {
 	xmlHttp.onprogress = function(state) {
 		if (document.getElementById('pct')) {
 			var s = parseInt(xmlHttp.getResponseHeader('Content-Length')) // not allowed with CORS
-			document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: " + (100 * (xmlHttp.responseText.length / s)) + "% done</i></b></p>";
+			document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: " + toInt((100 * (xmlHttp.responseText.length / s))) + "% done</i></b></p>";
 		}
 	}
 	xmlHttp.onreadystatechange = function(state) {
@@ -412,7 +417,7 @@ function saveData(xjson, xdata) {
     asyncCalls -= 1
     if (asyncCalls <= 0) {
 		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 2 hours)
-		var now = new Date().getTime() / (7200*1000)
+		var now = toInt(new Date().getTime() / (7200*1000))
 		if (hasLocalStorage && typeof(window.localStorage) !== "undefined") {
 			var new_data = new Array()
 			new_data[0] = members
@@ -449,7 +454,7 @@ var hasLocalStorage // does browser allow local data to be saved?
 function preRender() {
 	
 	// Data is cached for two hours if possible, so we won't need to fetch it over and over.
-	var now = new Date().getTime() / (7200*1000)
+	var now = toInt(new Date().getTime() / (7200*1000))
   try {
 	if (typeof(window.localStorage) !== "undefined") {
         var xdata = window.localStorage.getItem("phonebook_" + now)

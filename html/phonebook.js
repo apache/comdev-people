@@ -149,7 +149,6 @@ function hoverCommitter(parent, uid) {
     if (!div) {
         div = document.createElement('div')
 		document.body.appendChild(div)
-        var id = parseInt(Math.random() * 10000).toString(16)
         div.setAttribute("id", "hoverbar")
         div.style.position = "fixed"
 		div.style.width = "400px"

@@ -2,10 +2,26 @@ var pmcs = [] // array of PMC names (excludes non-PMC committees)
 var people = {} // public_ldap_people.json
 var ldapgroups = {} //  public_ldap_groups.json
 var ldapcttees = {} // public_ldap_committees.json
+var ldapservices = {} // public_ldap_services.json
 
 var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
 var iclainfo = {} // copy of icla-info.json (committers only)
+var nonldapgroups = {} //  public_nonldap_groups.json
+
+// Constants for query types. 
+// Do NOT change the values once established, as they are part of the public API
+// For example they may be used in projects.a.o and reporter.a.o
+// The values are used for matching HTTP queries and linkifying lists (to generate a valid HTML link)
+
+var Q_USER    = 'user' // search users
+var Q_PROJECT = 'project' // search PMC names
+var Q_UID     = 'uid' // availid, exact match
+var Q_PMC     = 'pmc' // PMC, exact match
+var Q_UNIX    = 'unix' // LDAP group
+var Q_CTTE    = 'ctte' // LDAP group
+var Q_SERVICE = 'service' // LDAP group
+var Q_OTHER   = 'other' // non-LDAP group
 
 // This is faster than parseInt, and it's more obvious why it is being done
 function toInt(number) {
@@ -34,16 +50,16 @@ function getAsyncJSONArray(urls, finalCallback) {
         }
 
         if (obj) { obj.innerHTML = "loading file #" + ( fetchCount - urls.length ) + " / " + fetchCount + "<br>" + desc }
-
         xmlHttp.open("GET", URL, true);
         xmlHttp.send(null);
         xmlHttp.onreadystatechange = function(state) {
-            if (xmlHttp.readyState == 4 && xmlHttp.status == 200 || xmlHttp.status == 404) {
+            if (xmlHttp.readyState == 4) {
                 if (cb) {
-                    if (xmlHttp.status == 404) {
-                        cb({});
-                    } else {
+                    if (xmlHttp.status == 200) {
                         cb(JSON.parse(xmlHttp.responseText));
+                    } else {
+                        cb({});
+                        alert("Error: '" + xmlHttp.statusText + "' while loading " + URL)
                     }
                 }
                 getAsyncJSONArray(urls, finalCallback);
@@ -62,6 +78,18 @@ function getProjects(uid) {
     for (var i in ldapgroups) {
 		// Are we here? and is this not one of those 'non-project' groups?
         if (i !== "committers" && i !== "member" && ldapgroups[i].roster.indexOf(uid) > -1) {
+            cl.push(i)
+        }
+    }
+    return cl
+}
+
+// Get the roster from a json group
+
+function getRoster(json, uid) {
+    var cl = []
+    for (var i in json) {
+        if (json[i].roster.indexOf(uid) > -1) {
             cl.push(i)
         }
     }
@@ -103,16 +131,32 @@ function getCommitterName(uid) {
     return name
 }
 
-// Linkify PMC names
-function projectList(pa) {
+// Linkify list of group names by adding the appropriate ?type= href
+
+function linkifyList(type, names) {
     var text = ''
     var index, len
-    pa.sort()
-    for (index = 0, len = pa.length; index < len; ++index) {
+    names.sort()
+    for (i = 0, len = names.length; i < len; ++i) {
+        if (i > 0) {
+            text = text + ", "
+        }
+        text = text + "<a href='?"+type+"=" + names[i] + "'>" + names[i] + "</a>"
+    }
+    return text
+}
+
+// Linkify user ids
+
+function userList(ua) {
+    var text = ''
+    var index, len
+    ua.sort()
+    for (index = 0, len = ua.length; index < len; ++index) {
         if (index > 0) {
             text = text + ", "
         }
-        text = text + "<a href='?pmc=" + pa[index] + "'>" + pa[index] + "</a>"
+        text = text + hiliteMember(ua[index])
     }
     return text
 }
@@ -133,14 +177,14 @@ function showCommitter(obj, uid) {
 			details.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
         if (ch.length > 0) {
-            details.innerHTML += "<b>Chair of:</b> " + projectList(ch) + "<br/><br/>"
+            details.innerHTML += "<b>Chair of:</b> " + linkifyList(Q_PMC, ch) + "<br/><br/>"
         }
 		if (cl.length > 0) {
-			details.innerHTML += "<b>Committer on:</b> " + cl.sort().join(', ') + "<br/><br/>"
+			details.innerHTML += "<b>Committer on:</b> " + linkifyList(Q_UNIX, cl) + "<br/><br/>"
 		}
 		var nc = []
 		if (pl.length > 0) {
-			details.innerHTML += "<b>PMC member of:</b> " + projectList(pl) + "<br/><br/>"
+			details.innerHTML += "<b>PMC member of:</b> " + linkifyList(Q_PMC, pl) + "<br/><br/>"
 			for (p in pl) {
 			    pn = pl[p]
 			    // Don't check against Unix groups that don't exist
@@ -149,8 +193,16 @@ function showCommitter(obj, uid) {
 			    }
 			}
 		}
+        var services = getRoster(ldapservices, uid)
+        if (services.length > 0) {
+            details.innerHTML += "<b>Service group membership:</b> " + linkifyList(Q_SERVICE, services) + "<br/><br/>"
+        }
+        var others = getRoster(nonldapgroups, uid)
+        if (others.length > 0) {
+            details.innerHTML += "<b>Other group membership:</b> " + linkifyList(Q_OTHER, others) + "<br/><br/>"
+        }
         if (nc.length > 0) {
-            details.innerHTML += "<i>On PMC, but not a Committer on:</i> " + projectList(nc) + "<br/><br/>"
+            details.innerHTML += "<i>On PMC, but not a Committer on:</i> " + linkifyList(Q_PMC, nc) + "<br/><br/>"
         }
 		obj.appendChild(details)
 	} else {
@@ -285,6 +337,7 @@ function showProject(obj, prj) {
 		var pmc = committees[prj]
 
 		var pmcnoctte = [] // on pmc but not in LDAP committee
+        var cttenopmc = [] // In LDAP ctte but not on PMC
 		var ldappmc = []
 		if (prj != 'member') { // does not exist for 'member' PMC
 		    ldappmc = ldapcttees[prj].roster
@@ -294,6 +347,11 @@ function showProject(obj, prj) {
 		if (pmc) {
             for(var c in pmc.roster) {
               pl.push(c)
+            }
+            for (var i in ldappmc) {
+                if (!(ldappmc[i] in pmc.roster)) {
+                    cttenopmc.push(ldappmc[i])
+                }
             }
 		}
 		cl.sort()
@@ -325,30 +383,77 @@ function showProject(obj, prj) {
         }
 
 		if (pl.length > 0) {
-			details.innerHTML += "<b>PMC members:</b> <ul>" + pl.join("\n") + "</ul><br/>"
+			details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> <ul>" + pl.join("\n") + "</ul><br/>"
 		}
 		
 		if (cl && cl.length > 0) {
 			details.innerHTML += "<b>Committers:</b> <ul>" + cl.join("\n") + "</ul><br/>"
 		}
 
-        var errors = cttenounix.length + pmcnounix.length + pmcnoctte.length
-        if (errors > 0) {
-            if (pmcnoctte.length) {
-                details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + pmcnoctte.join(',') + "<br/><br/>"
-            }
-            if (pmcnounix.length) {
-                details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + pmcnounix.join(',') + "<br/><br/>"
-            }
-            if (cttenounix.length) {
-                details.innerHTML += "<span class='error'>LDAP cttee members not in committers(unix) group:</span> " + cttenounix.join(',') + "<br/><br/>"
-            }
+        if (pmcnoctte.length) {
+            details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + userList(pmcnoctte) + "<br/><br/>"
         }
+        if (pmcnounix.length) {
+            details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"
+        }
+        if (cttenounix.length) {
+            details.innerHTML += "<span class='error'>LDAP cttee members not in committers(unix) group:</span> " + userList(cttenounix) + "<br/><br/>"
+        }
+        if (cttenopmc.length) {
+            details.innerHTML += "<span class='error'>LDAP cttee members not on PMC:</span> " + userList(cttenopmc) + "<br/><br/>"
+        }
+
 		
 		obj.appendChild(details)
 	} else {
 		obj.removeChild(details)
 	}
+}
+
+// Generic group display function
+
+function showJsonRoster(obj, type, json, name) {
+    var id = 'details_' + type + '_' + name
+    var details = document.getElementById(id)
+    if (!details) {
+        details = document.createElement('p')
+        details.setAttribute("id", id)
+        var cl = json[name].roster.slice()
+        cl.sort()
+        for (var i in cl) {
+            cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + getCommitterName(cl[i]) + "</li>"
+        }
+
+        if (cl && cl.length > 0) {
+            details.innerHTML += "<b>Roster:</b> <ul>" + cl.join("\n") + "</ul><br/>"
+        }
+        obj.appendChild(details)
+    } else {
+        obj.removeChild(details)
+    }
+}
+
+// Show a single Service group
+function showServiceRoster(obj, name) {
+    showJsonRoster(obj, 'service', ldapservices, name)
+}
+
+// Show a single Other group
+function showOtherRoster(obj, name) {
+    showJsonRoster(obj, 'other', nonldapgroups, name)
+}
+
+// Show an LDAP Unix group
+
+function showGroup(obj, name) {
+    showJsonRoster(obj, 'group', ldapgroups, name)
+}
+
+// Show an LDAP Commiteee group
+
+function showCommittee(obj, name) {
+    showJsonRoster(obj, 'ctte', ldapcttees, name)
+    return
 }
 
 function searchProjects(keyword, open) {
@@ -383,6 +488,54 @@ function showPMC(pmc) {
     }
 }
 
+// Show a single Unix Group
+
+function showUNIX(unix) {
+    var obj = document.getElementById('phonebook')
+    var id = 'group_' + unix
+    if (unix in ldapgroups) {
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showGroup(this.parentNode, '" + unix + "');\">" + unix + " (LDAP unix group)</h3></div>"
+        showGroup(document.getElementById(id), unix)
+    } else {
+        obj.innerHTML = "<h3>Could not find unix group: '"+ unix +"'</h3>"
+    }
+}
+
+// Show a single Committee group
+
+function showCTTE(ctte) {
+    var obj = document.getElementById('phonebook')
+    var id = 'ctte_' + ctte
+    if (ctte in ldapcttees) {
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showCommitte(this.parentNode, '" + ctte + "');\">" + ctte + " (LDAP committee group)</h3></div>"
+        showCommittee(document.getElementById(id), ctte)
+    } else {
+        obj.innerHTML = "<h3>Could not find committee group: '"+ ctte +"'</h3>"
+    }
+}
+
+function showSVC(name) {
+    var obj = document.getElementById('phonebook')
+    var id = 'service_' + name
+    if (name in ldapservices) {
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showServiceRoster(this.parentNode, '" + name + "');\">" + name + " (LDAP service group)</h3></div>"
+        showServiceRoster(document.getElementById(id), name)
+    } else {
+        obj.innerHTML = "<h3>Could not find the service group: '"+ name +"'</h3>"
+    }
+}
+
+function showOTH(name) {
+    var obj = document.getElementById('phonebook')
+    var id = 'other_' + name
+    if (name in nonldapgroups) {
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showOtherRoster(this.parentNode, '" + name + "');\">" + name + " (non-LDAP group)</h3></div>"
+        showOtherRoster(document.getElementById(id), name)
+    } else {
+        obj.innerHTML = "<h3>Could not find the non-LDAP group: '"+ name +"'</h3>"
+    }
+}
+
 // Show a single User
 
 function showUid(uid) {
@@ -393,6 +546,20 @@ function showUid(uid) {
         showCommitter(document.getElementById('committer_' + uid), uid)
     } else {
         obj.innerHTML = "<h3>Could not find user id: '"+ uid +"'</h3>"
+    }
+}
+
+function showError(error) {
+    var obj = document.getElementById('phonebook')
+    if (typeof(error) === 'string') {
+        obj.innerHTML = "<h3>Error detected</h3>"
+        obj.innerHTML += error
+    } else { // assume it's an error object
+        obj.innerHTML = "<h3>Javascript Error detected</h3>"
+        obj.innerHTML += "<hr/>"
+        obj.innerHTML += "<pre>"+ error.message + "</pre>"
+        obj.innerHTML += "<pre>"+ error.stack + "</pre>"
+        obj.innerHTML += "<hr/>"
     }
 }
 
@@ -427,7 +594,9 @@ function preRender() {
         ['https://whimsy.apache.org/public/committee-info.json',         "committees", function(json) { committees = json.committees; }],
         ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; }],
         ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; }],
-        ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; }]
+        ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; }],
+        ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; }],
+        ['https://whimsy.apache.org/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { nonldapgroups = json.groups; }],
         ],
         allDone);
 }
@@ -435,6 +604,7 @@ function preRender() {
 // Called when all the async GETs have been completed
 
 function allDone() {
+  try {
 	pmcs = []
 	for (var k in committees) { // actual committees, not LDAP committee groups
 	    if (committees[k].pmc) { // skip non-PMCs
@@ -455,26 +625,36 @@ function allDone() {
         'site': 'http://www.apache.org/foundation/'
         }
 
-    // Match user=name and project=name
-	var u = document.location.search.match(/user=([-.a-z0-9]+)/i)
-	var p = document.location.search.match(/project=([-.a-z0-9]+)/i)
-
-	// Match ?uid=id
-    var uid = document.location.search.match(/^\?uid=([-.a-z0-9]+)/i)
-    // Match ?pmc=id
-    var pmc = document.location.search.match(/^\?pmc=([-.a-z0-9]+)/i)
-
-    if (u) {
-		searchCommitters(u[1], true)
-	} else if (p) {
-		searchProjects(p[1], true)
-    } else if (uid) {
-        showUid(uid[1])
-    } else if (pmc) {
-        showPMC(pmc[1])
-	} else {
-		searchProjects("")
+    // Match ?type=name
+    var match = document.location.search.match(/^\?(\w+)=(.+)/)
+    if (match) {
+        var type = match[1]
+        var name = match[2]
+        if (type == Q_USER) {
+            searchCommitters(name, true)
+        } else if (type == Q_PROJECT) {
+            searchProjects(name, true)
+        } else if (type == Q_UID) {
+            showUid(name)
+        } else if (type == Q_PMC) {
+            showPMC(name)
+        } else if (type == Q_UNIX) {
+            showUNIX(name)
+        } else if (type == Q_CTTE) {
+            showCTTE(name)
+        } else if (type == Q_SERVICE) {
+            showSVC(name)
+        } else if (type == Q_OTHER) {
+            showOTH(name)
+        } else {
+            showError("Unexpected query: " + type)
+        }
+    } else {
+	    searchProjects("")
 	}
+  } catch (error) {
+    showError(error)
+  }
 }
 
 

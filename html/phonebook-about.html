@@ -18,8 +18,12 @@
   <ul>
   <li>http://home.apache.org/phonebook.html?project=tom - matches all project names containing the string 'tom' (excluding the Apache prefix)</li>
   <li>http://home.apache.org/phonebook.html?user=tom - matches all user names containing the string 'tom'</li>
-  <li>http://home.apache.org/phonebook.html?pmc=tomcat - find exact match for project (case-insensitive)</li>
-  <li>http://home.apache.org/phonebook.html?uid=tomcat - find exact match for user id (case-insensitive)</li>
+  <li>http://home.apache.org/phonebook.html?pmc=tomcat - find exact match for project</li>
+  <li>http://home.apache.org/phonebook.html?uid=tomcat - find exact match for user id</li>
+  <li>http://home.apache.org/phonebook.html?unix=tomcat - find exact match for LDAP unix group</li>
+  <li>http://home.apache.org/phonebook.html?ctte=tomcat - find exact match for LDAP committee group</li>
+  <li>http://home.apache.org/phonebook.html?service=pmc-chairs - find exact match for LDAP service group</li>
+  <li>http://home.apache.org/phonebook.html?other=name - find exact match for non-LDAP group (e.g. podling, though not all have groups)</li>
   </ul>
   <h2>About</h2>
   <p>This site is generated from data sources on Whimsy:
@@ -30,6 +34,8 @@
     <li><a href="https://whimsy.apache.org/public/public_ldap_people.json">LDAP people information</a></li>
     <li><a href="https://whimsy.apache.org/public/public_ldap_groups.json">LDAP Unix groups</a></li>
     <li><a href="https://whimsy.apache.org/public/public_ldap_committees.json">LDAP committee groups</a></li>
+    <li><a href="https://whimsy.apache.org/public/public_ldap_services.json">LDAP Service groups (e.g. pmc-chairs)</a></li>
+    <li><a href="https://whimsy.apache.org/public/public_nonldap_groups.json">non-LDAP groups (e.g. podlings)</a></li>
   </ul>
   </p>
   <h2>Contributing</h2>

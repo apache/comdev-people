@@ -5,46 +5,57 @@ var ldapcttees = {} // public_ldap_committees.json
 
 var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
-var iclainfo = {} // copy of icla-info.json
+var iclainfo = {} // copy of icla-info.json (committers only)
 
 // This is faster than parseInt, and it's more obvious why it is being done
 function toInt(number) {
     return number | 0 //
 }
 
-var asyncCalls = 0 // number of async GETs to wait for
+var fetchCount = 0;
+// Fetch an array of URLs, each with their description and own callback plus a final callback
+// Used to fetch everything before rendering a page that relies on multiple JSON sources.
+function getAsyncJSONArray(urls, finalCallback) {
+    var obj = document.getElementById('progress');
+    if (fetchCount == 0 ) {
+        fetchCount = urls.length;
+    }
 
-function getAsyncJSON(theUrl, xstate, callback) {
-	var xmlHttp = null;
-	if (window.XMLHttpRequest) {
-		xmlHttp = new XMLHttpRequest();
-	} else {
-		xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-	}
-	xmlHttp.open("GET", theUrl, true);
-	xmlHttp.send(null);
-	xmlHttp.onprogress = function(state) {
-		if (document.getElementById('pct')) {
-			var s = parseInt(xmlHttp.getResponseHeader('Content-Length')) // not allowed with CORS
-			document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: " + toInt((100 * (xmlHttp.responseText.length / s))) + "% done</i></b></p>";
-		}
-	}
-	xmlHttp.onreadystatechange = function(state) {
+    if (urls.length > 0) {
+        var a = urls.shift();
+        var URL = a[0];
+        var desc = a[1];
+        var cb = a[2];
+        var xmlHttp = null;
+        if (window.XMLHttpRequest) {
+            xmlHttp = new XMLHttpRequest();
+        } else {
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
 
-		if (xmlHttp.readyState == 4 && xmlHttp.status == 200 || xmlHttp.status == 404) {
-			if (callback) {
-				if (xmlHttp.status == 404) {
-					callback({}, xstate);
-				} else {
-					if (document.getElementById('pct')) {
-						document.getElementById('pct').innerHTML = "<p style='text-align: center;'><b><i>Loading: 100% done</i></b></p>";
-					}
-					window.setTimeout(callback, 0.05, JSON.parse(xmlHttp.responseText), xstate);
-				}
-			}
-		}
-	}
+        if (obj) { obj.innerHTML = "loading file #" + ( fetchCount - urls.length ) + " / " + fetchCount + "<br>" + desc }
+
+        xmlHttp.open("GET", URL, true);
+        xmlHttp.send(null);
+        xmlHttp.onreadystatechange = function(state) {
+            if (xmlHttp.readyState == 4 && xmlHttp.status == 200 || xmlHttp.status == 404) {
+                if (cb) {
+                    if (xmlHttp.status == 404) {
+                        cb({});
+                    } else {
+                        cb(JSON.parse(xmlHttp.responseText));
+                    }
+                }
+                getAsyncJSONArray(urls, finalCallback);
+            }
+        }
+    }
+    else {
+        if (obj) { obj.innerHTML = "building page content..." }
+        finalCallback();
+    }
 }
+
 
 function getProjects(uid) {
     var cl = []
@@ -60,13 +71,13 @@ function getProjects(uid) {
 function getCommitteeRoles(uid) {
     var pl = []
     var ch = []
-    for (var i in committees.committees) {
+    for (var i in committees) {
         // Only list actual PMCs
-        if (committees.committees[i].pmc && uid in committees.committees[i].roster) {
+        if (committees[i].pmc && uid in committees[i].roster) {
             pl.push(i)
         }
-        var chair = committees.committees[i].chair // might not be one (eg members)
-        if (chair && uid in committees.committees[i].chair) {
+        var chair = committees[i].chair // might not be one (eg members)
+        if (chair && uid in committees[i].chair) {
             ch.push(i)
         }
     }
@@ -84,7 +95,7 @@ function getCommitterName(uid) {
       name = people[uid].name
     }
     if (!name) {
-        name = iclainfo.committers[uid]
+        name = iclainfo[uid]
     }
     if (!name) { // try the backup specials
         name = noicla[uid]
@@ -213,7 +224,7 @@ function hoverCommitter(parent, uid) {
 }
 
 function isNologin(uid) {
-    return people[uid].noLogin
+    return !(uid in people) || people[uid].noLogin
 }
 
 function isMember(uid) {
@@ -236,7 +247,7 @@ function hiliteMember(uid) {
 }
 
 function getChair(uid) {
-    var chair = committees.committees[uid].chair
+    var chair = committees[uid].chair
     if (chair) {
         for (var x in chair) {
             return chair[x].name
@@ -250,7 +261,7 @@ function showProject(obj, prj) {
 	if (!details) {
 		details = document.createElement('p')
 		details.setAttribute("id", 'details_project_' + prj)
-		var desc = committees.committees[prj].description
+		var desc = committees[prj].description
 		if (!desc) {
             desc = 'TBA (please ensure that <a href="http://www.apache.org/index.html#projects-list">the projects list</a> is updated)'
 		}
@@ -258,7 +269,7 @@ function showProject(obj, prj) {
 		if (chair) {
             details.innerHTML += "<b>Chair:</b> " + chair + "<br/><br/>"
         }
-        var url = committees.committees[prj].site
+        var url = committees[prj].site
         if (url) {
             details.innerHTML += "<a href='"+url+"' target='_blank'><b>Description:</b></a><br/><br/>" + desc + "<br/><br/>"
         } else {
@@ -271,7 +282,7 @@ function showProject(obj, prj) {
 	      cl = []
 	    }
 		var pl = []
-		var pmc = committees.committees[prj]
+		var pmc = committees[prj]
 
 		var pmcnoctte = [] // on pmc but not in LDAP committee
 		var ldappmc = []
@@ -350,7 +361,7 @@ function searchProjects(keyword, open) {
 	for (var i in pmcs) {
 		var pmc = pmcs[i]
 		if (pmc.search(keyword.toLowerCase()) != -1) {
-			var ppmc = committees.committees[pmc].display_name
+			var ppmc = committees[pmc].display_name
 			obj.innerHTML += "<div id='project_" + pmc + "' class='group'><h3 onclick=\"showProject(this.parentNode, '" + pmc + "');\">Apache " + ppmc + "</h3></div>"
 			if (open) {
 				showProject(document.getElementById('project_' + pmc), pmc)
@@ -363,9 +374,9 @@ function searchProjects(keyword, open) {
 
 function showPMC(pmc) {
     var obj = document.getElementById('phonebook')
-    if (pmc in committees.committees) {
-        var ppmc = committees.committees[pmc].display_name
-        obj.innerHTML += "<div id='project_" + pmc + "' class='group'><h3 onclick=\"showProject(this.parentNode, '" + pmc + "');\">Apache " + ppmc + "</h3></div>"
+    if (pmc in committees) {
+        var ppmc = committees[pmc].display_name
+        obj.innerHTML = "<div id='project_" + pmc + "' class='group'><h3 onclick=\"showProject(this.parentNode, '" + pmc + "');\">Apache " + ppmc + "</h3></div>"
         showProject(document.getElementById('project_' + pmc), pmc)
     } else {
         obj.innerHTML = "<h3>Could not find PMC: '"+ pmc +"'</h3>"
@@ -378,7 +389,7 @@ function showUid(uid) {
     var obj = document.getElementById('phonebook')
     if (uid in people) {
         var name = getCommitterName(uid)
-        obj.innerHTML += "<div class='group' id='committer_" + uid + "'><h4 onclick=\"showCommitter(this.parentNode, '" + uid + "');\">" + name + " (<kbd>" + uid + "</kbd>)</h4></div>"
+        obj.innerHTML = "<div class='group' id='committer_" + uid + "'><h4 onclick=\"showCommitter(this.parentNode, '" + uid + "');\">" + name + " (<kbd>" + uid + "</kbd>)</h4></div>"
         showCommitter(document.getElementById('committer_' + uid), uid)
     } else {
         obj.innerHTML = "<h3>Could not find user id: '"+ uid +"'</h3>"
@@ -409,88 +420,24 @@ function searchCommitters(keyword, open) {
 	}
 }
 
-function saveData(xjson, xdata) {
-    // Copy the json contents
-    for (var k in xjson) {
-        xdata[k] = xjson[k]
-    }
-    asyncCalls -= 1
-    if (asyncCalls <= 0) {
-		// Save the data in localStorage if possible, so we'll have a cache for next visit (if within 2 hours)
-		var now = toInt(new Date().getTime() / (7200*1000))
-		if (hasLocalStorage && typeof(window.localStorage) !== "undefined") {
-			var new_data = new Array()
-			new_data[0] = members
-			new_data[1] = committees
-			new_data[2] = iclainfo
-			new_data[3] = ldapgroups
-			new_data[4] = ldapcttees
-			new_data[5] = people
-			try {
-			    window.localStorage.setItem("phonebook_" + now, JSON.stringify(new_data))
-			} catch (QuotaExceededError) {
-			}
-		}
-        allDone()
-    }
-}
-
-// Called by preRender
-function renderPhonebook(xjson) {
-	
-    people = xjson.people
-	asyncCalls = 5 // how many async GETs need to complete before were are done
-    getAsyncJSON('https://whimsy.apache.org/public/member-info.json',    members,    saveData)
-    getAsyncJSON('https://whimsy.apache.org/public/committee-info.json', committees, saveData) 
-    getAsyncJSON('https://whimsy.apache.org/public/icla-info.json',      iclainfo,   saveData)
-    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_groups.json', ldapgroups,   saveData)
-    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_committees.json', ldapcttees,   saveData)
-}
-
-var hasLocalStorage // does browser allow local data to be saved?
-
-// pre-rendering: check if cache is available, otherwise fetch the JSON objects
-// called by HTML page body onLoad()
 function preRender() {
-	
-	// Data is cached for two hours if possible, so we won't need to fetch it over and over.
-	var now = toInt(new Date().getTime() / (7200*1000))
-  try {
-	if (typeof(window.localStorage) !== "undefined") {
-        var xdata = window.localStorage.getItem("phonebook_" + now)
-        hasLocalStorage = true
-		var old_data = []
-		if (xdata && xdata.length) {
-            old_data = JSON.parse(xdata)
-        }
-		if (old_data && old_data.length == 6) {
-			members = old_data[0]
-			committees = old_data[1]
-			iclainfo = old_data[2]
-			ldapgroups = old_data[3]
-			ldapcttees = old_data[4]
-			people = old_data[5]
-			allDone()
-			// All good, let's bail!
-			return
-        }
-    }
-  } catch (SecurityError) {
-    hasLocalStorage = false
-  }
-	// No cache found, fetch from whimsy
-    getAsyncJSON('https://whimsy.apache.org/public/public_ldap_people.json', null, renderPhonebook)
+    getAsyncJSONArray([
+        ['https://whimsy.apache.org/public/member-info.json',            "members",    function(json) { members = json; }],
+        ["https://whimsy.apache.org/public/public_ldap_people.json",     "people",     function(json) { people = json.people; }],
+        ['https://whimsy.apache.org/public/committee-info.json',         "committees", function(json) { committees = json.committees; }],
+        ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; }],
+        ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; }],
+        ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; }]
+        ],
+        allDone);
 }
-
 
 // Called when all the async GETs have been completed
 
 function allDone() {
-    ldapcttees = ldapcttees.committees // subhash
-    ldapgroups = ldapgroups.groups // keep subhash
 	pmcs = []
-	for (var k in committees.committees) { // actual committees, not LDAP committee groups
-	    if (committees.committees[k].pmc) { // skip non-PMCs
+	for (var k in committees) { // actual committees, not LDAP committee groups
+	    if (committees[k].pmc) { // skip non-PMCs
             pmcs.push(k)
         }
 	}
@@ -501,7 +448,7 @@ function allDone() {
 	    mMap[members.members[m]] = {}
 	}
     // copy across the members info
-	committees.committees['member'] = {
+	committees['member'] = {
 	    'roster': mMap,
         'display_name': 'Foundation Members',
         'description': "ASF membership (PMC members == current members, Committers == those with member karma)",

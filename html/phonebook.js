@@ -136,7 +136,7 @@ function showCommitter(obj, uid) {
             details.innerHTML += "<b>Chair of:</b> " + projectList(ch) + "<br/><br/>"
         }
 		if (cl.length > 0) {
-			details.innerHTML += "<b>Committer on:</b> " + projectList(cl) + "<br/><br/>"
+			details.innerHTML += "<b>Committer on:</b> " + cl.sort().join(', ') + "<br/><br/>"
 		}
 		var nc = []
 		if (pl.length > 0) {

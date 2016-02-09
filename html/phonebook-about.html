@@ -13,20 +13,25 @@
    <h1><img src='logo.png' style='width: 200px; height: 61px; vertical-align: middle;'/><a href="phonebook.html">Apache Phone Book application</a></h1>
   <h2>Usage</h2>
   <p>
-  As well as using the search fields to find projects or people, the application supports direct query access:
+  As well as using the search fields to find projects or people, the application supports direct query access in the form:<br/>
+  <p>
+  <code>http://home.apache.org/phonebook.html<b>?type=name</b></code>
+  </p>
+  The possible types are listed below; click on a link to run the sample query (opens in new tab)
   </p>
   <ul>
-  <li>http://home.apache.org/phonebook.html?project=tom - matches all project names containing the string 'tom' (excluding the Apache prefix)</li>
-  <li>http://home.apache.org/phonebook.html?user=tom - matches all user names containing the string 'tom'</li>
-  <li>http://home.apache.org/phonebook.html?pmc=tomcat - find exact match for project</li>
-  <li>http://home.apache.org/phonebook.html?uid=tomcat - find exact match for user id</li>
-  <li>http://home.apache.org/phonebook.html?unix=tomcat - find exact match for LDAP unix group</li>
-  <li>http://home.apache.org/phonebook.html?ctte=tomcat - find exact match for LDAP committee group</li>
-  <li>http://home.apache.org/phonebook.html?service=pmc-chairs - find exact match for LDAP service group</li>
-  <li>http://home.apache.org/phonebook.html?other=name - find exact match for non-LDAP group (e.g. podling, though not all have groups)</li>
+  <!-- Use relative links to make it easier to test locally -->
+  <li><a target="_blank" href="phonebook.html?project=tom">?project=tom</a> - matches all project names containing the string 'tom' (excluding the Apache prefix)</li>
+  <li><a target="_blank" href="phonebook.html?user=tom">?user=tom</a> - matches all user names containing the string 'tom'</li>
+  <li><a target="_blank" href="phonebook.html?pmc=tomcat">?pmc=tomcat</a> - find exact match for project</li>
+  <li><a target="_blank" href="phonebook.html?uid=fielding">?uid=fielding</a> - find exact match for user id</li>
+  <li><a target="_blank" href="phonebook.html?unix=tomcat">?unix=tomcat</a> - find exact match for LDAP unix group</li>
+  <li><a target="_blank" href="phonebook.html?ctte=tomcat">?ctte=tomcat</a> - find exact match for LDAP committee group</li>
+  <li><a target="_blank" href="phonebook.html?service=pmc-chairs">?service=pmc-chairs</a> - find exact match for LDAP service group</li>
+  <li><a target="_blank" href="phonebook.html?other=xmlgraphics-fop">?other=xmlgraphics-fop</a> - find exact match for non-LDAP group (e.g. podling, though not all have groups)</li>
   </ul>
   <h2>About</h2>
-  <p>This site is generated from data sources on Whimsy:
+  <p>This site is generated from the following data sources on Whimsy:
   <ul>
     <li><a href="https://whimsy.apache.org/public/committee-info.json">PMC committee information</a></li>
     <li><a href="https://whimsy.apache.org/public/member-info.json">ASF member information</a></li>

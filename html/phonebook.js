@@ -168,6 +168,7 @@ function showCommitter(obj, uid) {
 		details.setAttribute("id", 'details_committer_' + uid)
 		var cl = getProjects(uid)
 		var roles = getCommitteeRoles(uid)
+        var cttees = getRoster(ldapcttees, uid)
         var pl = roles[0]
         var ch = roles[1]
         if (isNologin(uid)) {
@@ -182,7 +183,10 @@ function showCommitter(obj, uid) {
 		if (cl.length > 0) {
 			details.innerHTML += "<b>Committer on:</b> " + linkifyList(Q_UNIX, cl) + "<br/><br/>"
 		}
-		var nc = []
+		var nc = [] // On PMC but not in LDAP unix
+		var nl = [] // On PMC but not in LDAP committee
+		var np = [] // Not in PMC even though in LDAP committee
+		var nu = [] // In LDAP committee but not in LDAP unix
 		if (pl.length > 0) {
 			details.innerHTML += "<b>PMC member of:</b> " + linkifyList(Q_PMC, pl) + "<br/><br/>"
 			for (p in pl) {
@@ -191,8 +195,26 @@ function showCommitter(obj, uid) {
 			    if (pn != 'member' && pn in ldapgroups && cl.indexOf(pn) < 0) {
 			        nc.push(pn)
 			    }
+			    if (pn in ldapcttees && cttees.indexOf(pn) < 0) {
+                    nl.push(pn)
+			    } 
 			}
 		}
+
+        if (cttees.length > 0) {
+            for (p in cttees) {
+                pn = cttees[p]
+                // name is a PMC but uid is not on the PMC
+                if (isPMC(pn) && pl.indexOf(pn) < 0) {
+                        np.push(pn)
+                }
+                if (pn in ldapgroups && cl.indexOf(pn) < 0) {
+                    nu.push(pn)
+                }
+            }
+            details.innerHTML += "<b>LDAP committee group membership:</b> " + linkifyList(Q_CTTE, cttees) + "<br/><br/>"
+        }
+
         var services = getRoster(ldapservices, uid)
         if (services.length > 0) {
             details.innerHTML += "<b>Service group membership:</b> " + linkifyList(Q_SERVICE, services) + "<br/><br/>"
@@ -201,8 +223,19 @@ function showCommitter(obj, uid) {
         if (others.length > 0) {
             details.innerHTML += "<b>Other group membership:</b> " + linkifyList(Q_OTHER, others) + "<br/><br/>"
         }
+
+        // Note any discrepancies
+        if (np.length > 0) {
+            details.innerHTML += "<span class='error'>In LDAP committee group, but <b>not a PMC member</b>:</span> " + linkifyList(Q_CTTE, np) + "<br/><br/>"
+        }
         if (nc.length > 0) {
-            details.innerHTML += "<i>On PMC, but not a Committer on:</i> " + linkifyList(Q_PMC, nc) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>On PMC, but not a member of the committer group:</span> " + linkifyList(Q_PMC, nc) + "<br/><br/>"
+        }
+        if (nl.length > 0) {
+            details.innerHTML += "<span class='error'>On PMC, but not member of the LDAP committee group:</span> " + linkifyList(Q_CTTE, nl) + "<br/><br/>"
+        }
+        if (nu.length > 0) {
+            details.innerHTML += "<span class='error'>In LDAP committee group but not a member of the committer(unix) group:</span> " + linkifyList(Q_UNIX, nu) + "<br/><br/>"
         }
 		obj.appendChild(details)
 	} else {
@@ -281,6 +314,10 @@ function isNologin(uid) {
 
 function isMember(uid) {
     return members['members'].indexOf(uid) > -1
+}
+
+function isPMC(name) {
+    return pmcs.indexOf(name) >= 0;
 }
 
 function linkifyUid(uid) {
@@ -397,10 +434,10 @@ function showProject(obj, prj) {
             details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"
         }
         if (cttenounix.length) {
-            details.innerHTML += "<span class='error'>LDAP cttee members not in committers(unix) group:</span> " + userList(cttenounix) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>LDAP committee group members not in committers(unix) group:</span> " + userList(cttenounix) + "<br/><br/>"
         }
         if (cttenopmc.length) {
-            details.innerHTML += "<span class='error'>LDAP cttee members not on PMC:</span> " + userList(cttenopmc) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>LDAP committee group members not on PMC:</span> " + userList(cttenopmc) + "<br/><br/>"
         }
 
 		

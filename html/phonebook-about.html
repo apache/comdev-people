@@ -11,6 +11,10 @@
 
   <body>
    <h1><img src='logo.png' style='width: 200px; height: 61px; vertical-align: middle;'/><a href="phonebook.html">Apache Phone Book application</a></h1>
+  <h2>About</h2>
+  <p>
+  This application shows the membership of PMCs and various LDAP groups used for granting karma. It can also show the groups to which a person belongs. 
+  </p>
   <h2>Usage</h2>
   <p>
   As well as using the search fields to find projects or people, the application supports direct query access in the form:<br/>
@@ -30,17 +34,31 @@
   <li><a target="_blank" href="phonebook.html?service=pmc-chairs">?service=pmc-chairs</a> - find exact match for LDAP service group</li>
   <li><a target="_blank" href="phonebook.html?other=xmlgraphics-fop">?other=xmlgraphics-fop</a> - find exact match for non-LDAP group (e.g. podling, though not all have groups)</li>
   </ul>
-  <h2>About</h2>
+  <h2>Notes</h2>
+  <p>
+  PMC membership is defined by the contents of the committee-info.txt file. The corresponding data file is committee-info.json.
+  </p>
+  <p>
+  All PMC members should be members of the corresponding LDAP committee group (see public_ldap_committees.json).
+  <br/>
+  Membership of this LDAP group is used to grant karma for some parts of SVN that are private to the PMC and to give access to the PMC mail archives.
+  <br/>
+  The LDAP committee group should not normally contain people who are not on the PMC.
+  </p>
+  <p>
+  All PMC members should also be members of the LDAP committer(unix) group. This group is used to grant karma for SVN.
+  </p>
+  <h2>Data Sources</h2>
   <p>This site is generated from the following data sources on Whimsy:
   <ul>
-    <li><a href="https://whimsy.apache.org/public/committee-info.json">PMC committee information</a></li>
-    <li><a href="https://whimsy.apache.org/public/member-info.json">ASF member information</a></li>
-    <li><a href="https://whimsy.apache.org/public/icla-info.json">ICLA information</a></li>
-    <li><a href="https://whimsy.apache.org/public/public_ldap_people.json">LDAP people information</a></li>
-    <li><a href="https://whimsy.apache.org/public/public_ldap_groups.json">LDAP Unix groups</a></li>
-    <li><a href="https://whimsy.apache.org/public/public_ldap_committees.json">LDAP committee groups</a></li>
-    <li><a href="https://whimsy.apache.org/public/public_ldap_services.json">LDAP Service groups (e.g. pmc-chairs)</a></li>
-    <li><a href="https://whimsy.apache.org/public/public_nonldap_groups.json">non-LDAP groups (e.g. podlings)</a></li>
+    <li><a href="https://whimsy.apache.org/public/committee-info.json">PMC committee information</a> (committee-info.json)</li>
+    <li><a href="https://whimsy.apache.org/public/member-info.json">ASF member information</a> (member-info.json)</li>
+    <li><a href="https://whimsy.apache.org/public/icla-info.json">ICLA information - names and ids</a> (icla-info.json)</li>
+    <li><a href="https://whimsy.apache.org/public/public_ldap_people.json">LDAP people information - names and ids</a> (public_ldap_people.json)</li>
+    <li><a href="https://whimsy.apache.org/public/public_ldap_groups.json">LDAP Unix groups</a> (public_ldap_groups.json)</li>
+    <li><a href="https://whimsy.apache.org/public/public_ldap_committees.json">LDAP committee groups</a> (public_ldap_committees.json)</li>
+    <li><a href="https://whimsy.apache.org/public/public_ldap_services.json">LDAP Service groups - e.g. pmc-chairs</a> (public_ldap_services.json)</li>
+    <li><a href="https://whimsy.apache.org/public/public_nonldap_groups.json">non-LDAP groups - e.g. podlings)</a> (public_nonldap_groups.json)</li>
   </ul>
   </p>
   <h2>Contributing</h2>

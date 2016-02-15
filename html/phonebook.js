@@ -9,6 +9,8 @@ var committees = {} // copy of committee-info.json (plus details for 'member' du
 var iclainfo = {} // copy of icla-info.json (committers only)
 var nonldapgroups = {} //  public_nonldap_groups.json
 
+var info = {} // copies of json info
+
 // Constants for query types. 
 // Do NOT change the values once established, as they are part of the public API
 // For example they may be used in projects.a.o and reporter.a.o
@@ -22,6 +24,9 @@ var Q_UNIX    = 'unix' // LDAP group
 var Q_CTTE    = 'ctte' // LDAP group
 var Q_SERVICE = 'service' // LDAP group
 var Q_OTHER   = 'other' // non-LDAP group
+
+// Not intended for general use; may change at any time
+var Q_DEBUG   = 'debug' // print some debug info
 
 // This is faster than parseInt, and it's more obvious why it is being done
 function toInt(number) {
@@ -161,6 +166,21 @@ function userList(ua) {
     return text
 }
 
+//Linkify URLs
+
+function linkifyURLs(ua) {
+    var text = ''
+    var index, len
+    ua.sort()
+    for (index = 0, len = ua.length; index < len; ++index) {
+        if (index > 0) {
+            text = text + ", "
+        }
+        text = text + "<a target='_blank' href='"+ ua[index] + "'>" + ua[index] + "</a>"
+    }
+    return text
+}
+
 function showCommitter(obj, uid) {
 	var details = document.getElementById('details_committer_' + uid)
 	if (!details) {
@@ -179,6 +199,10 @@ function showCommitter(obj, uid) {
 		}
         if (ch.length > 0) {
             details.innerHTML += "<b>Chair of:</b> " + linkifyList(Q_PMC, ch) + "<br/><br/>"
+        }
+        var purls = urls(uid)
+        if (purls.length > 0) {
+			details.innerHTML += "<b>Personal URLs:</b> " + linkifyURLs(purls) + "<br/><br/>"        	
         }
 		if (cl.length > 0) {
 			details.innerHTML += "<b>Committer on:</b> " + linkifyList(Q_UNIX, cl) + "<br/><br/>"
@@ -314,6 +338,10 @@ function isNologin(uid) {
 
 function isMember(uid) {
     return members['members'].indexOf(uid) > -1
+}
+
+function urls(uid) {
+	return people[uid].urls || []
 }
 
 function isPMC(name) {
@@ -573,6 +601,17 @@ function showOTH(name) {
     }
 }
 
+function showDBG(name) {
+    var obj = document.getElementById('phonebook')
+    if (name == 'info') {
+        obj.innerHTML = "<h3>info</h3>"
+    	obj.innerHTML += "<pre>" + JSON.stringify(info, null, 1) + "</pre>"
+    	
+    } else {
+        obj.innerHTML = "<h3>Unknown debug name: '"+ name +"'</h3>"
+    }
+}
+
 // Show a single User
 
 function showUid(uid) {
@@ -624,15 +663,20 @@ function searchCommitters(keyword, open) {
 	}
 }
 
+function saveInfo(json,name) {
+	info[name] = {}
+	info[name]['lastTimestamp'] = json.lastTimestamp
+}
+
 function preRender() {
     getAsyncJSONArray([
         ['https://whimsy.apache.org/public/member-info.json',            "members",    function(json) { members = json; }],
-        ["https://whimsy.apache.org/public/public_ldap_people.json",     "people",     function(json) { people = json.people; }],
+        ["https://whimsy.apache.org/public/public_ldap_people.json",     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
         ['https://whimsy.apache.org/public/committee-info.json',         "committees", function(json) { committees = json.committees; }],
         ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; }],
-        ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; }],
-        ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; }],
-        ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; }],
+        ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
+        ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
+        ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'ldapservices'); }],
         ['https://whimsy.apache.org/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { nonldapgroups = json.groups; }],
         ],
         allDone);
@@ -683,6 +727,8 @@ function allDone() {
             showSVC(name)
         } else if (type == Q_OTHER) {
             showOTH(name)
+        } else if (type == Q_DEBUG) {
+            showDBG(name)
         } else {
             showError("Unexpected query: " + type)
         }

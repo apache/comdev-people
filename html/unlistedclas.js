@@ -65,7 +65,7 @@ function showError(error) {
 
 function preRender() {
     getAsyncJSONArray([
-        ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { nonCommitters = json.non_committers; }],
+        ['https://whimsy.apache.org/public/icla-info_noid.json', "iclainfo", function(json) { nonCommitters = json.non_committers; }],
         ],
         allDone);
 }

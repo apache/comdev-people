@@ -654,7 +654,8 @@ function searchCommitters(keyword, open) {
 			if (n > 50) {
 				return;
 			}
-			obj.innerHTML += "<div class='group' id='committer_" + uid + "'><h4 onclick=\"showCommitter(this.parentNode, '" + uid + "');\">" + name + " (<kbd>" + uid + "</kbd>)</h4></div>"
+			obj.innerHTML += "<div class='group' id='committer_" + uid + "'><h4 onclick=\"showCommitter(this.parentNode, '" + uid + "');\">" + name 
+			+ " (<kbd>" + uid + "</kbd>) <a title='Link to committer details' href='phonebook.html?uid="+uid+"'>&#149</a></h4></div>"
 			if (open) {
 				showCommitter(document.getElementById('committer_' + uid), uid)
 			}

@@ -483,6 +483,10 @@ function showJsonRoster(obj, type, json, name) {
     if (!details) {
         details = document.createElement('p')
         details.setAttribute("id", id)
+        var podtype = json[name]['podling']
+        if (podtype) {
+        	details.innerHTML += "<b>podling:</b> " + podtype + "<br><br>" 
+        }
         var cl = json[name].roster.slice()
         cl.sort()
         for (var i in cl) {
@@ -599,6 +603,19 @@ function showOTH(name) {
     } else {
         obj.innerHTML = "<h3>Could not find the non-LDAP group: '"+ name +"'</h3>"
     }
+}
+
+function searchPodlings(keyword, open) {
+	var obj = document.getElementById('phonebook')
+   obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	for (var name in nonldapgroups) {
+		if (nonldapgroups[name]['podling']) {
+			if (name.search(keyword.toLowerCase()) != -1) {
+			    var id = 'other_' + name
+		        obj.innerHTML += "<div id='" + id + "' class='group'><h3 onclick=\"showOtherRoster(this.parentNode, '" + name + "');\">" + name + " (non-LDAP group)</h3></div>"
+			}			
+		}
+	}
 }
 
 function showDBG(name) {

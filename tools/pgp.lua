@@ -62,6 +62,7 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
                 print("Writing key " .. key .. " for " .. uid .. "...")
                 local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
                 f:write("ASF ID: " .. uid .. "\n")
+                f:write("PGP Fingerprint: " .. key .. "\n\n")
                 f:write(data)
                 f:write("\n")
                 f:close()

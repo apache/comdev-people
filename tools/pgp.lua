@@ -43,9 +43,7 @@ local ldapdata = io.popen([[ldapsearch -x -LLL -b ou=people,dc=apache,dc=org asf
 local data = ldapdata:read("*a")
 local keys = {}
 local committers = {}
-local f = io.open("/var/www/html/keys/committer/index.html", "w")
-f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
-f:write("<h3>committer signatures:</h3>\n")
+
 data = data .. "\ndn" -- hack hack hack
 for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n?(.-)\r?\ndn") do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
@@ -59,9 +57,9 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
         if rv and #rv > 0 then
             keys[uid] = keys[uid] or {}
             table.insert(keys[uid], key)
-            print("Writing key " .. key .. " for " .. uid .. "...")
             local data = rv:match("BEGIN PGP PUBLIC KEY BLOCK") and rv or nil
             if data then
+                print("Writing key " .. key .. " for " .. uid .. "...")
                 local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
                 f:write("ASF ID: " .. uid .. "\n")
                 f:write(data)
@@ -71,6 +69,11 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
         end
     end
 end
+
+local f = io.open("/var/www/html/keys/committer/index.html", "w")
+f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
+f:write("<h3>committer signatures:</h3>\n")
+
 table.sort(committers)
 for k, v in pairs(committers) do
     if keys[v] then
@@ -100,7 +103,7 @@ for k, project in pairs(projects) do
         end
     end
     af:close()
-    f:write(("%40s <a href='../group/%s.asc'>%s signatures</a>\n"):format(project, project, project))
+    f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
 end
 
 f:write("</pre></body></html>")

@@ -51,7 +51,7 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
     for key in rest:gmatch("asf%-pgpKeyFingerprint: ([a-f0-9A-F \t]+)") do
-        local url = ([[https://sks-keyservers.net/pks/lookup?op=get&search=0x%s]]):format(key:gsub("%s+", ""))
+        local url = ([[https://sks-keyservers.net/pks/lookup?op=get&options=mr&search=0x%s]]):format(key:gsub("%s+", ""))
         -- https.request doesn't work :( so we'll curl for now
         local p = io.popen(("curl --silent \"%s\""):format(url))
         local rv = p:read("*a")
@@ -60,9 +60,10 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
             keys[uid] = keys[uid] or {}
             table.insert(keys[uid], key)
             print("Writing key " .. key .. " for " .. uid .. "...")
-            local data = rv:match("<pre>(.-)</pre>")
+            local data = rv:match("BEGIN PGP PUBLIC KEY BLOCK") and rv or nil
             if data then
                 local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
+                f:write("ASF ID: " .. uid .. "\n")
                 f:write(data)
                 f:write("\n")
                 f:close()

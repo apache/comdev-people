@@ -60,8 +60,24 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
             local data = rv:match("BEGIN PGP PUBLIC KEY BLOCK") and rv or nil
             if data then
                 print("Writing key " .. key .. " for " .. uid .. "...")
+                
+                -- get gpg uid
+                local tmp = io.open("/var/www/html/keys/tmp.asc", "w")
+                tmp:write(data)
+                tmp:close()
+                
+                local ud = io.popen("gpg -v /var/www/html/keys/tmp.asc", "r")
+                local id = ud:read("*a")
+                ud:close()
+                
+                
+                local vuid = uid
+                for name in id:gmatch("uid%s+([^\r\n]+)") do
+                    vuid = vuid .. "\n    " .. name
+                end                
+                
                 local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
-                f:write("ASF ID: " .. uid .. "\n")
+                f:write("ASF ID: " .. vuid .. "\n")
                 f:write("PGP Fingerprint: " .. key .. "\n\n")
                 f:write(data)
                 f:write("\n")

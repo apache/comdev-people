@@ -1,4 +1,5 @@
-local https = require 'ssl.https'
+-- Not currently needed:
+-- local https = require 'ssl.https'
 
 
 -- Return all members of a project + PMC
@@ -44,7 +45,7 @@ local data = ldapdata:read("*a")
 local keys = {}
 local committers = {}
 
-data = data .. "\ndn" -- hack hack hack
+data = data .. "\ndn" -- RE expects to find this after every entry, including the last
 for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n?(.-)\r?\ndn") do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)

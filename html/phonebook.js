@@ -8,6 +8,7 @@ var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
 var iclainfo = {} // copy of icla-info.json (committers only)
 var nonldapgroups = {} //  public_nonldap_groups.json
+var podlings = {} // public_nonldap_groups.json where podling is true
 
 var info = {} // copies of json info
 
@@ -24,6 +25,7 @@ var Q_UNIX    = 'unix' // LDAP group
 var Q_CTTE    = 'ctte' // LDAP group
 var Q_SERVICE = 'service' // LDAP group
 var Q_OTHER   = 'other' // non-LDAP group
+var Q_PODLING = 'podling' // podling (non-LDAP group)
 
 // Not intended for general use; may change at any time
 var Q_DEBUG   = 'debug' // print some debug info
@@ -91,11 +93,17 @@ function getProjects(uid) {
 
 // Get the roster from a json group
 
-function getRoster(json, uid) {
+function getRoster(json, uid, notIn) {
     var cl = []
     for (var i in json) {
         if (json[i].roster.indexOf(uid) > -1) {
-            cl.push(i)
+        	if (typeof notIn === 'undefined') {
+                cl.push(i)        		
+        	} else {
+        		if (notIn.indexOf(i) == -1) {
+        			cl.push(i)
+        		}
+        	}
         }
     }
     return cl
@@ -243,7 +251,12 @@ function showCommitter(obj, uid) {
         if (services.length > 0) {
             details.innerHTML += "<b>Service group membership:</b> " + linkifyList(Q_SERVICE, services) + "<br/><br/>"
         }
-        var others = getRoster(nonldapgroups, uid)
+        var pods = getRoster(podlings, uid)
+        if (pods.length > 0) {
+            details.innerHTML += "<b>Podling membership:</b> " + linkifyList(Q_PODLING, pods) + "<br/><br/>"
+        }
+
+        var others = getRoster(nonldapgroups, uid, pods)
         if (others.length > 0) {
             details.innerHTML += "<b>Other group membership:</b> " + linkifyList(Q_OTHER, others) + "<br/><br/>"
         }
@@ -512,6 +525,10 @@ function showOtherRoster(obj, name) {
     showJsonRoster(obj, 'other', nonldapgroups, name)
 }
 
+function showPodlingRoster(obj, name) {
+    showJsonRoster(obj, 'podling', podlings, name)
+}
+
 // Show an LDAP Unix group
 
 function showGroup(obj, name) {
@@ -605,16 +622,25 @@ function showOTH(name) {
     }
 }
 
+function showPOD(name) {
+    var obj = document.getElementById('phonebook')
+    var id = 'podling_' + name
+    if (name in podlings) {
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showPodlingRoster(this.parentNode, '" + name + "');\">" + name + " (podling)</h3></div>"
+        showPodlingRoster(document.getElementById(id), name)
+    } else {
+        obj.innerHTML = "<h3>Could not find the podling: '"+ name +"'</h3>"
+    }
+}
+
 function searchPodlings(keyword, open) {
 	var obj = document.getElementById('phonebook')
-   obj.innerHTML = "<h3>Search results:</h3><hr/>"
-	for (var name in nonldapgroups) {
-		if (nonldapgroups[name]['podling']) {
-			if (name.search(keyword.toLowerCase()) != -1) {
-			    var id = 'other_' + name
-		        obj.innerHTML += "<div id='" + id + "' class='group'><h3 onclick=\"showOtherRoster(this.parentNode, '" + name + "');\">" + name + " (non-LDAP group)</h3></div>"
-			}			
-		}
+    obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	for (var name in podlings) {
+		if (name.search(keyword.toLowerCase()) != -1) {
+		    var id = 'podling_' + name
+	        obj.innerHTML += "<div id='" + id + "' class='group'><h3 onclick=\"showPodlingRoster(this.parentNode, '" + name + "');\">" + name + " (podling)</h3></div>"
+		}			
 	}
 }
 
@@ -695,7 +721,14 @@ function preRender() {
         ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
         ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
         ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'ldapservices'); }],
-        ['https://whimsy.apache.org/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { nonldapgroups = json.groups; }],
+        ['https://whimsy.apache.org/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
+        	nonldapgroups = json.groups;
+        	for (var g in nonldapgroups) {
+        		if (nonldapgroups[g]['podling']) {
+        			podlings[g] = nonldapgroups[g]
+        		}
+        	}
+        	}],
         ],
         allDone);
 }
@@ -745,6 +778,8 @@ function allDone() {
             showSVC(name)
         } else if (type == Q_OTHER) {
             showOTH(name)
+        } else if (type == Q_PODLING) {
+            showPOD(name)
         } else if (type == Q_DEBUG) {
             showDBG(name)
         } else {

@@ -1,6 +1,6 @@
--- Not currently needed:
--- local https = require 'ssl.https'
-
+-- may be needed in the future
+--local https = require 'ssl.https'
+local JSON = require 'cjson'
 
 -- Return all members of a project + PMC
 function getMembers(project)
@@ -122,6 +122,30 @@ for k, project in pairs(projects) do
     end
     af:close()
     f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
+end
+
+f:write("\n<h3>Podling signatures:</h3>\n")
+local p = io.popen(("curl --silent \"https://whimsy.apache.org/public/public_nonldap_groups.json\""))
+local rv = p:read("*a")
+p:close()
+if rv and #rv > 0 then
+    local js = JSON.decode(rv)
+    for project, entry in pairs(js.groups) do
+        local committers = entry.roster
+        if entry.podling and entry.podling == "current" then
+            local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
+            for k, uid in pairs(committers) do
+                local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
+                if cf then
+                    local data = cf:read("*a")
+                    af:write(data)
+                    cf:close()
+                end
+            end
+            af:close()
+            f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
+        end
+    end
 end
 
 f:write("</pre></body></html>")

@@ -4,6 +4,7 @@ local JSON = require 'cjson'
 
 -- Return all members of a project + PMC
 function getMembers(project)
+    print("Getting the members of project " .. project)
     local committers = {}
     local pmc = {}
     
@@ -30,6 +31,7 @@ end
 
 -- Return all PMCs
 function getCommittees()
+    print("Getting all committees ")
     local pmcs = {}
     local ldapdata = io.popen([[ldapsearch -x -LLL -b ou=pmc,ou=committees,ou=groups,dc=apache,dc=org cn]])
     local data = ldapdata:read("*a")
@@ -44,6 +46,8 @@ local ldapdata = io.popen([[ldapsearch -x -LLL -b ou=people,dc=apache,dc=org asf
 local data = ldapdata:read("*a")
 local keys = {}
 local committers = {}
+
+TMPFILE = "/var/www/html/keys/tmp.asc"
 
 data = data .. "\ndn" -- RE expects to find this after every entry, including the last
 for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n?(.-)\r?\ndn") do
@@ -63,23 +67,22 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
                 print("Writing key " .. key .. " for " .. uid .. "...")
                 
                 -- get gpg uid
-                local tmp = io.open("/var/www/html/keys/tmp.asc", "w")
+                local tmp = io.open(TMPFILE, "w")
                 tmp:write(data)
                 tmp:close()
                 
-                local ud = io.popen("gpg -v /var/www/html/keys/tmp.asc", "r")
+                local ud = io.popen("gpg -n --with-fingerprint " .. TMPFILE, "r")
                 local id = ud:read("*a")
                 ud:close()
+
+                os.remove(TMPFILE)
                 
-                
-                local vuid = uid
-                for name in id:gmatch("uid%s+([^\r\n]+)") do
-                    vuid = vuid .. "\n    " .. name
-                end                
                 
                 local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
-                f:write("ASF ID: " .. vuid .. "\n")
-                f:write("PGP Fingerprint: " .. key .. "\n\n")
+                f:write("ASF ID: " .. uid .. "\n")
+                f:write("LDAP PGP key: " .. key .. "\n\n")
+                f:write(id)
+                f:write("\n")
                 f:write(data)
                 f:write("\n")
                 f:close()
@@ -104,6 +107,7 @@ f:write("</pre></body></html>")
 f:close()
 
 -- Add Project ASCs
+print("Creating project key files")
 local f = io.open("/var/www/html/keys/group/index.html", "w")
 f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
 f:write("<h3>Projects signatures:</h3>\n")
@@ -124,12 +128,14 @@ for k, project in pairs(projects) do
     f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
 end
 
+print("Creating podling key files")
 f:write("\n<h3>Podling signatures:</h3>\n")
 local p = io.popen(("curl --silent \"https://whimsy.apache.org/public/public_nonldap_groups.json\""))
 local rv = p:read("*a")
 p:close()
 if rv and #rv > 0 then
     local js = JSON.decode(rv)
+    local pods = {}
     for project, entry in pairs(js.groups) do
         local committers = entry.roster
         if entry.podling and entry.podling == "current" then
@@ -143,8 +149,12 @@ if rv and #rv > 0 then
                 end
             end
             af:close()
-            f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
+            table.insert(pods, project)
         end
+    end
+    table.sort(pods)
+    for i,project in pairs(pods) do
+        f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
     end
 end
 

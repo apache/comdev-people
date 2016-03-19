@@ -15,6 +15,11 @@
   <p>
   This application shows the membership of PMCs and various LDAP groups used for granting karma. It can also show the groups to which a person belongs. 
   </p>
+  <p>
+  Note: for the purpose of this application, ASF members are considered to be a PMC, i.e. ?pmc=member shows the list of current ASF members.
+  There is no LDAP committee group for members.
+  There is an LDAP unix group (which is used to grant member karma)
+  </p>
   <h2>Usage</h2>
   <p>
   As well as using the search fields to find projects or people, the application supports direct query access in the form:<br/>
@@ -28,12 +33,14 @@
   <li><a target="_blank" href="phonebook.html?project=tom">?project=tom</a> - matches all project names containing the string 'tom' (excluding the Apache prefix)</li>
   <li><a target="_blank" href="phonebook.html?user=tom">?user=tom</a> - matches all user names containing the string 'tom'</li>
   <li><a target="_blank" href="phonebook.html?pmc=tomcat">?pmc=tomcat</a> - find exact match for project</li>
+  <li><a target="_blank" href="phonebook.html?pmc=member">?pmc=member</a> - show list of current ASF members</li>
   <li><a target="_blank" href="phonebook.html?uid=fielding">?uid=fielding</a> - find exact match for user id</li>
   <li><a target="_blank" href="phonebook.html?unix=tomcat">?unix=tomcat</a> - find exact match for LDAP unix group</li>
+  <li><a target="_blank" href="phonebook.html?unix=committers">?unix=committers</a> - Show list of all committers</li>
   <li><a target="_blank" href="phonebook.html?ctte=tomcat">?ctte=tomcat</a> - find exact match for LDAP committee group</li>
   <li><a target="_blank" href="phonebook.html?service=pmc-chairs">?service=pmc-chairs</a> - find exact match for LDAP service group</li>
-  <li><a target="_blank" href="phonebook.html?podling=hcatalog">?podling=hcatalog</a> - find exact match for podling (note: not all have groups)</li>
-  <li><a target="_blank" href="phonebook.html?other=xmlgraphics-fop">?other=xmlgraphics-fop</a> - find exact match for non-LDAP group (e.g. podling, though not all have groups)</li>
+  <li><a target="_blank" href="phonebook.html?podling=hcatalog">?podling=hcatalog</a> - find exact match for podling (note: not all podlings have groups)</li>
+  <li><a target="_blank" href="phonebook.html?other=xmlgraphics-fop">?other=xmlgraphics-fop</a> - find exact match for non-LDAP group</li>
   </ul>
   <h2>Notes</h2>
   <p>

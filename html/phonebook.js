@@ -461,7 +461,11 @@ function showProject(obj, prj) {
         }
 
 		if (pl.length > 0) {
-			details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> <ul>" + pl.join("\n") + "</ul><br/>"
+			if (prj == 'member') {
+				details.innerHTML += "<b>ASF members</b> <ul>" + pl.join("\n") + "</ul><br/>"
+			} else {
+				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> <ul>" + pl.join("\n") + "</ul><br/>"				
+			}
 		}
 		
 		if (cl && cl.length > 0) {
@@ -753,7 +757,7 @@ function allDone() {
 	committees['member'] = {
 	    'roster': mMap,
         'display_name': 'Foundation Members',
-        'description': "ASF membership (PMC members == current members, Committers == those with member karma)",
+        'description': "Current ASF members (Committers == those with member karma)",
         'site': 'http://www.apache.org/foundation/'
         }
 

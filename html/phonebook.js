@@ -476,7 +476,11 @@ function showProject(obj, prj) {
             details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + userList(pmcnoctte) + "<br/><br/>"
         }
         if (pmcnounix.length) {
-            details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"
+        	if (prj == 'member') {
+                details.innerHTML += "<span class='error'>ASF members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"
+        	} else {
+                details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"        		
+        	}
         }
         if (cttenounix.length) {
             details.innerHTML += "<span class='error'>LDAP committee group members not in committers(unix) group:</span> " + userList(cttenounix) + "<br/><br/>"

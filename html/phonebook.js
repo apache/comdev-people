@@ -456,7 +456,7 @@ function showProject(obj, prj) {
 
 		for (var i in pl) {
 		    var id = pl[i]
-            pl[i] = "<li onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd> - " + getCommitterName(pl[i]) + "</li>"
+            pl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + pl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(pl[i]) + "</kbd></td><td>" + getCommitterName(pl[i]) + "</td></tr>"
 		    if (cl.indexOf(id) < 0) { // On PMC but not in LDAP unix group
                 pmcnounix.push(id)
 		    }
@@ -466,19 +466,19 @@ function showProject(obj, prj) {
 		}
 		
         for (var i in cl) {
-            cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + getCommitterName(cl[i]) + "</li>"
+            cl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd></td><td>" + getCommitterName(cl[i]) + "</td></tr>"
         }
 
 		if (pl.length > 0) {
 			if (prj == 'member') {
-				details.innerHTML += "<b>ASF members</b> <ul>" + pl.join("\n") + "</ul><br/>"
+				details.innerHTML += "<b>ASF members</b><br><br><table>" + pl.join("\n") + "</table><br/>"
 			} else {
-				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> <ul>" + pl.join("\n") + "</ul><br/>"				
+				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> <br><br><table>" + pl.join("\n") + "</table><br/>"				
 			}
 		}
 		
 		if (cl && cl.length > 0) {
-			details.innerHTML += "<b>Committers:</b> <ul>" + cl.join("\n") + "</ul><br/>"
+			details.innerHTML += "<b>Committers:</b> <table>" + cl.join("\n") + "</table><br/>"
 		}
 
         if (pmcnoctte.length) {
@@ -520,11 +520,11 @@ function showJsonRoster(obj, type, json, name) {
         var cl = json[name].roster.slice()
         cl.sort()
         for (var i in cl) {
-            cl[i] = "<li onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd> - " + getCommitterName(cl[i]) + "</li>"
+            cl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd></td><td>" + getCommitterName(cl[i]) + "</td></td>"
         }
 
         if (cl && cl.length > 0) {
-            details.innerHTML += "<b>Roster:</b> <ul>" + cl.join("\n") + "</ul><br/>"
+            details.innerHTML += "<b>Roster:</b><br><br><table>" + cl.join("\n") + "</table><br/>"
         }
         obj.appendChild(details)
     } else {

@@ -30,6 +30,11 @@ var Q_PODLING = 'podling' // podling (non-LDAP group)
 // Not intended for general use; may change at any time
 var Q_DEBUG   = 'debug' // print some debug info
 
+// compatibility shim for IE8 and other older browsers
+if (!Date.now) {
+    Date.now = function() { return new Date().getTime(); }
+}	
+
 // This is faster than parseInt, and it's more obvious why it is being done
 function toInt(number) {
     return number | 0 //
@@ -57,13 +62,17 @@ function getAsyncJSONArray(urls, finalCallback) {
         }
 
         if (obj) { obj.innerHTML = "loading file #" + ( fetchCount - urls.length ) + " / " + fetchCount + "<br>" + desc }
+        start = Date.now()
         xmlHttp.open("GET", URL, true);
         xmlHttp.send(null);
         xmlHttp.onreadystatechange = function(state) {
             if (xmlHttp.readyState == 4) {
                 if (cb) {
                     if (xmlHttp.status == 200) {
+                    	elapsed = Date.now() - start
                         cb(JSON.parse(xmlHttp.responseText));
+                    	// must be done after as cb creates the hash
+                    	info[desc]['elapsed'] = elapsed
                     } else {
                         cb({});
                         alert("Error: '" + xmlHttp.statusText + "' while loading " + URL)
@@ -716,19 +725,21 @@ function searchCommitters(keyword, open) {
 }
 
 function saveInfo(json,name) {
-	info[name] = {}
-	info[name]['lastTimestamp'] = json.lastTimestamp
+	info[name] = {}	
+	try { info[name]['lastTimestamp'] = json.lastTimestamp } catch (err) { } // ignored
+	try { info[name]['lastCreateTimestamp'] = json.lastCreateTimestamp } catch (err) { } // ignored
+	try { info[name]['last_updated'] = json.last_updated } catch (err) { } // ignored
 }
 
 function preRender() {
     getAsyncJSONArray([
-        ['https://whimsy.apache.org/public/member-info.json',            "members",    function(json) { members = json; }],
+        ['https://whimsy.apache.org/public/member-info.json',            "members",    function(json) { members = json; saveInfo(json,'members');}],
         ["https://whimsy.apache.org/public/public_ldap_people.json",     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
-        ['https://whimsy.apache.org/public/committee-info.json',         "committees", function(json) { committees = json.committees; }],
-        ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; }],
+        ['https://whimsy.apache.org/public/committee-info.json',         "committees", function(json) { committees = json.committees; saveInfo(json,'committees');}],
+        ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; saveInfo(json,'iclainfo');}],
         ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
         ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
-        ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'ldapservices'); }],
+        ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
         ['https://whimsy.apache.org/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
         	nonldapgroups = json.groups;
         	for (var g in nonldapgroups) {
@@ -736,6 +747,7 @@ function preRender() {
         			podlings[g] = nonldapgroups[g]
         		}
         	}
+        	saveInfo(json,'nonldapgroups');
         	}],
         ],
         allDone);

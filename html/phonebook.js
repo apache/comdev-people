@@ -733,14 +733,14 @@ function saveInfo(json,name) {
 
 function preRender() {
     getAsyncJSONArray([
-        ['https://whimsy.apache.org/public/member-info.json',            "members",    function(json) { members = json; saveInfo(json,'members');}],
-        ["https://whimsy.apache.org/public/public_ldap_people.json",     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
-        ['https://whimsy.apache.org/public/committee-info.json',         "committees", function(json) { committees = json.committees; saveInfo(json,'committees');}],
-        ['https://whimsy.apache.org/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; saveInfo(json,'iclainfo');}],
-        ['https://whimsy.apache.org/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
-        ['https://whimsy.apache.org/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
-        ['https://whimsy.apache.org/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
-        ['https://whimsy.apache.org/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
+        ['/public/member-info.json',            "members",    function(json) { members = json; saveInfo(json,'members');}],
+        ["/public/public_ldap_people.json",     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
+        ['/public/committee-info.json',         "committees", function(json) { committees = json.committees; saveInfo(json,'committees');}],
+        ['/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; saveInfo(json,'iclainfo');}],
+        ['/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
+        ['/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
+        ['/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
+        ['/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
         	nonldapgroups = json.groups;
         	for (var g in nonldapgroups) {
         		if (nonldapgroups[g]['podling']) {

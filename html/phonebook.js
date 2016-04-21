@@ -578,6 +578,23 @@ function searchProjects(keyword, open) {
 	}
 }
 
+function searchService(keyword, open) {
+	var obj = document.getElementById('phonebook')
+	if (keyword != '') {
+	   obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	} else {
+	   obj.innerHTML = ''
+	}
+	for (var srv in ldapservices) {
+		if (srv.search(keyword.toLowerCase()) != -1) {
+			obj.innerHTML += "<div id='service_" + srv + "' class='group'><h3 onclick=\"showServiceRoster(this.parentNode, '" + srv + "');\">" + srv + "</h3></div>"
+			if (open) {
+			    showServiceRoster(document.getElementById('service_' + srv), srv)
+			}
+		}
+	}
+}
+
 // Show a single PMC
 
 function showPMC(pmc) {

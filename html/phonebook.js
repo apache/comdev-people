@@ -734,7 +734,7 @@ function saveInfo(json,name) {
 function preRender() {
     getAsyncJSONArray([
         ['/public/member-info.json',            "members",    function(json) { members = json; saveInfo(json,'members');}],
-        ["/public/public_ldap_people.json",     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
+        ['/public/public_ldap_people.json',     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
         ['/public/committee-info.json',         "committees", function(json) { committees = json.committees; saveInfo(json,'committees');}],
         ['/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; saveInfo(json,'iclainfo');}],
         ['/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],

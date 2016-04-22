@@ -1,0 +1,49 @@
+html > body {left:0;}	
+body {
+    background-color: white;
+    color: black;
+    padding: 0;
+    margin: 0;
+    font-family: arial, "lucida console", sans-serif;
+}
+
+/* Emulate table align=center */
+div.centered, td.centered { 
+	text-align: center;
+}
+
+div.centered table { 
+	margin: 0 auto; 
+	text-align: left;
+}
+
+table#projects, #projects td, #projects th{
+	border: 1px solid #000000;
+}
+
+/* leave some space around the text */
+table.projects td{
+	padding-left: .5em;
+	padding-right: .5em; /* for centred cells */
+}
+
+td {
+ background-color: #a0ddf0;
+}
+
+th {
+ background-color: #039acc;
+}
+
+/*
+ * id sections
+ */
+#content {
+    width : 98%;
+    float: left;
+    padding-top: 1em;
+    padding-left: 5px;
+    margin-left: 10px;
+    border-left: 1px solid #ddd;
+}
+

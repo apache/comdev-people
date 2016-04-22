@@ -14,6 +14,7 @@ python3 /var/www/tools/committers.py
 
 from os.path import dirname, abspath, join
 from inspect import getsourcefile
+import datetime
 import json
 
 MYHOME = dirname(abspath(getsourcefile(lambda:0))) # automatically work out home location
@@ -88,6 +89,7 @@ def hasICLA(id):
 f = open(join(HTML_DIR,'committer-index.html'), mode='w', encoding='utf-8')
 
 f.write("""<html>
+<head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ASF Committers by id</title>
 <link rel="stylesheet" type="text/css" href="css/community.css">
@@ -97,7 +99,9 @@ f.write("""<html>
 <p>
       This page lists all known committers by login id.
       For each entry, it shows the full name and any LDAP groups / SVN groups to which they belong.
-      This information is derived from LDAP and the SVN authorization file.
+      <br/>
+      This information is derived from the <a href='public'>JSON files</a> 
+      which in turn are derived from LDAP and the SVN authorization file by Whimsy.
 </p>
 <p>
 <!--
@@ -121,8 +125,10 @@ f.write("""<html>
 <p>
     <a href="/keys/committer/">PGP keys of committers</a> are available.
 </p>
-</p>
-<hr size="1" noshade>
+""")
+f.write("<p>Last updated at: %s</p>\n" % '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow()))
+
+f.write("""<hr size="1" noshade>
       <a href='#A'>A</a>
       <a href='#B'>B</a>
       <a href='#C'>C</a>
@@ -206,6 +212,7 @@ for id in ldap_groups['committers']['roster']:
 
 # trailer
 f.write("""</table>
+<hr/>
 </div>
 </body>
 </html>

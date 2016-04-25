@@ -21,18 +21,25 @@ MYHOME = dirname(abspath(getsourcefile(lambda:0))) # automatically work out home
 HTML_DIR=join(dirname(MYHOME),'html')
 JSON_DIR=join(HTML_DIR,'public')
 
-def getJson(file):
+versions = {}
+
+def getJson(file, stamp=None):
     with open(join(JSON_DIR, file), "r", encoding='utf-8') as f:
-        return json.loads(f.read())
+        j = json.loads(f.read())
+        if stamp != None:
+            versions[file] = [stamp, j[stamp]]
+        else:
+            versions[file] = ['(No timestamp info)', '']
+        return j
 
-members = getJson('member-info.json')['members']
-ldap_people = getJson('public_ldap_people.json')['people']
+members = getJson('member-info.json', 'last_updated')['members']
+ldap_people = getJson('public_ldap_people.json', 'lastCreateTimestamp')['people']
 
-ldap_groups = getJson('public_ldap_groups.json')['groups']
-ldap_cttees = getJson('public_ldap_committees.json')['committees']
-ldap_services = getJson('public_ldap_services.json')['services']
-nonldap_groups = getJson('public_nonldap_groups.json')['groups']
-icla_info = getJson('icla-info.json')['committers']
+ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups']
+ldap_cttees = getJson('public_ldap_committees.json', 'lastTimestamp')['committees']
+ldap_services = getJson('public_ldap_services.json', 'lastTimestamp')['services']
+nonldap_groups = getJson('public_nonldap_groups.json')['groups'] # nothing
+icla_info = getJson('icla-info.json', 'last_updated')['committers']
 
 idData = {} # hash of ids; entries are group type and name
 
@@ -213,6 +220,20 @@ for id in ldap_groups['committers']['roster']:
 # trailer
 f.write("""</table>
 <hr/>
+<p>Created from the following versions of the files:</p>
+<table>
+<tr>
+<th>File name</th>
+<th>Date stamp</th>
+<th>Date type</th>
+</tr>
+""")
+
+for file in sorted(versions):
+    f.write("""<tr><td><a href="public/%s">%s</a></td><td>%s</td><td>%s</td></tr>
+""" % (file, file, versions[file][1], versions[file][0]))
+
+f.write("""</table>
 </div>
 </body>
 </html>

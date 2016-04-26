@@ -293,7 +293,6 @@ g.write("""<html>
   The official documentation for membership of PMCs is the 
   <a href="https://svn.apache.org/repos/private/committers/board/committee-info.txt">committee-info.txt</a> file.
   This requires an ASF login to view.
-  For explanation see <a href="www.apache.org/dev/pmc.html#newpmc">PMC Guide - adding a new member</a>.
 </p>
 <p>
   Membership of the Unix LDAP groups (e.g. tomcat) generally gives write access to SVN.
@@ -307,7 +306,8 @@ g.write("""<html>
 <p>
   Committers may provide homepage URLs in LDAP.
   <br>
-  Login to https://id.apache.org/ and populate the ""Homepage URL:" field
+  Login to https://id.apache.org/ and populate the "Homepage URL:" field.
+  <br>
   Any such entries are shown as links in the Name column. 
 </p>
 <hr size="1" noshade>
@@ -316,7 +316,7 @@ g.write("""<html>
 <table border="0">
 """)
 
-PER_LINE = 6
+PER_LINE = 5
 count = 0
 for group in sorted(groupData):
     if count % PER_LINE == 0:

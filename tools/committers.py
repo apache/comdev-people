@@ -3,7 +3,9 @@ if sys.hexversion < 0x030000F0:
     raise RuntimeError("This script requires Python3")
 
 """
-Generates html/committer-index.html 
+Generates:
+html/committer-index.html 
+html/committers-by-project.html
 from json files under html/public
 
 Expected usage in cron job:

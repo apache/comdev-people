@@ -314,7 +314,6 @@ g.write("""<html>
 </p>
 <hr size="1" noshade>
 <!--bodyContent-->
-<font color="#000000" size="-2" face="verdana,arial,helvetica,sanserif">
 <table border="0">
 """)
 
@@ -345,7 +344,7 @@ for group in sorted(groupData):
         g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</td>""" % (id, id, idStyle(id, id)))
         # Name
         g.write("<td>%s</td></tr>\n" % idStyle(id, publicName(id)))
-    g.write("""<table>""")
+    g.write("""</table>\n""")
 
 # trailer
 g.write("""

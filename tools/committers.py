@@ -283,7 +283,7 @@ g.write("""<html>
 <body>
 <div id="content">
 <p>
-  This page lists all the LDAP groups and SVN authorization groups found in
+  This page lists all LDAP groups and the SVN authorization groups found in
   the SVN authorization file and shows the membership of the corresponding groups.
 </p>
 <p>

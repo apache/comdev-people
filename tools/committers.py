@@ -132,7 +132,7 @@ f.write("""<html>
       which in turn are derived from LDAP and the SVN authorization file by Whimsy.
 </p>
 <p>
-<!--
+<!-- TODO
       Entries in <em>italics</em> do <b>NOT</b> have a signed 
       <a href="http://www.apache.org/licenses/#clas">Contributor License Agreement</a> on file (this knowledge is keyed by SVN id).
       <br>
@@ -154,9 +154,11 @@ f.write("""<html>
     <a href="/keys/committer/">PGP keys of committers</a> are available.
 </p>
 """)
-f.write("<p>Last updated at: %s</p>\n" % '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow()))
 
-f.write("""<hr size="1" noshade>
+f.write("<p>Last updated at: %s</p>" % '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow()))
+
+f.write("""
+<hr size="1" noshade>
       <a href='#A'>A</a>
       <a href='#B'>B</a>
       <a href='#C'>C</a>
@@ -275,13 +277,15 @@ g.write("""<html>
 <body>
 <div id="content">
 <p>
-  This page lists all the SVN and LDAP auth groups found in
-  the SVN authorization file and shows the members who are in the corresponding groups.
+  This page lists all the LDAP groups and SVN authorization groups found in
+  the SVN authorization file and shows the membership of the corresponding groups.
 </p>
 <p>
+<!-- TODO
   Entries in <em>italics</em> do <b>NOT</b> have a signed 
   <a href="http://www.apache.org/licenses/#clas">Contributor License Agreement</a> on file (this knowledge is keyed by SVN id).
   <br>
+-->
   Entries in <b>bold</b> are ASF members. 
 </p>
 <p>
@@ -312,6 +316,11 @@ g.write("""<html>
   <br>
   Any such entries are shown as links in the Name column. 
 </p>
+""")
+
+g.write("<p>Last updated at: %s</p>" % '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow()))
+
+g.write("""
 <hr size="1" noshade>
 <!--bodyContent-->
 <table border="0">

@@ -326,6 +326,8 @@ g.write("""
 <table border="0">
 """)
 
+# Create the index
+
 PER_LINE = 5
 count = 0
 for group in sorted(groupData):
@@ -342,8 +344,11 @@ while count % PER_LINE != 0:
     count += 1
 if needTr:
     g.write("</tr>\n")
+
 g.write("""</table>
 <hr size="1" noshade>\n""")   
+
+# create the individual listings
 
 for group in sorted(groupData):
     g.write("""<h2 id="%s">%s</h2>\n""" % (group, podlingName(group)))

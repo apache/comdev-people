@@ -273,6 +273,12 @@ g.write("""<html>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>ASF Committers by auth group</title>
 <link rel="stylesheet" type="text/css" href="css/community.css">
+<style>
+.left, .right {
+    background-color: #FFFFFF;
+    vertical-align: top;
+}
+</style>
 </head>
 <body>
 <div id="content">
@@ -349,8 +355,17 @@ g.write("""</table>
 <hr size="1" noshade>\n""")   
 
 # create the individual listings
+# put the unix and pmc groups side by side to reduce page length
+
+col=0
 
 for group in sorted(groupData):
+    if group+'-pmc' in groupData: # are we processing a unix group with a -pmc group?
+        col=1
+    if col == 1: # start the left column
+        g.write("""<table><tr><td class="left">\n""")
+    if col == 2:
+        g.write("""<td class="right">\n""")
     g.write("""<h2 id="%s">%s</h2>\n""" % (group, podlingName(group)))
     g.write("""<table><tr><th>SVN id</th><th>Name</th></tr>\n""")
     for id in groupData[group]:
@@ -359,6 +374,13 @@ for group in sorted(groupData):
         # Name
         g.write("<td>%s</td></tr>\n" % idStyle(id, publicName(id)))
     g.write("""</table>\n""")
+    if col > 0:
+        g.write("""</td>\n""")
+    if col == 2:
+        g.write("""</tr></table>\n""")
+        col = 0
+    if col == 1:
+        col = 2
 
 # trailer
 g.write("""

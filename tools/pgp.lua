@@ -2,7 +2,19 @@
 --local https = require 'ssl.https'
 local JSON = require 'cjson'
 
--- Return all members of a project + PMC
+-- This script assumes that the files are all under /var/www/html
+--
+-- It reads:
+-- LDAP for unix and PMC groups and asf-pgpKeyFingerprint from people
+-- 
+-- It creates:
+-- /var/www/html/keys/committer/{uid}.asc
+-- /var/www/html/keys/committer/index.html
+-- /var/www/html/keys/group/index.html
+-- /var/www/html/keys/group/{group}.asc
+-- /var/www/html/keys/tmp.asc
+
+-- Return all members of a project + PMC separately and as a set
 function getMembers(project)
     print("Getting the members of project " .. project)
     local committers = {}
@@ -25,7 +37,10 @@ function getMembers(project)
     -- Sometimes, LDAP fails and returns everything - we don't want that
     if #committers > 4500 then committers = {} end
     if #pmc > 4500 then pmc = {} end
-    return committers, pmc
+    local set = {}
+    for _, v in ipairs(pmc) do set[v] = 1 end
+    for _, v in ipairs(committers) do set[v] = 1 end
+    return committers, pmc, set
 end
 
 
@@ -114,9 +129,10 @@ f:write("<h3>Project signatures:</h3>\n")
 local projects = getCommittees()
 table.sort(projects)
 for k, project in pairs(projects) do
-    local committers, pmc = getMembers(project)
+    -- use the set so we get all the project members (e.g. tac has no Unix group)
+    local _, _, set = getMembers(project)
     local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
-    for k, uid in pairs(committers) do
+    for uid, _ in pairs(set) do
         local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
         if cf then
             local data = cf:read("*a")

@@ -110,7 +110,7 @@ f:close()
 print("Creating project key files")
 local f = io.open("/var/www/html/keys/group/index.html", "w")
 f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
-f:write("<h3>Projects signatures:</h3>\n")
+f:write("<h3>Project signatures:</h3>\n")
 local projects = getCommittees()
 table.sort(projects)
 for k, project in pairs(projects) do

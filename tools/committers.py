@@ -8,6 +8,9 @@ html/committer-index.html
 html/committers-by-project.html
 from json files under html/public
 
+keys/groups/infrastructure-root.asc
+from json files under html/public and keys/committer/
+
 Expected usage in cron job:
 
 python3 /var/www/tools/committers.py
@@ -22,6 +25,9 @@ import json
 MYHOME = dirname(abspath(getsourcefile(lambda:0))) # automatically work out home location
 HTML_DIR=join(dirname(MYHOME),'html')
 JSON_DIR=join(HTML_DIR,'public')
+KEYS_DIR=join(HTML_DIR,'keys')
+KEYS_UID=join(KEYS_DIR,'committer')
+KEYS_GRP=join(KEYS_DIR,'group')
 
 versions = {}
 
@@ -405,3 +411,17 @@ g.write("""</table>
 """)
 
 g.close()
+
+##############################################################################
+
+SERVICE='infrastructure-root'
+infra_root = getJson('public_ldap_services.json')['services'][SERVICE]['roster']
+h = open(join(KEYS_GRP,'%s.asc' % SERVICE), mode='w', encoding='utf-8')
+for root in infra_root:
+    try:
+        j = open(join(KEYS_UID,'%s.asc' % root), mode='r', encoding='utf-8')
+        h.write(j.read())
+        j.close()
+    except:
+        pass
+h.close()

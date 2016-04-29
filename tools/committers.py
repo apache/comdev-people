@@ -416,7 +416,8 @@ g.close()
 
 SERVICE='infrastructure-root'
 infra_root = getJson('public_ldap_services.json')['services'][SERVICE]['roster']
-h = open(join(KEYS_GRP,'%s.asc' % SERVICE), mode='w', encoding='utf-8')
+IROOT=join(KEYS_GRP,'%s.asc' % SERVICE)
+h = open(IROOT, mode='w', encoding='utf-8')
 for root in infra_root:
     try:
         j = open(join(KEYS_UID,'%s.asc' % root), mode='r', encoding='utf-8')
@@ -425,3 +426,11 @@ for root in infra_root:
     except:
         pass
 h.close()
+
+# Temporary measure; ensure file gets appropriate ownership
+import os
+stat_info = os.stat(KEYS_GRP)
+uid = stat_info.st_uid
+gid = stat_info.st_gid
+# print(uid, gid)
+os.chown(IROOT, uid, gid)

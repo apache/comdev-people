@@ -17,7 +17,7 @@ python3 /var/www/tools/committers.py
 
 """
 
-from os.path import dirname, abspath, join
+from os.path import dirname, abspath, join, isfile
 from inspect import getsourcefile
 import datetime
 import json
@@ -157,7 +157,7 @@ f.write("""<html>
     <a href="https://svn.apache.org/repos/private/foundation/officers/iclas.txt">iclas.txt</a> file which is maintained by the secretary.
 </p>
 <p>
-    <a href="/keys/committer/">PGP keys of committers</a> are available.
+    If the committers has a <a href="/keys/committer/">PGP key</a> then it is linked from the SVN Id column
 </p>
 """)
 
@@ -210,8 +210,18 @@ def notICLA(id, txt):
         return "<i>%s</i>" % txt
     return txt
 
-def idStyle(id, txt):
-    return notICLA(id, boldMember(id, txt))
+def linkKey(id):
+    txt = idStyle(id)
+    keyFile = join(KEYS_UID,'%s.asc' % id)
+    if isfile(keyFile):
+        return """<a href="%s">%s</a>""" % (keyFile, txt)
+    return txt
+
+def idStyle(id):
+    return notICLA(id, boldMember(id, id))
+
+def nameStyle(id):
+    return notICLA(id, boldMember(id, publicName(id)))
 
 # create links to phonebook groups
 def linkGroup(groups):
@@ -236,9 +246,9 @@ for id in ldap_groups['committers']['roster']:
     else:
         f.write("<tr>")
     # SVN id
-    f.write("<td id='%s'>%s</td>" % (id, idStyle(id, id)))
+    f.write("<td id='%s'>%s</td>" % (id, linkKey(id)))
     # Name
-    f.write("<td>%s</td>" % idStyle(id, publicName(id)))
+    f.write("<td>%s</td>" % nameStyle(id))
     # groups (if any)
     if id in idData:
         f.write("<td>%s</td>" % linkGroup(idData[id]))
@@ -376,9 +386,9 @@ for group in sorted(groupData):
     g.write("""<table><tr><th>SVN id</th><th>Name</th></tr>\n""")
     for id in groupData[group]:
         # SVN id
-        g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</td>""" % (id, id, idStyle(id, id)))
+        g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</td>""" % (id, id, idStyle(id)))
         # Name
-        g.write("<td>%s</td></tr>\n" % idStyle(id, publicName(id)))
+        g.write("<td>%s</td></tr>\n" % nameStyle(id))
     g.write("""</table>\n""")
     if col > 0:
         g.write("""</td>\n""")

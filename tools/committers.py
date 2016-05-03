@@ -215,7 +215,7 @@ def linkKey(id):
     txt = idStyle(id)
     keyFile = join(KEYS_UID,'%s.asc' % id)
     if isfile(keyFile):
-        return """<a href="%s">%s</a>""" % (keyFile, txt)
+        return """<a href="keys/committer/%s">%s</a>""" % (id, txt)
     return txt
 
 def idStyle(id):

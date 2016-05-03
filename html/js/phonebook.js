@@ -212,7 +212,7 @@ function showCommitter(obj, uid) {
             details.innerHTML += "<b>Login is currently disabled</b><br/><br/>"
         }
 		if (isMember(uid)) {
-			details.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
+			details.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
         if (ch.length > 0) {
             details.innerHTML += "<b>Chair of:</b> " + linkifyList(Q_PMC, ch) + "<br/><br/>"
@@ -320,7 +320,7 @@ function hoverCommitter(parent, uid) {
         var pl = roles[0]
         var ch = roles[1]
 		if (isMember(uid) == true) {
-			div.innerHTML += "<img src='asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
+			div.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
         if (isNologin(uid)) {
             div.innerHTML += "<b>Login is currently disabled</b><br/><br/>"

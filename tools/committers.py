@@ -130,6 +130,7 @@ f.write("""<html>
 </head>
 <body>
 <div id="content">
+<h1><img src='img/asf_logo_small.png' alt='Apache feather logo with text' style='vertical-align: middle;'/> ASF Committers by Id</h1>
 <p>
       This page lists all known committers by login id.
       For each entry, it shows the full name and any LDAP groups / SVN groups to which they belong.
@@ -298,6 +299,7 @@ g.write("""<html>
 </head>
 <body>
 <div id="content">
+<h1><img src='img/asf_logo_small.png' alt='Apache feather logo with text' style='vertical-align: middle;'/> ASF Committers by auth group</h1>
 <p>
   This page lists all LDAP groups and the SVN authorization groups found in
   the SVN authorization file and shows the membership of the corresponding groups.

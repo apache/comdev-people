@@ -438,11 +438,3 @@ for root in infra_root:
     except:
         pass
 h.close()
-
-# Temporary measure; ensure file gets appropriate ownership
-import os
-stat_info = os.stat(KEYS_GRP)
-uid = stat_info.st_uid
-gid = stat_info.st_gid
-# print(uid, gid)
-os.chown(IROOT, uid, gid)

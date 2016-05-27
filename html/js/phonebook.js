@@ -808,7 +808,7 @@ function allDone() {
         } else if (type == Q_UID) {
             showUid(name)
         } else if (type == Q_PMC) {
-            showPMC(name)
+            showPMC(name.toLowerCase())
         } else if (type == Q_UNIX) {
             showUNIX(name)
         } else if (type == Q_CTTE) {

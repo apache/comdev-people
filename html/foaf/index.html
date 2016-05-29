@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Manage your public details with FOAF files</title>
+    <link rel="stylesheet" type="text/css" href="../css/community.css" />
+  </head>
+  <body>
+    <div id="content">
+      <div id="title">
+        <a href="http://www.apache.org">
+          <img alt="ASF Logo" title="ASF Logo" src="../img/asf_logo_small.png"/>
+        </a>
+        <h1 id="top">Managing Your Public Details with FOAF</h1>
+      </div>
+
+      <p>A number of Apache sites are generated from data provided and 
+       controlled by you, the committers. Inclusion of your details is 
+       entirely voluntary.</p>
+      <p>The data, used by sites such as the 
+       <a href="http://community.zones.apache.org/">ComDev Committers Map</a>,
+       is driven from FOAF files. FOAF is an RDF format designed to store 
+       personal details and establish relationships.</p>
+
+      <h3 id="privacy-issues">Privacy Issues</h3>
+      <p><a href="http://www.foaf-project.org/">FOAF</a> files can contain a large amount of personal information - not all of it suitable for publishing directly on the web. Files that are stored within the committers repository should be treated as confidential and not given to non-committers without the explicit permission of the person.</p>
+      <p>Some people have <a href="http://www.foaf-project.org/">FOAF</a> files already available and these can be used.</p>
+
+      <h3 id="public-information">Public Information</h3>
+      <p>The following information is made available on variable ASF websites,
+       from the files provided.</p>
+      <ul>
+        <li>name (foaf:name)</li>
+        <li>location</li>
+        <li>geographic position (foaf:based_near) </li>
+        <li>projects (foaf:currentProject)</li>
+        <li>PGP keys (wot:hasKey)</li>
+        <li>Home page (foaf:homepage)</li>
+        <li>Photo (foaf:depiction)</li>
+        <li>Weblog </li>
+      </ul>
+      <p>While PGP keys may be included in your FOAF file, for most Apache
+       uses, you should instead add them to your profile on 
+       <a href="https://id.apache.org/">https://id.apache.org/</a>.  
+       This will cause them to be added to 
+       <a href="https://home.apache.org/keys/">https://home.apache.org/keys/</a>, 
+       and make them available to other infrastructure tools in the future.</p>
+
+      <h3 id="private-information">Private Information</h3>
+      <p>The following information can be stored in the FOAF files but is not published on these pages.
+It is planned to make this information available on a private, restricted access website for committers.
+However, note that if the FOAF itself is stored at a public URL, anyone can read it directly.
+FOAF files stored under https://svn.apache.org/repos/private/committers/info can only be read by other ASF committers.
+</p>
+      <ul>
+        <li>email address(es)</li>
+        <li>im accounts</li>
+        <li>irc nicknames</li>
+      </ul>
+
+      <h2 id="starting">How do I start?</h2>
+      <h3 id="create-foaf-file">- I don't have a foaf file!</h3>
+      <p class="indented">Visit the <a href="foafamatic.html">foaf-a-matic</a> and create a foaf file.</p>
+
+      <h3 id="uploading">- Uploading your foaf file</h3>
+      <p class="indented">Once you have the file, commit it to https://svn.apache.org/repos/private/committers/info.</p>
+
+      <h3 id="mime-type">- Use the correct SVN mime-type when committing your foaf file</h3>
+      <p class="indented">Please ensure that the FOAF file is <a href="http://subversion.apache.org/faq.html#binary-files">treated as a text file by SVN</a><ul><li>either: don't provide a svn:mime-type</li><li>or: use a svn:mime-type starting with "text/" for example: "text/xml"</li></ul></p>
+      <p id="not-application-xml" class="indented"><b>Please do NOT use the mime-type "application/xml"</b> as that is treated as binary by SVN.</p>
+
+      <h3 id="have-foaf">- I have a foaf file!</h3>
+      <p class="indented">As long as it's publicly accessible, simply add your URL to the file 'external.xml' that can be found in committers/info.</p>
+      <p class="indented">NB Please either add a link OR commit a file - doing both will result in you being listed twice!</p>
+
+      <h2 id="invisible">I'm not visible?!</h2>
+      <p>Sites powered by FOAF data updated on an hourly to daily basis.
+       If you haven't shown up within a day, please contact the owners of
+       the relevant site (eg dev@community for the ComDev Locations Map),
+       and they can help you debug any issues.</p>
+
+      <div id="footer">
+        (c) 2016 Apache Software Foundation
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,242 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+ <title>Foaf-A-Matic - Generate your Apache FOAF file</title>
+ <link rel="stylesheet" type="text/css" href="../css/community.css">
+ <script type="text/javascript" src="js/foaf.js"></script>
+ <script type="text/javascript" src="js/foaf-a-matic.js"></script>
+ <style type="text/css">
+  .private { color: #ff5b5b; }
+ </style>
+ <script type="text/javascript">
+<!--
+  function SelectImg(img, w, h){
+    var sImg = prompt('Image URL:');
+    if(sImg != ''){
+      if (sImg.indexOf('http://') == -1) {
+        sImg = "http://" + sImg;
+      }
+      var remote = document.createElement('img');
+      remote.src = sImg;
+      if (remote.width > 0 && remote.height > 0) {
+        // Only reset the image size of we need to
+        if (img.src != '') {
+          img.width = w;
+          img.height = h;
+        }
+        img.src = sImg;
+        if (remote.width > remote.height) {
+          img.height = (remote.height / remote.width) * img.height;
+        } else {
+          img.width = (remote.width / remote.height) * img.width;
+        }
+      } else {
+        alert("The URL " + sImg + " does not appear to be a valid image");
+      }
+    } 
+  }
+  // check for parameters in URL
+  checkParameters();
+  
+  // Check decimal degree range
+  function checkDegreeInRange(deg, what){
+    if (isNaN(deg)) {
+      alert(what+" is not a decimal degree. Don't use degrees/minutes/seconds");
+      return false;
+    }
+    if (deg > 180 || deg < -180) {
+      alert(what+" is not in range [-180,+180]");
+      return false;
+    }
+    return true;
+  }
+
+  // Convert decimal degreee to degrees, minutes, seconds
+  
+  function degreeString(decdeg){
+    var degabs = Math.abs(decdeg);
+    var deg = Math.floor(degabs);
+    var min = Math.floor((degabs - deg) * 60);
+    var sec = Math.round(((degabs - deg) * 60 - min) * 60);
+    if (sec == 60) {// deal with round up reaching limit
+        min += 1;
+        sec = 0;
+    }
+    if (min == 60) {// deal with round up reaching limit
+        deg += 1;
+        min = 0;
+    }
+    return deg + "&#176; " + min + "' " + sec + '"';
+  }
+  
+  // Calculate location in degrees and minutes and store in specified element
+  function calcLocation(lat, lng, loc){
+     if (!checkDegreeInRange(lat, 'Latitude')){
+         return false;
+     }
+     if (!checkDegreeInRange(lng, 'Longitude')){
+         return false;
+     }
+     var ns = lat < 0 ? 'S' : 'N';
+     var ew = lng < 0 ? 'W' : 'E';
+     var txt=" (" + degreeString(lat) + ns + "&nbsp;&nbsp;&nbsp;" + degreeString(lng) + ew + ")";
+     document.getElementById(loc).innerHTML = txt;
+  }
+//-->
+    </script>
+</head>
+<body>
+<div id="content">
+ <div id="title">
+  <a href="http://www.apache.org">
+   <img alt="ASF Logo" title="ASF Logo" src="../img/asf_logo_small.png"/>
+  </a>
+  <h1 id="top">Foaf-A-Matic - Generate your Apache FOAF file</h1>
+ </div>
+
+<p>The form on this page will allow you to create a foaf file for use with the ASF Committer information. Rest assured though, it's a standard foaf file that can be used anywhere!</p>
+<p>Once created you have 2 choices to have your file included. 
+<br><b>Please choose one, and only one of the following:</b></p>
+<ol>
+<li>Commit it to the committers/info directory with a filename of your ASF ID with an extension of '.rdf'.<br>e.g. if your ASF ID is <em>bloggs</em> save the file as <em>bloggs.rdf</em>
+</li>
+<p><b>-- or --</b></p>
+<li>Put the file on the web and add a link to it in the file 'external.xml' (found in the committers/info directory). Your file can have any filename and any extension if you use this option.</li>
+</ol>
+<p>However you tell us about your file, your details should shortly appear on
+ various Apache sites!</p>
+
+<h3>Weblogs</h3>
+<p>If you add your weblog and include a feed URL then at some point it may end up being aggregated on <a href="http://planetapache.org/">Planet Apache</a>. If you don't want your weblog to be included in the Planet Apache aggregator but be included in the list of weblogs on the website then you can enter the details without the feed URL and it will not be added to the Planet Apache feed.</p>
+<p><b>Please ensure that you include a title for the blog.</b>
+If not, it will be listed using the URL as the title.</p>
+
+<h3 id="eventNotes">Events</h3>
+<p>Event details are no longer tracked through FOAF files. The Community
+ Development project maintains a list of 
+ <a href="https://www.apache.org/events/meetups.html">Apache-related community 
+  events</a> (eg meetups and talks), along with a
+ <a href="https://community.apache.org/calendars/">calendar</a> and
+ <a href="https://community.apache.org/calendars/conferences.html">list of
+  upcoming Apache conferences</a>. To have Apache related events listed at 
+ which you are organising or speaking, please list them there, or ask on
+ <a href="https://lists.apache.org/list.html?dev@community.apache.org">dev@community</a>
+ for help getting them listed!
+</p>
+
+<h3 id="projectNotes">Projects</h3>
+<p>Projects that are under the auspices of the ASF should be prefixed 'Apache', i.e. 'Apache Ant' rather than just 'Ant'.</p>
+
+<h3>Notes</h3>
+<ul>
+<li>The file encoding is UTF-8. Try to avoid changing that, or the file will 
+ could end up dropped from the output.</li>
+<li>The homepage should be the webpage that you consider to be your homepage. It should be a publicly accessible URL. Providing this is optional.</li>
+<li>Information <span class="private">colored red</span> in the following form is considered "PRIVATE" and will not be published on any public forum.</li>
+<li>Notes for completing the form are towards the bottom of this page.</li>
+<li>Geographic co-ordinates should be entered as decimal degrees.
+  Minutes should be converted to the appropriate fraction of the degree,
+  for example 20°9' becomes 20.15 degrees.
+  West and South are both negative, so '20.15S 120.5W' would be '-20.15 -120.5'.
+  See explanations of latitude/longitude and how to determine your position via
+  the <a href="https://svn.apache.org/repos/private/committers/krell/">FAQ</a>
+  for the other "committer map".
+ </li>
+</ul>
+
+<p><em>Only those fields marked with a '*' are required.</em></p>
+<form action="" name="details" onSubmit="return false;">
+<table width="100%"><tr class="public">
+<td width="70%"><table width="100%">
+<tr class="public">
+<td width="30%">ASF  ID *</td>
+<td><input type="text" name="avail"></td>
+</tr>
+<tr class="public">
+<td width="30%">Title</td>
+<td><input type="text" name="title"></td>
+</tr>
+<tr class="public">
+<td width="30%">First name *</td>
+<td><input type="text" name="firstName"></td>
+</tr>
+<tr class="public">
+<td width="30%">Last name *</td>
+<td><input type="text" name="lastName"></td>
+</tr>
+</table></td>
+<td width="30%" align="center">
+<img id="iMyImg" width="100" height="100" class="animage" onClick="SelectImg(this, 100, 100)" alt="Click to Change" title="Click to Change" src="../cicons/noimage.gif"><br><small>Click Image to Change</small>
+</td>
+</tr></table>
+<table width="100%">
+<tr class="public">
+<td width="25%">Homepage</td>
+<td><input type="text" name="homepage" value="http://" size="50"></td>
+</tr>
+<tr class="public">
+<td width="25%">Location<br>(decimal degrees)</td>
+<td>
+      Latitude <input type="text" name="lat" size="8" onChange="calcLocation(lat.value, lng.value, 'geolocation')">
+      Longitude <input type="text" name="lng" size="8" onChange="calcLocation(lat.value, lng.value, 'geolocation')"><span name="geolocation" id="geolocation"></span>
+</td>
+</tr>
+<!-- TODO: OpenID, skypeID -->
+<!-- TODO: Get IRC done as an account -->
+<tr class="public">
+<td width="25%">Weblogs</td>
+<td>
+<table><tbody id="weblog"></tbody></table>
+<input type="button" value="Add Weblog" onClick="addWeblogField()">
+</td>
+</tr>
+<tr class="public">
+<td width="25%">Twitter ID</td>
+<td>
+<table><tbody id="twitterTable"></tbody></table>
+<input type="button" value="Add Twitter ID" onClick="addTwitterField()">
+</td>
+</tr>
+<tr class="private">
+<td width="25%">IRC (Freenode) ID</td>
+<td>
+<table><tbody id="ircTable"></tbody></table>
+<input type="button" value="Add IRC ID" onClick="addIRCField()">
+</td>
+</tr>
+<tr class="public">
+<td width="25%">PGP Key<br>Fingerprints</td>
+<td>
+<table><tbody id="pgpTable"></tbody></table>
+<input type="button" value="Add Key" onClick="addPGPField()">
+</td>
+</tr>
+<tr class="public">
+<td width="25%">Projects<br><small><a href="#projectNotes">notes</a></small>
+</td>
+<td>
+<table><tbody id="projectTable"></tbody></table>
+<input type="button" value="Add Project" onClick="addProjectField()">
+</td>
+</tr>
+<tr class="private">
+<td width="25%">Email Addresses</td>
+<td>
+<table><tbody id="emailTable"></tbody></table>
+<input type="button" value="Add Email Address" onClick="addEmailField()">
+</td>
+</tr>
+</table>
+<p class="centred"><input type="submit" value="Create!" onClick="generate()"></p>
+</form>
+
+<h2>Your generated FOAF file</h2>
+<form action="" name="results"><textarea name="rdf" cols="80" rows="20"></textarea></form>
+
+  <div id="footer">
+      (c) 2016 Apache Software Foundation
+  </div>
+</div>
+</body>
+</html>

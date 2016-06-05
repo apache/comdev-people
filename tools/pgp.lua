@@ -125,6 +125,7 @@ for k, v in pairs(committers) do
         end
     end
 end
+f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
 f:write("</pre></body></html>")
 f:close()
 
@@ -181,6 +182,7 @@ if rv and #rv > 0 then
     end
 end
 
+f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
 f:write("</pre></body></html>")
 f:close()
 

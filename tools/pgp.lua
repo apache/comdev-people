@@ -69,7 +69,10 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
     for key in rest:gmatch("asf%-pgpKeyFingerprint: ([a-f0-9A-F \t]+)") do
-        local url = ([[https://sks-keyservers.net/pks/lookup?op=get&options=mr&search=0x%s]]):format(key:gsub("%s+", ""))
+      skey = key:gsub("%s+", "")
+      -- INFRA-12042 use only full fingerprints
+      if string.len(skey) == 40 then
+        local url = ([[https://sks-keyservers.net/pks/lookup?op=get&options=mr&search=0x%s]]):format(skey)
         -- https.request doesn't work :( so we'll curl for now
         local p = io.popen(("curl --silent \"%s\""):format(url))
         local rv = p:read("*a")
@@ -104,6 +107,9 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
                 f:close()
             end
         end
+      else
+        print(("Invalid key %s for user %s"):format(key,uid))
+      end
     end
 end
 

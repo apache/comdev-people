@@ -76,9 +76,10 @@ for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n
         p:close()
         if rv and #rv > 0 then
             keys[uid] = keys[uid] or {}
-            table.insert(keys[uid], key)
             local data = rv:match("BEGIN PGP PUBLIC KEY BLOCK") and rv or nil
             if data then
+                -- only store the key id if it was found
+                table.insert(keys[uid], key)
                 print("Writing key " .. key .. " for " .. uid .. "...")
                 
                 -- get gpg uid

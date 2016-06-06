@@ -475,12 +475,12 @@ function showProject(obj, prj) {
 			if (prj == 'member') {
 				details.innerHTML += "<b>ASF members</b><br><br><table>" + pl.join("\n") + "</table><br/>"
 			} else {
-				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> <br><br><table>" + pl.join("\n") + "</table><br/>"				
+				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> "+ pl.length + " <br><br><table>" + pl.join("\n") + "</table><br/>"				
 			}
 		}
 		
 		if (cl && cl.length > 0) {
-			details.innerHTML += "<b>Committers:</b> <br><br><table>" + cl.join("\n") + "</table><br/>"
+			details.innerHTML += "<b>Committers:</b> "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
 		}
 
         if (pmcnoctte.length) {

@@ -480,7 +480,7 @@ function showProject(obj, prj) {
 		}
 		
 		if (cl && cl.length > 0) {
-			details.innerHTML += "<b>Committers:</b> <table>" + cl.join("\n") + "</table><br/>"
+			details.innerHTML += "<b>Committers:</b> <br><br><table>" + cl.join("\n") + "</table><br/>"
 		}
 
         if (pmcnoctte.length) {

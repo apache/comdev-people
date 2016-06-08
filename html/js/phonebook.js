@@ -215,7 +215,11 @@ function showCommitter(obj, uid) {
 			details.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
 		}
         if (ch.length > 0) {
-            details.innerHTML += "<b>Chair of:</b> " + linkifyList(Q_PMC, ch) + "<br/><br/>"
+            details.innerHTML += "<b>Chair of:</b> " + linkifyList(Q_PMC, ch)
+            if (!isChair(uid)) {
+                details.innerHTML += " <b>Not a member of pmc-chairs!</b>"
+            }
+            details.innerHTML += "<br/><br/>"
         }
         var purls = urls(uid)
         if (purls.length > 0) {
@@ -327,7 +331,11 @@ function hoverCommitter(parent, uid) {
         }
         if (ch.length > 0) {
             ch.sort()
-            div.innerHTML += "<b>Chair of:</b> " + ch.join(", ") + "<br/><br/>"
+            div.innerHTML += "<b>Chair of:</b> " + ch.join(", ")
+            if (!isChair(uid)) {
+                div.innerHTML += " <b>Not a member of pmc-chairs!</b>"
+            }
+            div.innerHTML += "<br/><br/>"
         }
 		if (cl.length > 0) {
 		    cl.sort()
@@ -360,6 +368,10 @@ function isNologin(uid) {
 
 function isMember(uid) {
     return members['members'].indexOf(uid) > -1
+}
+
+function isChair(uid) {
+    return ldapservices['pmc-chairs'].roster.indexOf(uid) > -1
 }
 
 function urls(uid) {

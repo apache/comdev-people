@@ -440,8 +440,10 @@ function showProject(obj, prj) {
 		var pmcnoctte = [] // on pmc but not in LDAP committee
         var cttenopmc = [] // In LDAP ctte but not on PMC
 		var ldappmc = []
-		if (prj != 'member') { // does not exist for 'member' PMC
+		var ctteeExists = false
+		if (ldapcttees[prj]) { // may not exist, e.g. for 'member' PMC and if group has yet to be created
 		    ldappmc = ldapcttees[prj].roster
+		    ctteeExists = true
 		}
 		var pmcnounix = [] // on PMC but not in LDAP unix group
 		var cttenounix = [] // In LDAP ctte but not in LDAP unix
@@ -493,10 +495,18 @@ function showProject(obj, prj) {
 		
 		if (cl && cl.length > 0) {
 			details.innerHTML += "<b>Committers:</b> "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
+		} else {
+		    if (!clExists) {
+                details.innerHTML += "<span class='error'>LDAP unix group not present!</span><br/><br/>"
+		    }
 		}
 
         if (pmcnoctte.length) {
-            details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + userList(pmcnoctte) + "<br/><br/>"
+            if (ctteeExists) {
+                details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + userList(pmcnoctte) + "<br/><br/>"
+            } else {
+                details.innerHTML += "<span class='error'>LDAP committee group not present!</span><br/><br/>"
+            }
         }
         if (pmcnounix.length) {
         	if (prj == 'member') {

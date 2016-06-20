@@ -531,7 +531,7 @@ function showProject(obj, prj) {
 
 // Generic group display function
 
-function showJsonRoster(obj, type, json, name, ojson) {
+function showJsonRoster(obj, type, json, name, checkUnix) {
     var id = 'details_' + type + '_' + name
     var details = document.getElementById(id)
     if (!details) {
@@ -544,7 +544,18 @@ function showJsonRoster(obj, type, json, name, ojson) {
         var cl = json[name].roster.slice()
         cl.sort()
         for (var i in cl) {
-            cl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd></td><td>" + getCommitterName(cl[i]) + "</td></tr>"
+            var uid=cl[i]
+            cl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + uid + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(uid) + "</kbd></td><td>" + getCommitterName(uid) + "</td>"
+            if (checkUnix) { // check against Unix group
+                if (ldapgroups[name]) { // make sure group exists!
+                    if (ldapgroups[name].roster.indexOf(uid) > -1) {
+                        cl[i] += "<td>&nbsp;</td>"
+                    } else {
+                        cl[i] += "<td> N.B. not found in corresponding Unix group</td>"
+                    }
+                }
+            }
+            cl[i] += "</tr>"
         }
 
         if (cl && cl.length > 0) {
@@ -579,8 +590,7 @@ function showGroup(obj, name) {
 // Show an LDAP Commiteee group
 
 function showCommittee(obj, name) {
-    showJsonRoster(obj, 'ctte', ldapcttees, name, ldapgroups)
-    return
+    showJsonRoster(obj, 'ctte', ldapcttees, name, true)
 }
 
 function searchProjects(keyword, open) {

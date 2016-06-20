@@ -531,7 +531,7 @@ function showProject(obj, prj) {
 
 // Generic group display function
 
-function showJsonRoster(obj, type, json, name) {
+function showJsonRoster(obj, type, json, name, ojson) {
     var id = 'details_' + type + '_' + name
     var details = document.getElementById(id)
     if (!details) {
@@ -544,7 +544,7 @@ function showJsonRoster(obj, type, json, name) {
         var cl = json[name].roster.slice()
         cl.sort()
         for (var i in cl) {
-            cl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd></td><td>" + getCommitterName(cl[i]) + "</td></td>"
+            cl[i] = "<tr><td onmouseover='hoverCommitter(this, \"" + cl[i] + "\");' onmouseout='hoverCommitter(this, null);'><kbd>" + hiliteMember(cl[i]) + "</kbd></td><td>" + getCommitterName(cl[i]) + "</td></tr>"
         }
 
         if (cl && cl.length > 0) {
@@ -579,7 +579,7 @@ function showGroup(obj, name) {
 // Show an LDAP Commiteee group
 
 function showCommittee(obj, name) {
-    showJsonRoster(obj, 'ctte', ldapcttees, name)
+    showJsonRoster(obj, 'ctte', ldapcttees, name, ldapgroups)
     return
 }
 

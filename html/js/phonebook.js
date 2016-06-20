@@ -651,7 +651,7 @@ function showCTTE(ctte) {
     var obj = document.getElementById('phonebook')
     var id = 'ctte_' + ctte
     if (ctte in ldapcttees) {
-        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showCommitte(this.parentNode, '" + ctte + "');\">" + ctte + " (LDAP committee group)</h3></div>"
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showCommittee(this.parentNode, '" + ctte + "');\">" + ctte + " (LDAP committee group)</h3></div>"
         showCommittee(document.getElementById(id), ctte)
     } else {
         obj.innerHTML = "<h3>Could not find committee group: '"+ ctte +"'</h3>"

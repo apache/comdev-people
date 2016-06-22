@@ -489,12 +489,12 @@ function showProject(obj, prj) {
 			if (prj == 'member') {
 				details.innerHTML += "<b>ASF members</b><br><br><table>" + pl.join("\n") + "</table><br/>"
 			} else {
-				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a>"+ " unless noted below):</b> "+ pl.length + " <br><br><table>" + pl.join("\n") + "</table><br/>"				
+				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a> - unless noted below):</b> "+ pl.length + " <br><br><table>" + pl.join("\n") + "</table><br/>"				
 			}
 		}
 		
 		if (cl && cl.length > 0) {
-			details.innerHTML += "<b>Committers:</b> "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
+			details.innerHTML += "<b>Committers (i.e. <a href='?unix="+prj+"'>unix group</a>): "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
 		} else {
 		    if (!clExists) {
                 details.innerHTML += "<span class='error'>LDAP unix group not present!</span><br/><br/>"

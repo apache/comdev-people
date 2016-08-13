@@ -494,7 +494,7 @@ function showProject(obj, prj) {
 		}
 		
 		if (cl && cl.length > 0) {
-			details.innerHTML += "<b>Committers (i.e. <a href='?unix="+prj+"'>unix group</a>): "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
+			details.innerHTML += "<b>Committers (i.e. <a href='?unix="+prj+"'>unix group</a>):</b> "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
             if (nonldapgroups[prj]) {
                 details.innerHTML += "<span class='error'>WARNING: <a href='?podling="+prj+"'>podling group</a> also exists - this can cause authentication issues</span><br/><br/>"
             }

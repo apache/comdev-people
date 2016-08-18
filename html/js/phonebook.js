@@ -1,5 +1,6 @@
 var pmcs = [] // array of PMC names (excludes non-PMC committees)
 var people = {} // public_ldap_people.json
+var ldapauth = {} // public_ldap_authgroups.json
 var ldapgroups = {} //  public_ldap_groups.json
 var ldapcttees = {} // public_ldap_committees.json
 var ldapservices = {} // public_ldap_services.json
@@ -26,6 +27,8 @@ var Q_CTTE    = 'ctte' // LDAP group
 var Q_SERVICE = 'service' // LDAP group
 var Q_OTHER   = 'other' // non-LDAP group
 var Q_PODLING = 'podling' // podling (non-LDAP group)
+var Q_AUTH    = 'auth' // podling (LDAP auth group)
+
 
 // Not intended for general use; may change at any time
 var Q_DEBUG   = 'debug' // print some debug info
@@ -263,6 +266,10 @@ function showCommitter(obj, uid) {
         var services = getRoster(ldapservices, uid)
         if (services.length > 0) {
             details.innerHTML += "<b>Service group membership:</b> " + linkifyList(Q_SERVICE, services) + "<br/><br/>"
+        }
+        var auths = getRoster(ldapauth, uid)
+        if (auths.length > 0) {
+            details.innerHTML += "<b>Auth group membership:</b> " + linkifyList(Q_AUTH, auths) + "<br/><br/>"
         }
         var pods = getRoster(podlings, uid)
         if (pods.length > 0) {
@@ -575,6 +582,11 @@ function showServiceRoster(obj, name) {
     showJsonRoster(obj, 'service', ldapservices, name)
 }
 
+// Show a single Auth group
+function showAuthRoster(obj, name) {
+    showJsonRoster(obj, 'auth', ldapauth, name)
+}
+
 // Show a single Other group
 function showOtherRoster(obj, name) {
     showJsonRoster(obj, 'other', nonldapgroups, name)
@@ -632,6 +644,23 @@ function searchService(keyword, open) {
 	}
 }
 
+function searchAuth(keyword, open) {
+    var obj = document.getElementById('phonebook')
+    if (keyword != '') {
+       obj.innerHTML = "<h3>Search results:</h3><hr/>"
+    } else {
+       obj.innerHTML = ''
+    }
+    for (var auth in ldapauth) {
+        if (auth.search(keyword.toLowerCase()) != -1) {
+            obj.innerHTML += "<div id='auth_" + auth + "' class='group'><h3 onclick=\"showAuthRoster(this.parentNode, '" + auth + "');\">" + auth + "</h3></div>"
+            if (open) {
+                showauthRoster(document.getElementById('auth_' + auth), auth)
+            }
+        }
+    }
+}
+
 // Show a single PMC
 
 function showPMC(pmc) {
@@ -679,6 +708,17 @@ function showSVC(name) {
         showServiceRoster(document.getElementById(id), name)
     } else {
         obj.innerHTML = "<h3>Could not find the service group: '"+ name +"'</h3>"
+    }
+}
+
+function showAUTH(name) {
+    var obj = document.getElementById('phonebook')
+    var id = 'auth_' + name
+    if (name in ldapauth) {
+        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showAuthRoster(this.parentNode, '" + name + "');\">" + name + " (LDAP auth group)</h3></div>"
+        showAuthRoster(document.getElementById(id), name)
+    } else {
+        obj.innerHTML = "<h3>Could not find the auth group: '"+ name +"'</h3>"
     }
 }
 
@@ -792,6 +832,7 @@ function preRender() {
         ['/public/committee-info.json',         "committees", function(json) { committees = json.committees; saveInfo(json,'committees');}],
         ['/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; saveInfo(json,'iclainfo');}],
         ['/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
+        ['/public/public_ldap_authgroups.json', "ldapauth",   function(json) { ldapauth = json.auth; saveInfo(json,'ldapauth'); }],
         ['/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
         ['/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
         ['/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
@@ -850,6 +891,8 @@ function allDone() {
             showCTTE(name)
         } else if (type == Q_SERVICE) {
             showSVC(name)
+        } else if (type == Q_AUTH) {
+            showAUTH(name)
         } else if (type == Q_OTHER) {
             showOTH(name)
         } else if (type == Q_PODLING) {

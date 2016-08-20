@@ -8,7 +8,6 @@ var ldapservices = {} // public_ldap_services.json
 var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
 var iclainfo = {} // copy of icla-info.json (committers only)
-var nonldapgroups = {} //  public_nonldap_groups.json
 var podlings = {} // public_nonldap_groups.json where podling is true
 
 var info = {} // copies of json info
@@ -814,7 +813,7 @@ function preRender() {
         ['/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
         ['/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
         ['/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
-        	nonldapgroups = json.groups;
+        	var nonldapgroups = json.groups;
         	for (var g in nonldapgroups) {
         		if (nonldapgroups[g]['podling']) {
         			podlings[g] = nonldapgroups[g]

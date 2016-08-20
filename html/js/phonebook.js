@@ -276,11 +276,6 @@ function showCommitter(obj, uid) {
             details.innerHTML += "<b>Podling membership:</b> " + linkifyList(Q_PODLING, pods) + "<br/><br/>"
         }
 
-        var others = getRoster(nonldapgroups, uid, pods)
-        if (others.length > 0) {
-            details.innerHTML += "<b>Other group membership:</b> " + linkifyList(Q_OTHER, others) + "<br/><br/>"
-        }
-
         // Note any discrepancies
         if (np.length > 0) {
             details.innerHTML += "<span class='error'>In LDAP committee group, but <b>not a PMC member</b>:</span> " + linkifyList(Q_CTTE, np) + "<br/><br/>"

@@ -25,7 +25,6 @@ var Q_PMC     = 'pmc' // PMC, exact match
 var Q_UNIX    = 'unix' // LDAP group
 var Q_CTTE    = 'ctte' // LDAP group
 var Q_SERVICE = 'service' // LDAP group
-var Q_OTHER   = 'other' // non-LDAP group
 var Q_PODLING = 'podling' // podling (non-LDAP group)
 var Q_AUTH    = 'auth' // podling (LDAP auth group)
 
@@ -582,11 +581,6 @@ function showAuthRoster(obj, name) {
     showJsonRoster(obj, 'auth', ldapauth, name)
 }
 
-// Show a single Other group
-function showOtherRoster(obj, name) {
-    showJsonRoster(obj, 'other', nonldapgroups, name)
-}
-
 function showPodlingRoster(obj, name) {
     showJsonRoster(obj, 'podling', podlings, name)
 }
@@ -714,17 +708,6 @@ function showAUTH(name) {
         showAuthRoster(document.getElementById(id), name)
     } else {
         obj.innerHTML = "<h3>Could not find the auth group: '"+ name +"'</h3>"
-    }
-}
-
-function showOTH(name) {
-    var obj = document.getElementById('phonebook')
-    var id = 'other_' + name
-    if (name in nonldapgroups) {
-        obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showOtherRoster(this.parentNode, '" + name + "');\">" + name + " (non-LDAP group)</h3></div>"
-        showOtherRoster(document.getElementById(id), name)
-    } else {
-        obj.innerHTML = "<h3>Could not find the non-LDAP group: '"+ name +"'</h3>"
     }
 }
 
@@ -888,8 +871,6 @@ function allDone() {
             showSVC(name)
         } else if (type == Q_AUTH) {
             showAUTH(name)
-        } else if (type == Q_OTHER) {
-            showOTH(name)
         } else if (type == Q_PODLING) {
             showPOD(name)
         } else if (type == Q_DEBUG) {

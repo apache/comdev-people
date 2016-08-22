@@ -63,7 +63,7 @@ function getAsyncJSONArray(urls, finalCallback) {
         }
 
         if (obj) { obj.innerHTML = "loading file #" + ( fetchCount - urls.length ) + " / " + fetchCount + "<br>" + desc }
-        start = Date.now()
+        var start = Date.now()
         xmlHttp.open("GET", URL, true);
         xmlHttp.send(null);
         xmlHttp.onreadystatechange = function(state) {
@@ -158,7 +158,7 @@ function getCommitterName(uid) {
 
 function linkifyList(type, names) {
     var text = ''
-    var index, len
+    var index, len, i
     names.sort()
     for (i = 0, len = names.length; i < len; ++i) {
         if (i > 0) {
@@ -233,6 +233,7 @@ function showCommitter(obj, uid) {
 		var nl = [] // On PMC but not in LDAP committee
 		var np = [] // Not in PMC even though in LDAP committee
 		var nu = [] // In LDAP committee but not in LDAP unix
+		var pn;
 		if (pl.length > 0) {
 			details.innerHTML += "<b>PMC member of:</b> " + linkifyList(Q_PMC, pl) + "<br/><br/>"
 			for (p in pl) {
@@ -346,7 +347,7 @@ function hoverCommitter(parent, uid) {
 		    pl.sort()
 			div.innerHTML += "<b>PMC member of:</b> " + pl.join(", ") + "<br/><br/>"
             for (p in pl) {
-                pn = pl[p]
+                var pn = pl[p]
                 if (pn != 'member' && cl.indexOf(pn) < 0) {
                     nc.push(pn)
                 }

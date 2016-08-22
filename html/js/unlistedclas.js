@@ -23,7 +23,7 @@ function getAsyncJSONArray(urls, finalCallback) {
         if (window.XMLHttpRequest) {
             xmlHttp = new XMLHttpRequest();
         } else {
-            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+            xmlHttp = new ActiveXObject("Microsoft.XMLHTTP");
         }
 
         if (obj) { obj.innerHTML = "loading file #" + ( fetchCount - urls.length ) + " / " + fetchCount + "<br>" + desc }

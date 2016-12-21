@@ -16,7 +16,7 @@ local JSON = require 'cjson'
 
 local PUBLIC_JSON = "/var/www/html/public/"
 
-function readJSON(file)
+local function readJSON(file)
     local f = io.open(PUBLIC_JSON .. file, "rb")
     local contents = f:read("*all")
     f:close()
@@ -27,7 +27,7 @@ local committerGroups = readJSON("public_ldap_groups.json").groups
 local pmcGroups = readJSON("public_ldap_committees.json").committees
 
 -- Return all members of a project + PMC separately and as a set
-function getMembers(project)
+local function getMembers(project)
     print("Getting the members of project " .. project)
 
     -- TAC does not have a committerGroup
@@ -42,7 +42,7 @@ end
 
 
 -- Return all PMCs
-function getCommittees()
+local function getCommittees()
     print("Getting all committees ")
     local pmcs = {}
     for k, v in pairs(pmcGroups) do
@@ -51,19 +51,17 @@ function getCommittees()
     return pmcs
 end
 
-local ldapdata = io.popen([[ldapsearch -x -LLL -b ou=people,dc=apache,dc=org asf-pgpKeyFingerprint]])
-local data = ldapdata:read("*a")
+local people = readJSON("public_ldap_people.json").people
 local keys = {}
 local committers = {}
 
-TMPFILE = "/var/www/html/keys/tmp.asc"
+local TMPFILE = "/var/www/html/keys/tmp.asc"
 
-data = data .. "\ndn" -- RE expects to find this after every entry, including the last
-for uid, rest in data:gmatch("uid=([-._a-z0-9]+),ou=people,dc=apache,dc=org\r?\n?(.-)\r?\ndn") do
+for uid, entry in pairs(people) do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
-    for key in rest:gmatch("asf%-pgpKeyFingerprint: ([a-f0-9A-F \t]+)") do
-      skey = key:gsub("%s+", "")
+    for _, key in pairs(entry.key_fingerprints or {}) do
+      local skey = key:gsub("%s+", "")
       -- INFRA-12042 use only full fingerprints
       if string.len(skey) == 40 then
         local url = ([[https://sks-keyservers.net/pks/lookup?op=get&options=mr&search=0x%s]]):format(skey)

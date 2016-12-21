@@ -14,29 +14,26 @@ local JSON = require 'cjson'
 -- /var/www/html/keys/group/{group}.asc
 -- /var/www/html/keys/tmp.asc
 
+local PUBLIC_JSON = "/var/www/html/public/"
+
+function readJSON(file)
+    local f = io.open(PUBLIC_JSON .. file, "rb")
+    local contents = f:read("*all")
+    f:close()
+    return JSON.decode(contents)
+end
+
+local committerGroups = readJSON("public_ldap_groups.json").groups
+local pmcGroups = readJSON("public_ldap_committees.json").committees
+
 -- Return all members of a project + PMC separately and as a set
 function getMembers(project)
     print("Getting the members of project " .. project)
-    local committers = {}
-    local pmc = {}
+
+    # TAC does not have a committerGroup
+    local committers = (committerGroups[project] or {}).roster or {}
+    local pmc = pmcGroups[project].roster
     
-    local ldapdata = io.popen( ([[ldapsearch -x -LLL -b "cn=%s,ou=groups,dc=apache,dc=org" memberUid]]):format(project) )
-    local data = ldapdata:read("*a")
-    ldapdata:close()
-    for match in data:gmatch("memberUid: ([-.a-zA-Z0-9]+)") do
-        table.insert(committers, match)
-    end
-    
-    local ldapdata = io.popen( ([[ldapsearch -x -LLL -b "cn=%s,ou=pmc,ou=committees,ou=groups,dc=apache,dc=org" member]]):format(project) )
-    local data = ldapdata:read("*a")
-    ldapdata:close()
-    for match in data:gmatch("member: uid=([-.a-zA-Z0-9]+)") do
-        table.insert(pmc, match)
-    end
-    
-    -- Sometimes, LDAP fails and returns everything - we don't want that
-    if #committers > 4500 then committers = {} end
-    if #pmc > 4500 then pmc = {} end
     local set = {}
     for _, v in ipairs(pmc) do set[v] = 1 end
     for _, v in ipairs(committers) do set[v] = 1 end
@@ -48,11 +45,8 @@ end
 function getCommittees()
     print("Getting all committees ")
     local pmcs = {}
-    local ldapdata = io.popen([[ldapsearch -x -LLL -b ou=pmc,ou=committees,ou=groups,dc=apache,dc=org cn]])
-    local data = ldapdata:read("*a")
-    ldapdata:close()
-    for match in data:gmatch("cn: ([-.a-zA-Z0-9]+)") do
-        table.insert(pmcs, match)
+    for k, v in pairs(pmcGroups) do
+        table.insert(pmcs, k)
     end
     return pmcs
 end

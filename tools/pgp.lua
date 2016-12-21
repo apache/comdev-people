@@ -30,7 +30,7 @@ local pmcGroups = readJSON("public_ldap_committees.json").committees
 function getMembers(project)
     print("Getting the members of project " .. project)
 
-    # TAC does not have a committerGroup
+    -- TAC does not have a committerGroup
     local committers = (committerGroups[project] or {}).roster or {}
     local pmc = pmcGroups[project].roster
     

@@ -51,17 +51,20 @@ local function getCommittees()
     return pmcs
 end
 
-local people = readJSON("public_ldap_people.json").people
+local people = readJSON("public_ldap_people.json")
 local keys = {}
 local committers = {}
 
 local TMPFILE = "/var/www/html/keys/tmp.asc"
 
-for uid, entry in pairs(people) do
+local failed = 0 -- how many keys did not fetch OK
+local invalid = 0 -- how many keys did not validate
+
+for uid, entry in pairs(people.people) do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
     for _, key in pairs(entry.key_fingerprints or {}) do
-      local skey = key:gsub("%s+", "")
+      local skey = key:gsub("[^0-9a-fA-F]", "")
       -- INFRA-12042 use only full fingerprints
       if string.len(skey) == 40 then
         local url = ([[https://sks-keyservers.net/pks/lookup?op=get&options=mr&search=0x%s]]):format(skey)
@@ -98,9 +101,13 @@ for uid, entry in pairs(people) do
                 f:write("\n")
                 f:close()
             end
+        else
+            print(("Could not fetch key %s for user %s"):format(key,uid))
+            failed = failed + 1
         end
       else
-        print(("Invalid key %s for user %s"):format(key,uid))
+          print(("Invalid key %s for user %s"):format(key,uid))
+          invalid = invalid + 1
       end
     end
 end
@@ -118,6 +125,9 @@ for k, v in pairs(committers) do
     end
 end
 f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
+f:write(("\nlastCreateTimestamp: %s\n"):format(people.lastCreateTimestamp or '?'))
+f:write(("Failed fetches: %d\n"):format(failed))
+f:write(("Invalid keys: %d\n"):format(invalid))
 f:write("</pre></body></html>")
 f:close()
 

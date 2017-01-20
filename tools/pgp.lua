@@ -59,6 +59,7 @@ local TMPFILE = "/var/www/html/keys/tmp.asc"
 
 local failed = 0 -- how many keys did not fetch OK
 local invalid = 0 -- how many keys did not validate
+local nodata = 0 -- how many keys returned no usable data
 
 for uid, entry in pairs(people.people) do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
@@ -100,6 +101,9 @@ for uid, entry in pairs(people.people) do
                 f:write(data)
                 f:write("\n")
                 f:close()
+            else
+                print(("No data for key %s for user %s"):format(key,uid))
+                nodata = nodata + 1
             end
         else
             print(("Could not fetch key %s for user %s"):format(key,uid))
@@ -128,6 +132,7 @@ f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
 f:write(("\nlastCreateTimestamp: %s\n"):format(people.lastCreateTimestamp or '?'))
 f:write(("Failed fetches: %d\n"):format(failed))
 f:write(("Invalid keys: %d\n"):format(invalid))
+f:write(("No data: %d\n"):format(nodata))
 f:write("</pre></body></html>")
 f:close()
 

@@ -61,6 +61,9 @@ local failed = 0 -- how many keys did not fetch OK
 local invalid = 0 -- how many keys did not validate
 local nodata = 0 -- how many keys returned no usable data
 
+local dow = math.floor(os.time()/86400)%7 -- generate rolling log over 7 days
+local nod = io.open(([[/var/www/html/keys/committer.log%d]]):format(dow), "w")
+
 for uid, entry in pairs(people.people) do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
@@ -104,6 +107,8 @@ for uid, entry in pairs(people.people) do
             else
                 print(("No data for key %s for user %s"):format(key,uid))
                 nodata = nodata + 1
+                nod:write(("No data for key %s for user %s\n"):format(key,uid))
+                nod:write(rv)
             end
         else
             print(("Could not fetch key %s for user %s"):format(key,uid))
@@ -115,6 +120,7 @@ for uid, entry in pairs(people.people) do
       end
     end
 end
+nod:close()
 
 local f = io.open("/var/www/html/keys/committer/index.html", "w")
 f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")

@@ -53,6 +53,7 @@ end
 
 local people = readJSON("public_ldap_people.json")
 local keys = {}
+local badkeys = {} -- [uid][key]=failure reason
 local committers = {}
 
 local TMPFILE = "/var/www/html/keys/tmp.asc"
@@ -62,11 +63,12 @@ local invalid = 0 -- how many keys did not validate
 local nodata = 0 -- how many keys returned no usable data
 
 local dow = math.floor(os.time()/86400)%7 -- generate rolling log over 7 days
-local log = io.open(([[/var/www/html/keys/committer.log%d]]):format(dow), "w")
+local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(dow), "w")
 
 for uid, entry in pairs(people.people) do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
+    badkeys[uid] = {}
     for _, key in pairs(entry.key_fingerprints or {}) do
       local skey = key:gsub("[^0-9a-fA-F]", "")
       -- INFRA-12042 use only full fingerprints
@@ -111,14 +113,17 @@ for uid, entry in pairs(people.people) do
                 nodata = nodata + 1
                 log:write(("User: %s key %s - not found\n"):format(uid,key))
                 log:write(rv)
+                badkeys[uid][key] = 'key not found (try again tomorrow)'
             end
         else
             print(("Could not fetch key %s for user %s"):format(key,uid))
             failed = failed + 1
+            badkeys[uid][key] = 'problem contacting key server'
         end
       else
           print(("Invalid key %s for user %s"):format(key,uid))
           invalid = invalid + 1
+          badkeys[uid][key] = 'invalid key (expecting 40 hex chars)'
       end
     end
 end
@@ -134,6 +139,9 @@ for k, v in pairs(committers) do
         for x, y in pairs(keys[v]) do
             f:write(("%30s <a href='%s.asc'>%s</a>\n"):format(v, v, y))
         end
+    end
+    for k,r in pairs(badkeys[v]) do
+        f:write(("%30s %s - %s\n"):format(v,k,r))
     end
 end
 f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))

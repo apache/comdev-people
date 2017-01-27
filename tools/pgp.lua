@@ -1,24 +1,26 @@
--- may be needed in the future
---local https = require 'ssl.https'
-local JSON = require 'cjson'
+--[[
+   Script to generate files of PGP keys for committers
+   Also creates indexes by committer name and by PMC/committee group membership
 
--- This script assumes that the files are all under /var/www/html
---
--- It reads:
--- LDAP for unix and PMC groups and asf-pgpKeyFingerprint from people
--- 
--- It creates:
--- /var/www/html/keys/committer/{uid}.asc
--- /var/www/html/keys/committer/index.html
--- /var/www/html/keys/group/index.html
--- /var/www/html/keys/group/{group}.asc
--- /var/www/html/keys/tmp.asc
+   It reads the following files from /var/www/html/public/:
+   public_ldap_groups.json - membership of committee group
+   public_ldap_committees.json - membership of PMC
+   public_ldap_people.json - uids and fingerPrints
+   
+   It creates:
+   /var/www/html/keys/committer/{uid}.asc
+   /var/www/html/keys/committer/index.html
+   /var/www/html/keys/group/index.html
+   /var/www/html/keys/group/{group}.asc
+]]
+
+local JSON = require 'cjson'
 
 local PUBLIC_JSON = "/var/www/html/public/"
 
 local function readJSON(file)
     local f = io.open(PUBLIC_JSON .. file, "rb")
-    local contents = f:read("*all")
+    local contents = f:read("*a")
     f:close()
     return JSON.decode(contents)
 end
@@ -159,7 +161,7 @@ f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
 f:write("<h3>Project signatures:</h3>\n")
 local projects = getCommittees()
 table.sort(projects)
-for k, project in pairs(projects) do
+for _, project in pairs(projects) do
     -- use the set so we get all the project members (e.g. tac has no Unix group)
     local _, _, set = getMembers(project)
     local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
@@ -210,4 +212,3 @@ f:write("</pre></body></html>")
 f:close()
 
 print("Done!")
-

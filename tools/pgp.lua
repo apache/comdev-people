@@ -6,6 +6,7 @@
    public_ldap_groups.json - membership of committee group
    public_ldap_committees.json - membership of PMC
    public_ldap_people.json - uids and fingerPrints
+   https://whimsy.apache.org/public/public_nonldap_groups.json (not copied to local area)
    
    It creates:
    /var/www/html/keys/committer/{uid}.asc
@@ -47,7 +48,7 @@ end
 local function getCommittees()
     print("Getting all committees ")
     local pmcs = {}
-    for k, v in pairs(pmcGroups) do
+    for k, _ in pairs(pmcGroups) do
         table.insert(pmcs, k)
     end
     return pmcs
@@ -136,13 +137,13 @@ f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
 f:write("<h3>committer signatures:</h3>\n")
 
 table.sort(committers)
-for k, v in pairs(committers) do
+for _, v in pairs(committers) do
     if keys[v] then
-        for x, y in pairs(keys[v]) do
+        for _, y in pairs(keys[v]) do
             f:write(("%30s <a href='%s.asc'>%s</a>\n"):format(v, v, y))
         end
     end
-    for k,r in pairs(badkeys[v]) do
+    for k, r in pairs(badkeys[v]) do
         f:write(("%30s %s - %s\n"):format(v,k,r))
     end
 end
@@ -189,7 +190,7 @@ if rv and #rv > 0 then
         local committers = entry.roster
         if entry.podling and entry.podling == "current" then
             local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
-            for k, uid in pairs(committers) do
+            for _, uid in pairs(committers) do
                 local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
                 if cf then
                     local data = cf:read("*a")
@@ -202,7 +203,7 @@ if rv and #rv > 0 then
         end
     end
     table.sort(pods)
-    for i,project in pairs(pods) do
+    for _,project in pairs(pods) do
         f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
     end
 end

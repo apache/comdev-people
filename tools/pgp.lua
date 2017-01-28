@@ -134,7 +134,7 @@ for uid, entry in pairs(people.people) do
         -- INFRA-12042 use only full fingerprints
         if string.len(skey) == 40 then
             validkeys[skey:upper()] = 1 -- fps in pgp database are upper case
-            if not dbkeys[skey] then
+            if not dbkeys[skey:upper()] then
                 local ok, res = pgpfunc('--recv-keys', skey)
                 if ok then
                     log:write(("User: %s key %s - fetched from remote\n"):format(uid, key))

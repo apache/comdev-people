@@ -17,6 +17,36 @@
 
 local JSON = require 'cjson'
 
+local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
+
+
+--PGP interface
+
+-- using --batch causes gpg to write some output to log-file instead of stderr
+local GPG_ARGS = "gpg --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+
+-- Unfortunately GPG writes messages to stderr and Lua does not handle that in io.popen
+-- --logger-fd/logger-file can be used to redirect the progress (and some error-related) messages
+-- Does not seem to be a way to redirect errors except by using the shell
+-- Also GPG exits with status 2 if just one of the refresh fetches fails
+-- list-keys/--fingerprint only fails if all specified keys are unavailable; does not write to logger; reports to stderr
+-- export ditto
+-- recv-keys: writes to logger and stderr if one key fails; stderr has the most useful output
+-- ditto refresh; most useful output is on stderr
+-- It looks like redirecting stderr to stdout in combination with logger-file will work.
+-- If command status is failure, then output is the error message otherwise it is the result (if any)
+local function pgpfunc(func, ...)
+    local logname = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
+    local command = GPG_ARGS .. "--log-file ".. logname .." 2>&1 " .. func
+    for _, v in ipairs({...}) do
+        command = command .. " " .. v
+    end
+    local gp = io.popen(command)
+    local grv = gp:read("*a") -- slurp result
+    local success, exitOrSignal, code = gp:close()
+    return success, grv
+end
+
 local PUBLIC_JSON = "/var/www/html/public/"
 
 local function readJSON(file)
@@ -54,82 +84,112 @@ local function getCommittees()
     return pmcs
 end
 
+-- get the current set of keys in the database
+local dbkeys={} -- squashed fpkeys from LDAP
+local dbkeyct = 0
+local ok, fps = pgpfunc('--fingerprint') -- fetch all the fingerprints
+if ok then
+    -- scan the output looking for fps
+    for key in fps:gmatch("fingerprint = ([0-9a-fA-F ]+)") do
+        dbkeys[(key:gsub(' ',''))]=1 -- extra () are to throw away the subs count
+        dbkeyct = dbkeyct + 1
+    end
+end
+
+
 local people = readJSON("public_ldap_people.json")
-local keys = {}
+local keys = {} -- user keys with data in pgp database
+local validkeys = {} -- user keys with valid syntax 
 local badkeys = {} -- [uid][key]=failure reason
 local committers = {}
 
-local TMPFILE = "/var/www/html/keys/tmp.asc"
-
 local failed = 0 -- how many keys did not fetch OK
 local invalid = 0 -- how many keys did not validate
-local nodata = 0 -- how many keys returned no usable data
+local newkeys = 0 -- how many new keys fetched
 
-local dow = math.floor(os.time()/86400)%7 -- generate rolling log over 7 days
-local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(dow), "w")
+local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(DOW), "w")
+
+if dbkeyct == 0 then
+    log:write("Presetting the pgp database\n")
+    for uid, entry in pairs(people.people) do
+        if entry.key_fingerprints then -- it may have a .asc file
+            local asc = "/var/www/html/keys/committer/" .. uid .. ".asc"
+            pgpfunc('--import', asc) -- does not seem to have useful status/stderr output
+        end
+    end
+end
+
+-- refresh is expensive, only do it once a week
+if DOW == 4 then
+    log:write("Refreshing the pgp database\n")
+    pgpfunc('--refresh') -- does not seem to have useful status/stderr output
+end
 
 for uid, entry in pairs(people.people) do
     os.remove("/var/www/html/keys/committer/" .. uid .. ".asc")
     table.insert(committers, uid)
     badkeys[uid] = {}
     for _, key in pairs(entry.key_fingerprints or {}) do
-      local skey = key:gsub("[^0-9a-fA-F]", "")
-      -- INFRA-12042 use only full fingerprints
-      if string.len(skey) == 40 then
-        local url = ([[https://sks-keyservers.net/pks/lookup?op=get&options=mr&search=0x%s]]):format(skey)
-        -- https.request doesn't work :( so we'll curl for now
-        local p = io.popen(("curl --silent \"%s\""):format(url))
-        local rv = p:read("*a")
-        p:close()
-        if rv and #rv > 0 then
-            keys[uid] = keys[uid] or {}
-            local data = rv:match("BEGIN PGP PUBLIC KEY BLOCK") and rv or nil
-            if data then
-                -- only store the key id if it was found
-                table.insert(keys[uid], key)
-                print("Writing key " .. key .. " for " .. uid .. "...")
-                
-                -- get gpg uid
-                local tmp = io.open(TMPFILE, "w")
-                tmp:write(data)
-                tmp:close()
-                
-                local ud = io.popen("gpg -n --with-fingerprint " .. TMPFILE, "r")
-                local id = ud:read("*a")
-                ud:close()
-
-                os.remove(TMPFILE)
-                
-                
-                local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
-                f:write("ASF ID: " .. uid .. "\n")
-                f:write("LDAP PGP key: " .. key .. "\n\n")
-                f:write(id)
-                f:write("\n")
-                f:write(data)
-                f:write("\n")
-                f:close()
-                local host = data:match("Comment: Hostname:%s+(.-)[\r\n]") or '??'
-                log:write(("User: %s key %s - fetched from %s\n"):format(uid,key,host))
-            else
-                print(("User: %s key %s - not found"):format(uid,key))
-                nodata = nodata + 1
-                log:write(("User: %s key %s - not found\n"):format(uid,key))
-                log:write(rv)
-                badkeys[uid][key] = 'key not found (try again tomorrow)'
+        local skey = key:gsub("[^0-9a-fA-F]", "")
+        -- INFRA-12042 use only full fingerprints
+        if string.len(skey) == 40 then
+            validkeys[skey:upper()] = 1 -- fps in pgp database are upper case
+            if not dbkeys[skey] then
+                local ok, res = pgpfunc('--recv-keys', skey)
+                if ok then
+                    log:write(("User: %s key %s - fetched from remote\n"):format(uid, key))
+                    newkeys = newkeys +1
+                else
+                    log:write(("User: %s key %s - fetch failed: %s\n"):format(uid, key, res))
+                end
+            end
+            local found = false
+            local ok, data = pgpfunc('--fingerprint', skey)
+            if ok then
+                local id,_ = data:match("fingerprint = ([0-9a-fA-F ]+)")
+                if id then
+                    local ok, body = pgpfunc('--export', '--armor', skey)
+                    if ok then
+                        -- only store the key id if it was found
+                        found = true
+                        keys[uid] = keys[uid] or {}
+                        table.insert(keys[uid], key)
+                        print("Writing key " .. key .. " for " .. uid .. "...")
+                        local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
+                        f:write("ASF ID: " .. uid .. "\n")
+                        f:write("LDAP PGP key: " .. key .. "\n\n")
+                        f:write(id)
+                        f:write("\n")
+                        f:write(body)
+                        f:write("\n")
+                        f:close()
+                    end
+                end
+            end
+            if not found then
+                log:write(("User: %s key %s - not found\n"):format(uid, key))
+                failed = failed + 1
+                badkeys[uid][key] = 'key not found'
             end
         else
-            print(("Could not fetch key %s for user %s"):format(key,uid))
-            failed = failed + 1
-            badkeys[uid][key] = 'problem contacting key server'
+            log:write(("User: %s key %s - invalid (expecting 40 hex chars)\n"):format(uid, key))
+            invalid = invalid + 1
+            badkeys[uid][key] = 'invalid key (expecting 40 hex chars)'
         end
-      else
-          print(("Invalid key %s for user %s"):format(key,uid))
-          invalid = invalid + 1
-          badkeys[uid][key] = 'invalid key (expecting 40 hex chars)'
-      end
     end
 end
+
+for key, _ in pairs(dbkeys) do
+    if not validkeys[key] then
+        local ok, res = pgpfunc('--delete-keys', key)
+        if ok then
+            log:write(("Dropped unused key %s\n"):format(key))
+        else
+            log:write(("Failed to drop unused key %s - %s\n"):format(key, res))
+        end
+    end
+end
+
 log:close()
 
 local f = io.open("/var/www/html/keys/committer/index.html", "w")
@@ -151,7 +211,7 @@ f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
 f:write(("\nlastCreateTimestamp: %s\n"):format(people.lastCreateTimestamp or '?'))
 f:write(("Failed fetches: %d\n"):format(failed))
 f:write(("Invalid keys: %d\n"):format(invalid))
-f:write(("No data: %d\n"):format(nodata))
+f:write(("New keys: %d\n"):format(newkeys))
 f:write("</pre></body></html>")
 f:close()
 

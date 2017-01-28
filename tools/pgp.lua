@@ -6,7 +6,7 @@
    public_ldap_groups.json - membership of committee group
    public_ldap_committees.json - membership of PMC
    public_ldap_people.json - uids and fingerPrints
-   https://whimsy.apache.org/public/public_nonldap_groups.json (not copied to local area)
+   public_nonldap_groups.json - podlings
    
    It creates:
    /var/www/html/keys/committer/{uid}.asc
@@ -240,32 +240,27 @@ end
 
 print("Creating podling key files")
 f:write("\n<h3>Podling signatures:</h3>\n")
-local p = io.popen(("curl --silent \"https://whimsy.apache.org/public/public_nonldap_groups.json\""))
-local rv = p:read("*a")
-p:close()
-if rv and #rv > 0 then
-    local js = JSON.decode(rv)
-    local pods = {}
-    for project, entry in pairs(js.groups) do
-        local committers = entry.roster
-        if entry.podling and entry.podling == "current" then
-            local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
-            for _, uid in pairs(committers) do
-                local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
-                if cf then
-                    local data = cf:read("*a")
-                    af:write(data)
-                    cf:close()
-                end
+local podlingGroups = readJSON("public_nonldap_groups.json").groups
+local pods = {}
+for project, entry in pairs(podlingGroups) do
+    local committers = entry.roster
+    if entry.podling and entry.podling == "current" then
+        local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
+        for _, uid in pairs(committers) do
+            local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
+            if cf then
+                local data = cf:read("*a")
+                af:write(data)
+                cf:close()
             end
-            af:close()
-            table.insert(pods, project)
         end
+        af:close()
+        table.insert(pods, project)
     end
-    table.sort(pods)
-    for _,project in pairs(pods) do
-        f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
-    end
+end
+table.sort(pods)
+for _,project in pairs(pods) do
+    f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
 end
 
 f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))

@@ -37,7 +37,7 @@ local GPG_ARGS = "gpg --keyring /var/www/tools/pgpkeys --no-default-keyring --no
 -- If command status is failure, then output is the error message otherwise it is the result (if any)
 local function pgpfunc(func, ...)
     local logname = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
-    local command = GPG_ARGS .. "--log-file ".. logname .." 2>&1 " .. func
+    local command = GPG_ARGS .. "--logger-file ".. logname .." 2>&1 " .. func
     for _, v in ipairs({...}) do
         command = command .. " " .. v
     end

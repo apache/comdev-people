@@ -19,6 +19,7 @@ local JSON = require 'cjson'
 
 local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
 
+local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(DOW), "w")
 
 --PGP interface
 
@@ -41,9 +42,11 @@ local function pgpfunc(func, ...)
     for _, v in ipairs({...}) do
         command = command .. " " .. v
     end
+    log:write(command,"\n")
     local gp = io.popen(command)
     local grv = gp:read("*a") -- slurp result
     local success, exitOrSignal, code = gp:close()
+    log:write(tostring(success), " ", exitOrSignal, " ",  code, "\n")
     return success, grv
 end
 
@@ -96,7 +99,6 @@ if ok then
     end
 end
 
-
 local people = readJSON("public_ldap_people.json")
 local keys = {} -- user keys with data in pgp database
 local validkeys = {} -- user keys with valid syntax 
@@ -106,8 +108,6 @@ local committers = {}
 local failed = 0 -- how many keys did not fetch OK
 local invalid = 0 -- how many keys did not validate
 local newkeys = 0 -- how many new keys fetched
-
-local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(DOW), "w")
 
 if dbkeyct == 0 then
     log:write("Presetting the pgp database\n")
@@ -135,12 +135,13 @@ for uid, entry in pairs(people.people) do
         if string.len(skey) == 40 then
             validkeys[skey:upper()] = 1 -- fps in pgp database are upper case
             if not dbkeys[skey:upper()] then
+                print("Fetching key " .. skey .. " for " .. uid .. "...")
                 local ok, res = pgpfunc('--recv-keys', skey)
                 if ok then
-                    log:write(("User: %s key %s - fetched from remote\n"):format(uid, key))
+                    log:write(("User: %s key %s - fetched from remote\n"):format(uid, skey))
                     newkeys = newkeys +1
                 else
-                    log:write(("User: %s key %s - fetch failed: %s\n"):format(uid, key, res))
+                    log:write(("User: %s key %s - fetch failed: %s\n"):format(uid, skey, res))
                 end
             end
             local found = false
@@ -167,7 +168,7 @@ for uid, entry in pairs(people.people) do
                 end
             end
             if not found then
-                log:write(("User: %s key %s - not found\n"):format(uid, key))
+                log:write(("User: %s key %s - not found\n"):format(uid, skey))
                 failed = failed + 1
                 badkeys[uid][key] = 'key not found'
             end

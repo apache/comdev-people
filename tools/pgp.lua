@@ -24,7 +24,7 @@ local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(DOW), "w")
 --PGP interface
 
 -- using --batch causes gpg to write some output to log-file instead of stderr
-local GPG_ARGS = "gpg --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+local GPG_ARGS = "gpg --keyserver hkps.pool.sks-keyservers.net --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 
 -- Unfortunately GPG writes messages to stderr and Lua does not handle that in io.popen
 -- --logger-fd/logger-file can be used to redirect the progress (and some error-related) messages
@@ -38,7 +38,7 @@ local GPG_ARGS = "gpg --keyring /var/www/tools/pgpkeys --no-default-keyring --no
 -- If command status is failure, then output is the error message otherwise it is the result (if any)
 local function pgpfunc(func, ...)
     local logname = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
-    local command = GPG_ARGS .. "--logger-file ".. logname .." 2>&1 " .. func
+    local command = GPG_ARGS .." 2>&1 " .. func
     for _, v in ipairs({...}) do
         command = command .. " " .. v
     end
@@ -108,16 +108,6 @@ local committers = {}
 local failed = 0 -- how many keys did not fetch OK
 local invalid = 0 -- how many keys did not validate
 local newkeys = 0 -- how many new keys fetched
-
-if dbkeyct == 0 then
-    log:write("Presetting the pgp database\n")
-    for uid, entry in pairs(people.people) do
-        if entry.key_fingerprints then -- it may have a .asc file
-            local asc = "/var/www/html/keys/committer/" .. uid .. ".asc"
-            pgpfunc('--import', asc) -- does not seem to have useful status/stderr output
-        end
-    end
-end
 
 -- refresh is expensive, only do it once a week
 if DOW == 4 then

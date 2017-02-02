@@ -42,7 +42,8 @@ local function pgpfunc(func, ...)
     for _, v in ipairs({...}) do
         command = command .. " " .. v
     end
-    log:write(command,"\n")
+    -- just log the function and its params
+    log:write(table.concat({func,...},' '),"\n")
     local gp = io.popen(command)
     local grv = gp:read("*a") -- slurp result
     local success, exitOrSignal, code = gp:close()
@@ -122,6 +123,7 @@ for uid, entry in pairs(people.people) do
     for _, key in pairs(entry.key_fingerprints or {}) do
         local skey = key:gsub("[^0-9a-fA-F]", "")
         -- INFRA-12042 use only full fingerprints
+        -- Note: 32 char keys are obsolete V3 ones which aren't available over HKP anyway
         if string.len(skey) == 40 then
             validkeys[skey:upper()] = 1 -- fps in pgp database are upper case
             if not dbkeys[skey:upper()] then

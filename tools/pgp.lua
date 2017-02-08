@@ -20,6 +20,7 @@ local JSON = require 'cjson'
 local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
 
 local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(DOW), "w")
+log:write(os.date(),"\n")
 
 --PGP interface
 
@@ -43,11 +44,11 @@ local function pgpfunc(func, ...)
         command = command .. " " .. v
     end
     -- just log the function and its params
-    log:write(table.concat({func,...},' '),"\n")
+--    log:write(table.concat({func,...},' '),"\n")
     local gp = io.popen(command)
     local grv = gp:read("*a") -- slurp result
     local success, exitOrSignal, code = gp:close()
-    log:write(tostring(success), " ", exitOrSignal, " ",  code, "\n")
+--    log:write(tostring(success), " ", exitOrSignal, " ",  code, "\n")
     return success, grv
 end
 
@@ -183,6 +184,7 @@ for key, _ in pairs(dbkeys) do
     end
 end
 
+log:write(os.date(),"\n")
 log:close()
 
 local f = io.open("/var/www/html/keys/committer/index.html", "w")

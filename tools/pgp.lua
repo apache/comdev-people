@@ -195,7 +195,7 @@ table.sort(committers)
 for _, v in pairs(committers) do
     if keys[v] then
         for _, y in pairs(keys[v]) do
-            f:write(("%30s <a href='%s.asc'>%s</a>\n"):format(v, v, y))
+            f:write(("%30s <a id='%s' href='%s.asc'>%s</a>\n"):format(v, v, v, y))
         end
     end
     for k, r in pairs(badkeys[v]) do
@@ -230,7 +230,7 @@ for _, project in pairs(projects) do
         end
     end
     af:close()
-    f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
+    f:write(("%40s <a id='%s' href='%s.asc'>%s signatures</a>\n"):format(project, project, project, project))
 end
 
 print("Creating podling key files")

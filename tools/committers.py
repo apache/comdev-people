@@ -196,72 +196,9 @@ template.generate(open(join(HTML_DIR,'committer-index.html'), mode='w'),
 
 ###############################
 
-g = open(join(HTML_DIR,'committers-by-project.html'), mode='w')
+import cStringIO
+g = cStringIO.StringIO()
 
-g.write("""<html>
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>ASF Committers by auth group</title>
-<link rel="stylesheet" type="text/css" href="css/community.css">
-<style>
-.left, .right {
-    background-color: #FFFFFF;
-    vertical-align: top;
-}
-</style>
-</head>
-<body>
-<div id="content">
-<h1><img src='img/asf_logo_small.png' alt='Apache feather logo with text' style='vertical-align: middle;'/> ASF Committers by auth group</h1>
-<p>
-  This page lists all LDAP groups and the SVN authorization groups found in
-  the SVN authorization file and shows the membership of the corresponding groups.
-</p>
-<p>
-<!-- TODO
-  Entries in <em>italics</em> do <b>NOT</b> have a signed 
-  <a href="http://www.apache.org/licenses/#clas">Contributor License Agreement</a> on file (this knowledge is keyed by SVN id).
-  <br>
--->
-  Entries in <b>bold</b> are ASF members. 
-</p>
-<p>
-  Please note that the authorisation groups are used to provide access to certain services.
-  For example membership of the <a href="#pmc-chairs">pmc-chairs</a> group allows the holder to update
-  the Unix and committee LDAP groups.
-  However, membership of the pmc-chairs group does not necessarily mean that the holder is currently the chair of a PMC.
-  Similarly, membership of the commons-pmc LDAP group does not necessarily imply that the holder is a member of the Commons PMC.
-</p>
-<p>
-  The official documentation for membership of PMCs is the 
-  <a href="https://svn.apache.org/repos/private/committers/board/committee-info.txt">committee-info.txt</a> file.
-  This requires an ASF login to view.
-</p>
-<p>
-  Membership of the Unix LDAP groups (e.g. tomcat) generally gives write access to SVN.
-  Memership of the LDAP committee groups (e.g. tomcat-pmc) generally gives write access to the dist/release area for releasing files.
-  The PMC may also have a private area under https://svn.apache.org/repos/private/pmc/{pmc} in which case
-  membership of the corresponding LDAP committee group gives both read and write access.
-</p>
-<p>
-  Entries in the "SVN id" column link back to the corresponding entry in the <a href="committer-index.html">Committer Index</a>.
-</p>
-<p>
-  Committers may provide homepage URLs in LDAP.
-  <br>
-  Login to https://id.apache.org/ and populate the "Homepage URL:" field.
-  <br>
-  Any such entries are shown as links in the Name column. 
-</p>
-""")
-
-g.write("<p>Last updated at: %s</p>" % '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow()))
-
-g.write("""
-<hr size="1" noshade>
-<!--bodyContent-->
-<table border="0">
-""")
 
 # Create the index
 
@@ -313,29 +250,17 @@ for group in sorted(groupData):
     if col == 1:
         col = 2
 
-# trailer
-g.write("""
-<hr/>
-<p>Created from the following versions of the files:</p>
-<table>
-<tr>
-<th>File name</th>
-<th>Date stamp</th>
-<th>Date type</th>
-</tr>
-""")
+content = g.getvalue()
 
-for file in sorted(versions):
-    g.write("""<tr><td><a href="public/%s">%s</a></td><td>%s</td><td>%s</td></tr>
-""" % (file, file, versions[file][1], versions[file][0]))
 
-g.write("""</table>
-</div>
-</body>
-</html>
-""")
+template = ezt.Template(join(MYHOME, 'committers-by-project.ezt'),
+                        compress_whitespace=0)
+template.generate(open(join(HTML_DIR,'committers-by-project.html'), mode='w'),
+                  { 'lastupdate': lastupdate,
+                    'versions': vsn_data,
+                    'content': content,
+                    })
 
-g.close()
 
 ##############################################################################
 

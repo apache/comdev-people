@@ -1,6 +1,4 @@
-import sys
-if sys.hexversion < 0x030000F0:
-    raise RuntimeError("This script requires Python3")
+#!/usr/bin/python
 
 """
 Generates:
@@ -17,6 +15,7 @@ python3 /var/www/tools/committers.py
 
 """
 
+import sys
 from os.path import dirname, abspath, join, isfile
 from inspect import getsourcefile
 import datetime
@@ -32,8 +31,8 @@ KEYS_GRP=join(KEYS_DIR,'group')
 versions = {}
 
 def getJson(file, stamp=None):
-    with open(join(JSON_DIR, file), "r", encoding='utf-8') as f:
-        j = json.loads(f.read())
+    with open(join(JSON_DIR, file), "r") as f:
+        j = json.loads(f.read(), encoding='utf-8')
         if stamp != None:
             versions[file] = [stamp, j[stamp]]
         else:
@@ -120,7 +119,7 @@ def isMember(id):
 def hasICLA(id):
     return id in icla_info
 
-f = open(join(HTML_DIR,'committer-index.html'), mode='w', encoding='utf-8')
+f = open(join(HTML_DIR,'committer-index.html'), mode='w')
 
 f.write("""<html>
 <head>
@@ -249,7 +248,7 @@ for id in ldap_groups['committers']['roster']:
     # SVN id
     f.write("<td id='%s'>%s</td>" % (id, linkKey(id)))
     # Name
-    f.write("<td>%s</td>" % nameStyle(id))
+    f.write("<td>%s</td>" % nameStyle(id).encode('utf-8'))
     # groups (if any)
     if id in idData:
         f.write("<td>%s</td>" % linkGroup(idData[id]))
@@ -283,7 +282,7 @@ f.close()
 
 ###############################
 
-g = open(join(HTML_DIR,'committers-by-project.html'), mode='w', encoding='utf-8')
+g = open(join(HTML_DIR,'committers-by-project.html'), mode='w')
 
 g.write("""<html>
 <head>
@@ -390,7 +389,7 @@ for group in sorted(groupData):
         # SVN id
         g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</td>""" % (id, id, idStyle(id)))
         # Name
-        g.write("<td>%s</td></tr>\n" % nameStyle(id))
+        g.write("<td>%s</td></tr>\n" % nameStyle(id).encode('utf-8'))
     g.write("""</table>\n""")
     if col > 0:
         g.write("""</td>\n""")
@@ -429,7 +428,7 @@ g.close()
 SERVICE='infrastructure-root'
 infra_root = getJson('public_ldap_services.json')['services'][SERVICE]['roster']
 IROOT=join(KEYS_GRP,'%s.asc' % SERVICE)
-h = open(IROOT, mode='w', encoding='utf-8')
+h = open(IROOT, mode='w')
 for root in infra_root:
     try:
         j = open(join(KEYS_UID,'%s.asc' % root), mode='r', encoding='utf-8')

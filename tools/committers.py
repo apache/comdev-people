@@ -152,16 +152,15 @@ def nameStyle(id):
 
 # create links to phonebook groups
 def linkGroup(groups):
-    text = ''
-    sep = ''
-    for group in sorted(groups, key=lambda group: group[1]+'-'+group[0]):
-        type = group[0]
-        name = group[1]
+    grp_data = [ ]
+    for type, link in sorted(groups, key=lambda group: group[1]+'-'+group[0]):
+        name = link
         if type == 'pmc':
             name += '-pmc'
-        text += sep + "<a href='phonebook.html?%s=%s'>%s</a>" % (type, group[1], name)
-        sep = ', '
-    return text
+        grp_data.append(_item(type=type, link=link, name=name))
+
+    return grp_data
+
 
 letter='' # Alpha index
 roster = [ ]

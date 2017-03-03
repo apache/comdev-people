@@ -1,0 +1,77 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>ASF Committers by id</title>
+<link rel="stylesheet" type="text/css" href="css/community.css">
+</head>
+<body>
+<div id="content">
+<h1><img src='img/asf_logo_small.png' alt='Apache feather logo with text' style='vertical-align: middle;'/> ASF Committers by Id</h1>
+<p>
+      This page lists all known committers by login id.
+      For each entry, it shows the full name and any LDAP groups / SVN groups to which they belong.
+      <br/>
+      This information is derived from the <a href='public'>JSON files</a> 
+      which in turn are derived from LDAP and the SVN authorization file by Whimsy.
+</p>
+<p>
+<!-- TODO
+      Entries in <em>italics</em> do <b>NOT</b> have a signed 
+      <a href="http://www.apache.org/licenses/#clas">Contributor License Agreement</a> on file (this knowledge is keyed by SVN id).
+      <br>
+-->
+      Entries in <b>bold</b> are ASF members.
+      <br>
+      Committers may provide homepage URLs in LDAP.
+      <br>
+      Login to <a href="https://id.apache.org/">https://id.apache.org/</a> and populate the "Homepage URL:" field.
+      Remember to provide your password (near the bottom of the page) before pressing submit.
+      Any such entries are shown as links in the Name column. 
+</p>
+<p>
+    There is also a list of <a href="unlistedclas.html">Persons with signed CLAs but who are not (yet) committers.</a>
+    This is useful for checking if a CLA has been received and recorded in the 
+    <a href="https://svn.apache.org/repos/private/foundation/officers/iclas.txt">iclas.txt</a> file which is maintained by the secretary.
+</p>
+<p>
+    If the committers has a <a href="/keys/committer/">PGP key</a> then it is linked from the SVN Id column
+</p>
+<p>Last updated at: [lastupdate]</p>
+<hr size="1" noshade>
+      <a href='#A'>A</a>
+      <a href='#B'>B</a>
+      <a href='#C'>C</a>
+      <a href='#D'>D</a>
+      <a href='#E'>E</a>
+      <a href='#F'>F</a>
+      <a href='#G'>G</a>
+      <a href='#H'>H</a>
+      <a href='#I'>I</a>
+      <a href='#J'>J</a>
+      <a href='#K'>K</a>
+      <a href='#L'>L</a>
+      <a href='#M'>M</a>
+      <a href='#N'>N</a>
+      <a href='#O'>O</a>
+      <a href='#P'>P</a>
+      <a href='#Q'>Q</a>
+      <a href='#R'>R</a>
+      <a href='#S'>S</a>
+      <a href='#T'>T</a>
+      <a href='#U'>U</a>
+      <a href='#V'>V</a>
+      <a href='#W'>W</a>
+      <a href='#X'>X</a>
+      <a href='#Y'>Y</a>
+      <a href='#Z'>Z</a>
+<hr size="1" noshade>
+<table>
+<tr>
+<th>SVN id</th>
+<th>Name</th>
+<th>Group membership</th>
+</tr>
+[content]</table>
+</div>
+</body>
+</html>

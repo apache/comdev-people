@@ -199,7 +199,7 @@ for _, v in pairs(committers) do
         end
     end
     for k, r in pairs(badkeys[v]) do
-        f:write(("%30s %s - %s\n"):format(v,k,r))
+        f:write(("%30s <a id='%s'>%s - %s\n"):format(v,v,k,r))
     end
 end
 f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))

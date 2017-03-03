@@ -71,7 +71,13 @@
 <th>Name</th>
 <th>Group membership</th>
 </tr>
-[for roster]<tr[if-any roster.letter] id='[roster.letter]'[end]><td id='[roster.id]'>[roster.linkkey]</td><td>[roster.name]</td><td>[if-any roster.groups][for roster.groups]<a href='phonebook.html?[roster.groups.type]=[roster.groups.link]'>[roster.groups.name]</a>[if-index roster.groups last][else], [end][end][else]&nbsp[# ";" should be here][end]</td></tr>
+[for roster]<tr[if-any roster.letter] id='[roster.letter]'[end]>[#
+  ]<td id='[roster.id]'>[roster.linkkey]</td>[#
+  ]<td>[roster.name]</td>[#
+  ]<td>[if-any roster.groups][for roster.groups][#
+    ]<a href='phonebook.html?[roster.groups.type]=[roster.groups.link][#
+        ]'>[roster.groups.name]</a>[if-index roster.groups last][else], [end][#
+  ][end][else]&nbsp[# ";" should be here][end]</td></tr>
 [end]</table>
 <hr/>
 <p>Created from the following versions of the files:</p>

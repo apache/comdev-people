@@ -21,6 +21,9 @@ from inspect import getsourcefile
 import datetime
 import json
 
+import ezt
+
+
 MYHOME = dirname(abspath(getsourcefile(lambda:0))) # automatically work out home location
 HTML_DIR=join(dirname(MYHOME),'html')
 JSON_DIR=join(HTML_DIR,'public')
@@ -167,6 +170,8 @@ roster = [ ]
 # iterate over committers (should be sorted already)
 for id in ldap_groups['committers']['roster']:
     person = _item(id=id, name=nameStyle(id).encode('utf-8'), linkkey=linkKey(id),
+                   is_member=ezt.boolean(isMember(id)),
+                   has_icla=ezt.boolean(hasICLA(id)),
                    letter=None, groups=None)
     ID1 = id[0:1].upper()
     if not ID1 == letter: # new first letter
@@ -181,7 +186,6 @@ vsn_data = [_item(file=file,
                   type=versions[file][0],
                   stamp=versions[file][1]) for file in sorted(versions)]
 
-import ezt
 template = ezt.Template(join(MYHOME, 'committer-index.ezt'), compress_whitespace=0)
 template.generate(open(join(HTML_DIR,'committer-index.html'), mode='w'),
                   { 'lastupdate': lastupdate,

@@ -119,8 +119,6 @@ def isMember(id):
 def hasICLA(id):
     return id in icla_info
 
-import cStringIO
-f = cStringIO.StringIO()
 
 lastupdate = '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow())
 
@@ -166,26 +164,19 @@ def linkGroup(groups):
     return text
 
 letter='' # Alpha index
+roster = [ ]
 # iterate over committers (should be sorted already)
 for id in ldap_groups['committers']['roster']:
+    person = _item(id=id, name=nameStyle(id).encode('utf-8'), linkkey=linkKey(id),
+                   letter=None, groups=None)
     ID1 = id[0:1].upper()
     if not ID1 == letter: # new first letter
-        f.write("<tr id='%s'>" % ID1)
+        person.letter = ID1
         letter = ID1
-    else:
-        f.write("<tr>")
-    # SVN id
-    f.write("<td id='%s'>%s</td>" % (id, linkKey(id)))
-    # Name
-    f.write("<td>%s</td>" % nameStyle(id).encode('utf-8'))
-    # groups (if any)
     if id in idData:
-        f.write("<td>%s</td>" % linkGroup(idData[id]))
-    else:
-        f.write("<td>&nbsp</td>")
-    f.write("</tr>\n")
+        person.groups = linkGroup(idData[id])
 
-content = f.getvalue()
+    roster.append(person)
 
 vsn_data = [_item(file=file,
                   type=versions[file][0],
@@ -195,8 +186,8 @@ import ezt
 template = ezt.Template(join(MYHOME, 'committer-index.ezt'), compress_whitespace=0)
 template.generate(open(join(HTML_DIR,'committer-index.html'), mode='w'),
                   { 'lastupdate': lastupdate,
-                    'content': content,
                     'versions': vsn_data,
+                    'roster': roster,
                     })
 
 

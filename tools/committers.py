@@ -124,6 +124,11 @@ f = cStringIO.StringIO()
 
 lastupdate = '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow())
 
+class _item(object):
+    def __init__(self, **kw):
+        vars(self).update(kw)
+
+
 def boldMember(id, txt):
     if isMember(id):
         return "<b>%s</b>" % txt
@@ -180,29 +185,18 @@ for id in ldap_groups['committers']['roster']:
         f.write("<td>&nbsp</td>")
     f.write("</tr>\n")
 
-# trailer
-f.write("""</table>
-<hr/>
-<p>Created from the following versions of the files:</p>
-<table>
-<tr>
-<th>File name</th>
-<th>Date stamp</th>
-<th>Date type</th>
-</tr>
-""")
-
-for file in sorted(versions):
-    f.write("""<tr><td><a href="public/%s">%s</a></td><td>%s</td><td>%s</td></tr>
-""" % (file, file, versions[file][1], versions[file][0]))
-
 content = f.getvalue()
+
+vsn_data = [_item(file=file,
+                  type=versions[file][0],
+                  stamp=versions[file][1]) for file in sorted(versions)]
 
 import ezt
 template = ezt.Template(join(MYHOME, 'committer-index.ezt'), compress_whitespace=0)
 template.generate(open(join(HTML_DIR,'committer-index.html'), mode='w'),
                   { 'lastupdate': lastupdate,
                     'content': content,
+                    'versions': vsn_data,
                     })
 
 

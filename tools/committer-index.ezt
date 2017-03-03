@@ -72,6 +72,16 @@
 <th>Group membership</th>
 </tr>
 [content]</table>
+<hr/>
+<p>Created from the following versions of the files:</p>
+<table>
+<tr>
+<th>File name</th>
+<th>Date stamp</th>
+<th>Date type</th>
+</tr>
+[for versions]<tr><td><a href="public/[versions.file]">[versions.file]</a></td><td>[versions.stamp]</td><td>[versions.type]</td></tr>
+[end]</table>
 </div>
 </body>
 </html>

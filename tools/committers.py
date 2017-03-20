@@ -11,7 +11,9 @@ from json files under html/public and keys/committer/
 
 Expected usage in cron job:
 
-python3 /var/www/tools/committers.py
+python /var/www/tools/committers.py
+
+Note: ezt does not appear to support Python3
 
 """
 

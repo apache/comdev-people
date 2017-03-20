@@ -156,7 +156,7 @@ def nameStyle(id):
 # create links to phonebook groups
 def linkGroup(groups):
     grp_data = [ ]
-    for type, link in sorted(groups, key=lambda (type,link): link+'-'+type):
+    for type, link in sorted(groups, key=lambda x: x[1]+'-'+x[0]):
         name = link
         if type == 'pmc':
             name += '-pmc'

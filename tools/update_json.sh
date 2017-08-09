@@ -21,3 +21,4 @@ getNewer public_ldap_groups.json
 getNewer public_ldap_people.json
 getNewer public_ldap_services.json
 getNewer public_nonldap_groups.json
+getNewer public_ldap_projects.json

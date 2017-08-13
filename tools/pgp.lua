@@ -89,6 +89,20 @@ local function getCommittees()
     return pmcs
 end
 
+function pairsByKeys (t, f)
+      local a = {}
+      for n in pairs(t) do table.insert(a, n) end
+      table.sort(a, f)
+      local i = 0      -- iterator variable
+      local iter = function ()   -- iterator function
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]]
+        end
+      end
+      return iter
+    end
+
 -- get the current set of keys in the database
 local dbkeys={} -- squashed fpkeys from LDAP
 local dbkeyct = 0
@@ -221,7 +235,7 @@ for _, project in pairs(projects) do
     -- use the set so we get all the project members (e.g. tac has no Unix group)
     local _, _, set = getMembers(project)
     local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
-    for uid, _ in pairs(set) do
+    for uid, _ in pairsByKeys(set) do
         local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
         if cf then
             local data = cf:read("*a")

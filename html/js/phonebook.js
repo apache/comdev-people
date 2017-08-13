@@ -4,6 +4,7 @@ var ldapauth = {} // public_ldap_authgroups.json
 var ldapgroups = {} //  public_ldap_groups.json
 var ldapcttees = {} // public_ldap_committees.json
 var ldapservices = {} // public_ldap_services.json
+var ldapprojects = {} // public_ldap_projects.json
 
 var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
@@ -805,6 +806,7 @@ function saveInfo(json,name) {
 
 function preRender() {
     getAsyncJSONArray([
+        ['/public/public_ldap_projects.json',          "projects",   function(json) { ldapprojects = json.projects; saveInfo(json,'projects');}],
         ['/public/member-info.json',            "members",    function(json) { members = json; saveInfo(json,'members');}],
         ['/public/public_ldap_people.json',     "people",     function(json) { people = json.people;  saveInfo(json,'people');}],
         ['/public/committee-info.json',         "committees", function(json) { committees = json.committees; saveInfo(json,'committees');}],
@@ -813,15 +815,6 @@ function preRender() {
         ['/public/public_ldap_authgroups.json', "ldapauth",   function(json) { ldapauth = json.auth; saveInfo(json,'ldapauth'); }],
         ['/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
         ['/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
-        ['/public/public_nonldap_groups.json',  "nonldapgroups", function(json) { 
-        	var nonldapgroups = json.groups;
-        	for (var g in nonldapgroups) {
-        		if (nonldapgroups[g]['podling']) {
-        			podlings[g] = nonldapgroups[g]
-        		}
-        	}
-        	saveInfo(json,'nonldapgroups');
-        	}],
         ],
         allDone);
 }
@@ -834,8 +827,18 @@ function allDone() {
 	for (var k in committees) { // actual committees, not LDAP committee groups
 	    if (committees[k].pmc) { // skip non-PMCs
             pmcs.push(k)
+            ldapcttees[k]={}
+            ldapcttees[k].roster=[]
+            ldapcttees[k].roster=ldapprojects[k].owners
         }
 	}
+	// get podlings from projects
+	for (var g in ldapprojects) {
+		if (ldapprojects[g]['podling'] == 'current') {
+		    podlings[g] = {}
+			podlings[g].roster = ldapprojects[g].members
+		}
+    }
 	pmcs.push('member')
 	pmcs.sort()
 	var mMap = {}

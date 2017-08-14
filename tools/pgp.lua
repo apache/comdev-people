@@ -3,10 +3,8 @@
    Also creates indexes by committer name and by PMC/committee group membership
 
    It reads the following files from /var/www/html/public/:
-   public_ldap_groups.json - membership of committee group
-   public_ldap_committees.json - membership of PMC
+   public_ldap_projects.json - projects and podlings
    public_ldap_people.json - uids and fingerPrints
-   public_nonldap_groups.json - podlings
    
    It creates:
    /var/www/html/keys/committer/{uid}.asc
@@ -19,7 +17,7 @@ local JSON = require 'cjson'
 
 local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
 
-local log = io.open(([[/var/www/html/keys/committer%d.log]]):format(DOW), "w")
+local log = io.open(([[/var/www/html/keys/pgp%d.log]]):format(DOW), "w")
 log:write(os.date(),"\n")
 
 --PGP interface
@@ -38,7 +36,6 @@ local GPG_ARGS = "gpg --keyserver hkps.pool.sks-keyservers.net --keyring /var/ww
 -- It looks like redirecting stderr to stdout in combination with logger-file will work.
 -- If command status is failure, then output is the error message otherwise it is the result (if any)
 local function pgpfunc(func, ...)
-    local logname = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
     local command = GPG_ARGS .." 2>&1 " .. func
     for _, v in ipairs({...}) do
         command = command .. " " .. v
@@ -61,16 +58,14 @@ local function readJSON(file)
     return JSON.decode(contents)
 end
 
-local committerGroups = readJSON("public_ldap_groups.json").groups
-local pmcGroups = readJSON("public_ldap_committees.json").committees
+local ldapProjects = readJSON("public_ldap_projects.json").projects
 
 -- Return all members of a project + PMC separately and as a set
 local function getMembers(project)
     print("Getting the members of project " .. project)
 
-    -- TAC does not have a committerGroup
-    local committers = (committerGroups[project] or {}).roster or {}
-    local pmc = pmcGroups[project].roster
+    local committers = ldapProjects[project].members
+    local pmc = ldapProjects[project].owners
     
     local set = {}
     for _, v in ipairs(pmc) do set[v] = 1 end
@@ -83,8 +78,10 @@ end
 local function getCommittees()
     print("Getting all committees ")
     local pmcs = {}
-    for k, _ in pairs(pmcGroups) do
-        table.insert(pmcs, k)
+    for k, _ in pairs(ldapProjects) do
+        if ldapProjects[k]['pmc'] == true then
+            table.insert(pmcs, k)
+        end
     end
     return pmcs
 end
@@ -249,11 +246,10 @@ end
 
 print("Creating podling key files")
 f:write("\n<h3>Podling signatures:</h3>\n")
-local podlingGroups = readJSON("public_nonldap_groups.json").groups
 local pods = {}
-for project, entry in pairs(podlingGroups) do
-    local committers = entry.roster
+for project, entry in pairs(ldapProjects) do
     if entry.podling and entry.podling == "current" then
+        local committers = entry.members
         local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
         for _, uid in pairs(committers) do
             local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")

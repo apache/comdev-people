@@ -50,14 +50,46 @@ ldap_people = getJson('public_ldap_people.json', 'lastCreateTimestamp')['people'
 ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups']
 ldap_cttees = getJson('public_ldap_committees.json', 'lastTimestamp')['committees']
 ldap_services = getJson('public_ldap_services.json', 'lastTimestamp')['services']
-nonldap_groups = getJson('public_nonldap_groups.json')['groups'] # nothing
 icla_info = getJson('icla-info.json', 'last_updated')['committers']
+projects = getJson('public_ldap_projects.json')['projects'] # nothing
 
 idData = {} # hash of ids; entries are group type and name
 groupData = {} # hash of group names; entries are lists of committer ids
 
+for prj in projects:
+    project = projects[prj]
+    if 'pmc' in project and project['pmc'] == True:
+        gname=prj
+        groupData[gname] = []
+        for id in project['members']:
+            groupData[gname].append(id)
+            try:
+                idData[id].append(['unix', prj])
+            except KeyError:
+                idData[id] = [['unix', prj]]
+
+        gname=prj+'-pmc'
+        groupData[gname] = []
+        for id in project['owners']:
+            groupData[gname].append(id)
+            try:
+                idData[id].append(['pmc', prj])
+            except KeyError:
+                idData[id] = [['pmc', prj]]
+    elif 'podling' in project:
+        groupData[prj] = []
+        # Assume owners is subset of members
+        for id in project['members']:
+            groupData[gname].append(id)
+            try:
+                idData[id].append(['podling', prj])
+            except KeyError:
+                idData[id] = [['podling', prj]]
+
+# Allow for non-project groups (e.g. apsite, members)
 for group in ldap_groups:
-    if group == 'committers':
+    # don't overwrite existing groups
+    if group == 'committers' or group in groupData:
         continue
     groupData[group] = []
     for id in ldap_groups[group]['roster']:
@@ -76,17 +108,12 @@ for group in ldap_services:
         except KeyError:
             idData[id] = [['service', group]]
 
-for group in nonldap_groups:
-    groupData[group] = []
-    for id in nonldap_groups[group]['roster']:
-        groupData[group].append(id)
-        try:
-            idData[id].append(['other', group])
-        except KeyError:
-            idData[id] = [['other', group]]
-
+# Allow for non-project cttee entries (tac, security)
 for cttee in ldap_cttees:
     gname = cttee + '-pmc'
+    # Don't overwrite existing groups
+    if gname in groupData:
+        continue
     groupData[gname] = []
     for id in ldap_cttees[cttee]['roster']:
         groupData[gname].append(id)
@@ -96,14 +123,14 @@ for cttee in ldap_cttees:
             idData[id] = [['pmc', cttee]]
 
 def podlingName(group):
-    try:
-        if nonldap_groups[group]['podling'] == 'current':
-            return group + " (incubating)"
-        else:
-            return group + " (" + nonldap_groups[group]['podling'] + ")"
-    except KeyError:
+    if group in projects and 'podling' in projects[group] and not 'pmc' in projects[group]:
+        status = projects[group]['podling']
+        if status == 'current':
+            status = "incubating"
+        return group + " (" + status + ")"
+    else:
         return group
-        
+
 def publicName(id):
     if id in ldap_people:
         person = ldap_people[id]

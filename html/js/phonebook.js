@@ -9,7 +9,7 @@ var ldapprojects = {} // public_ldap_projects.json
 var members = {} // copy of member-info.json
 var committees = {} // copy of committee-info.json (plus details for 'member' dummy PMC)
 var iclainfo = {} // copy of icla-info.json (committers only)
-var podlings = {} // public_nonldap_groups.json where podling is true
+var podlings = {} // public_ldap_projects.json where podling is 'current'
 
 var info = {} // copies of json info
 

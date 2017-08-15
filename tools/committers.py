@@ -76,11 +76,11 @@ for prj in projects:
                 idData[id].append(['pmc', prj])
             except KeyError:
                 idData[id] = [['pmc', prj]]
-    elif 'podling' in project:
+    elif 'podling' in project and project['podling'] == 'current':
         groupData[prj] = []
         # Assume owners is subset of members
         for id in project['members']:
-            groupData[gname].append(id)
+            groupData[prj].append(id)
             try:
                 idData[id].append(['podling', prj])
             except KeyError:
@@ -89,7 +89,7 @@ for prj in projects:
 # Allow for non-project groups (e.g. apsite, members)
 for group in ldap_groups:
     # don't overwrite existing groups
-    if group == 'committers' or group in groupData:
+    if group == 'committers' or group in groupData or group == 'podlings':
         continue
     groupData[group] = []
     for id in ldap_groups[group]['roster']:

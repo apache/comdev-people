@@ -829,7 +829,9 @@ function allDone() {
             pmcs.push(k)
             ldapcttees[k]={}
             ldapcttees[k].roster=[]
-            ldapcttees[k].roster=ldapprojects[k].owners
+            if (k in ldapprojects) { // allow for missing project - e.g. misspelt - or LDAP not yet created
+                ldapcttees[k].roster=ldapprojects[k].owners            	
+            }
         }
 	}
 	// get podlings from projects

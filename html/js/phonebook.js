@@ -66,7 +66,6 @@ function getAsyncJSONArray(urls, finalCallback) {
         if (obj) { obj.innerHTML = "loading file #" + ( fetchCount - urls.length ) + " / " + fetchCount + "<br>" + desc }
         var start = Date.now()
         xmlHttp.open("GET", URL, true);
-        xmlHttp.send(null);
         xmlHttp.onreadystatechange = function(state) {
             if (xmlHttp.readyState == 4) {
                 if (cb) {
@@ -83,6 +82,7 @@ function getAsyncJSONArray(urls, finalCallback) {
                 getAsyncJSONArray(urls, finalCallback);
             }
         }
+        xmlHttp.send(null);
     }
     else {
         if (obj) { obj.innerHTML = "building page content..." }

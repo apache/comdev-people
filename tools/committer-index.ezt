@@ -36,6 +36,11 @@
 <p>
     If the committers has a <a href="/keys/committer/">PGP key</a> then it is linked from the SVN Id column
 </p>
+<p>
+Please note that some existing ids include special characters such as '-' and '_'.
+These characters are no longer permitted. 
+Ids must be lower-case alphanumeric (ASCII) only, at least 3 characters and must start with a letter.
+</p>
 <p>Last updated at: [lastupdate]</p>
 <hr size="1" noshade>
       <a href='#A'>A</a>

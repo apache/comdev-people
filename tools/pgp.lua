@@ -16,8 +16,9 @@
 local JSON = require 'cjson'
 
 local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
-
-local log = io.open(([[/var/www/html/keys/pgp%d.log]]):format(DOW), "w")
+local LOG = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
+os.remove(LOG)
+local log = io.open(LOG, "w")
 log:write(os.date(),"\n")
 
 --PGP interface
@@ -168,8 +169,14 @@ for uid, entry in pairs(people.people) do
                         f:write(body)
                         f:write("\n")
                         f:close()
+                    else
+                        log:write(("User: %s key %s - export failed:\n%s\n"):format(uid, skey, body))
                     end
+                else
+                    log:write(("User: %s key %s - could not extract fingerprint:\n%s\n"):format(uid, skey, data))
                 end
+            else
+                log:write(("User: %s key %s - fingerprint failed:\n%s\n"):format(uid, skey, data))
             end
             if not found then
                 log:write(("User: %s key %s - not found\n"):format(uid, skey))

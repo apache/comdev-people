@@ -9,3 +9,6 @@ https://gitbox.apache.org/repos/asf?p=infrastructure-puppet.git
 at:
 
 data/nodes/home.apache.org.yaml
+
+i.e.
+https://gitbox.apache.org/repos/asf?p=infrastructure-puppet.git;a=blob_plain;f=data/nodes/home.apache.org.yaml

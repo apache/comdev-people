@@ -48,7 +48,6 @@ members = getJson('member-info.json', 'last_updated')['members']
 ldap_people = getJson('public_ldap_people.json', 'lastCreateTimestamp')['people']
 
 ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups']
-ldap_cttees = getJson('public_ldap_committees.json', 'lastTimestamp')['committees']
 ldap_services = getJson('public_ldap_services.json', 'lastTimestamp')['services']
 icla_info = getJson('icla-info.json', 'last_updated')['committers']
 projects = getJson('public_ldap_projects.json')['projects'] # nothing
@@ -107,20 +106,6 @@ for group in ldap_services:
             idData[id].append(['service', group])
         except KeyError:
             idData[id] = [['service', group]]
-
-# Allow for non-project cttee entries (tac, security)
-for cttee in ldap_cttees:
-    gname = cttee + '-pmc'
-    # Don't overwrite existing groups
-    if gname in groupData:
-        continue
-    groupData[gname] = []
-    for id in ldap_cttees[cttee]['roster']:
-        groupData[gname].append(id)
-        try:
-            idData[id].append(['pmc', cttee])
-        except KeyError:
-            idData[id] = [['pmc', cttee]]
 
 def podlingName(group):
     if group in projects and 'podling' in projects[group] and not 'pmc' in projects[group]:

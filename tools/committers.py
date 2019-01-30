@@ -85,10 +85,13 @@ for prj in projects:
             except KeyError:
                 idData[id] = [['podling', prj]]
 
-# Allow for non-project groups (e.g. apsite, members)
+# Allow for non-project groups (apsite, member)
 for group in ldap_groups:
     # don't overwrite existing groups
-    if group == 'committers' or group in groupData or group == 'podlings':
+    if group in groupData:
+        continue
+    # Only pick up these groups
+    if not group in ['apsite', 'member']:
         continue
     groupData[group] = []
     for id in ldap_groups[group]['roster']:

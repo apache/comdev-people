@@ -52,14 +52,14 @@
   PMC membership is defined by the contents of the committee-info.txt file. The corresponding data file is committee-info.json.
   </p>
   <p>
-  All PMC members should be members of the corresponding LDAP committee group (see public_ldap_committees.json).
+  All PMC members should be owners of the LDAP project group.
   <br/>
   Membership of this LDAP group is used to grant karma for some parts of SVN that are private to the PMC and to give access to the PMC mail archives.
   <br/>
-  The LDAP committee group should not normally contain people who are not on the PMC.
+  The LDAP project owners group should not normally contain people who are not on the PMC.
   </p>
   <p>
-  All PMC members should also be members of the LDAP committer(unix) group. This group is used to grant karma for SVN.
+  All PMC members should also be members of the LDAP project group. This group is used to grant karma for SVN.
   </p>
   <h2>Data Sources</h2>
   <p>This site is generated from the following <a href="https://whimsy.apache.org/public/">Whimsy data:</a></p>
@@ -70,7 +70,6 @@
     <li><a href="https://whimsy.apache.org/public/public_ldap_people.json">LDAP people information - names and ids</a> (public_ldap_people.json)</li>
     <li><a href="https://whimsy.apache.org/public/public_ldap_groups.json">LDAP Unix groups</a> (public_ldap_groups.json)</li>
     <li><a href="https://whimsy.apache.org/public/public_ldap_authgroups.json">LDAP Auth groups</a> (public_ldap_authgroups.json)</li>
-    <li><a href="https://whimsy.apache.org/public/public_ldap_committees.json">LDAP committee groups</a> (public_ldap_committees.json)</li>
     <li><a href="https://whimsy.apache.org/public/public_ldap_services.json">LDAP Service groups - e.g. pmc-chairs</a> (public_ldap_services.json)</li>
     <li><a href="https://whimsy.apache.org/public/public_ldap_projects.json">LDAP projects - includes current podlings</a> (public_ldap_projects.json)</li>
   </ul>

@@ -2,7 +2,6 @@ var pmcs = [] // array of PMC names (excludes non-PMC committees)
 var people = {} // public_ldap_people.json
 var ldapauth = {} // public_ldap_authgroups.json
 var ldapgroups = {} //  public_ldap_groups.json
-var ldapcttees = {} // From ldap_projects.owners where pmc is true
 var ldapservices = {} // public_ldap_services.json
 var ldapprojects = {} // public_ldap_projects.json
 
@@ -90,12 +89,22 @@ function getAsyncJSONArray(urls, finalCallback) {
     }
 }
 
-
-function getProjects(uid) {
+// get list of projects on which uid is a committer
+function getProjectCommittership(uid) {
     var cl = []
-    for (var i in ldapgroups) {
-		// Are we here? and is this not one of those 'non-project' groups?
-        if (i !== "committers" && i !== "member" && ldapgroups[i].roster.indexOf(uid) > -1) {
+    for (var i in ldapprojects) {
+        if (ldapprojects[i].pmc && ldapprojects[i].members.indexOf(uid) > -1) {
+            cl.push(i)
+        }
+    }
+    return cl
+}
+
+//get list of projects on which uid is an owner (member karma)
+function getProjectOwnership(uid) {
+    var cl = []
+    for (var i in ldapprojects) {
+        if (ldapprojects[i].pmc && ldapprojects[i].owners.indexOf(uid) > -1) {
             cl.push(i)
         }
     }
@@ -103,7 +112,7 @@ function getProjects(uid) {
 }
 
 // Get the roster from a json group
-
+// returns: all the keys where the uid is [not] a member
 function getRoster(json, uid, notIn) {
     var cl = []
     for (var i in json) {
@@ -120,6 +129,8 @@ function getRoster(json, uid, notIn) {
     return cl
 }
 
+// get data from committee-info for a person
+// return [list of pmcs, list of chairs]
 function getCommitteeRoles(uid) {
     var pl = []
     var ch = []
@@ -205,11 +216,11 @@ function showCommitter(obj, uid) {
 	if (!details) {
 		details = document.createElement('p')
 		details.setAttribute("id", 'details_committer_' + uid)
-		var cl = getProjects(uid)
+		var cl = getProjectCommittership(uid) // committer(in :members) of these LDAP PMC projects 
 		var roles = getCommitteeRoles(uid)
-        var cttees = getRoster(ldapcttees, uid)
-        var pl = roles[0]
-        var ch = roles[1]
+        var cttees = getProjectOwnership(uid) // member(in :owners) of these LDAP PMC projects
+        var pl = roles[0] // pmc membership
+        var ch = roles[1] // chairs
         if (isNologin(uid)) {
             details.innerHTML += "<b>Login is currently disabled</b><br/><br/>"
         }
@@ -239,11 +250,12 @@ function showCommitter(obj, uid) {
 			details.innerHTML += "<b>PMC member of:</b> " + linkifyList(Q_PMC, pl) + "<br/><br/>"
 			for (p in pl) {
 			    pn = pl[p]
-			    // Don't check against Unix groups that don't exist
-			    if (pn != 'member' && pn in ldapgroups && cl.indexOf(pn) < 0) {
+			    // There is an LDAP PMC group but the uid is not in the committer(:members) group
+			    if (isProjectPMC(pn) && cl.indexOf(pn) < 0) {
 			        nc.push(pn)
 			    }
-			    if (pn in ldapcttees && cttees.indexOf(pn) < 0) {
+			    // There is an LDAP PMC group but the uid is not in the committee(:owners) group
+			    if (isProjectPMC(pn) && cttees.indexOf(pn) < 0) {
                     nl.push(pn)
 			    } 
 			}
@@ -256,7 +268,8 @@ function showCommitter(obj, uid) {
                 if (isPMC(pn) && pl.indexOf(pn) < 0) {
                         np.push(pn)
                 }
-                if (pn in ldapgroups && cl.indexOf(pn) < 0) {
+                // name has LDAP project entry but uid is not in the committer (member) list  
+                if (isProjectPMC(pn) && cl.indexOf(pn) < 0) {
                     nu.push(pn)
                 }
             }
@@ -287,7 +300,7 @@ function showCommitter(obj, uid) {
             details.innerHTML += "<span class='error'>On PMC, but not member of the LDAP committee group:</span> " + linkifyList(Q_CTTE, nl) + "<br/><br/>"
         }
         if (nu.length > 0) {
-            details.innerHTML += "<span class='error'>In LDAP committee group but not a member of the committer(unix) group:</span> " + linkifyList(Q_UNIX, nu) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>In LDAP committee group but not a member of the committer group:</span> " + linkifyList(Q_UNIX, nu) + "<br/><br/>"
         }
 		obj.appendChild(details)
 	} else {
@@ -321,7 +334,7 @@ function hoverCommitter(parent, uid) {
 	if (uid) {
 		div.style.display = "block"
 		div.innerHTML = "<h4>" + getCommitterName(uid) + "</h4>"
-		var cl = getProjects(uid)
+		var cl = getProjectCommittership(uid)
         var roles = getCommitteeRoles(uid)
         var pl = roles[0]
         var ch = roles[1]
@@ -380,8 +393,14 @@ function urls(uid) {
 	return people[uid].urls || []
 }
 
+// Is a PMC according to committee-info
 function isPMC(name) {
     return pmcs.indexOf(name) >= 0;
+}
+
+//Is a PMC according to ldap_projects
+function isProjectPMC(name) {
+    return name in ldapprojects && ldapprojects[name].pmc 
 }
 
 function linkifyUid(uid) {
@@ -443,8 +462,8 @@ function showProject(obj, prj) {
         var cttenopmc = [] // In LDAP ctte but not on PMC
 		var ldappmc = []
 		var ctteeExists = false
-		if (ldapcttees[prj]) { // may not exist, e.g. for 'member' PMC and if group has yet to be created
-		    ldappmc = ldapcttees[prj].roster
+		if (isProjectPMC(prj)) { // may not exist, e.g. for 'member' PMC and if group has yet to be created
+		    ldappmc = ldapprojects[prj].owners
 		    ctteeExists = true
 		}
 		var pmcnounix = [] // on PMC but not in LDAP unix group
@@ -535,8 +554,8 @@ function showProject(obj, prj) {
 }
 
 // Generic group display function
-
-function showJsonRoster(obj, type, json, name, checkUnix) {
+// attr is either missing or 'owners' or 'members'
+function showJsonRoster(obj, type, json, name, attr, checkUnix) {
     var id = 'details_' + type + '_' + name
     var details = document.getElementById(id)
     if (!details) {
@@ -546,7 +565,14 @@ function showJsonRoster(obj, type, json, name, checkUnix) {
         if (podtype) {
         	details.innerHTML += "<b>podling:</b> " + podtype + "<br><br>" 
         }
-        var cl = json[name].roster.slice()
+        var cl;
+        if (attr == 'owners') {
+            cl = json[name].owners.slice()
+        } else if (attr == 'members') {
+            cl = json[name].members.slice()
+        } else {
+            cl = json[name].roster.slice()
+        }
         cl.sort()
         for (var i in cl) {
             var uid=cl[i]
@@ -595,7 +621,7 @@ function showGroup(obj, name) {
 // Show an LDAP Commiteee group
 
 function showCommittee(obj, name) {
-    showJsonRoster(obj, 'ctte', ldapcttees, name, true)
+    showJsonRoster(obj, 'ctte', ldapprojects, name, 'owners', true)
 }
 
 function searchProjects(keyword, open) {
@@ -682,7 +708,7 @@ function showUNIX(unix) {
 function showCTTE(ctte) {
     var obj = document.getElementById('phonebook')
     var id = 'ctte_' + ctte
-    if (ctte in ldapcttees) {
+    if (ctte in ldapprojects && ldapprojects[ctte].pmc) {
         obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showCommittee(this.parentNode, '" + ctte + "');\">" + ctte + " (LDAP committee group)</h3></div>"
         showCommittee(document.getElementById(id), ctte)
     } else {
@@ -829,11 +855,6 @@ function allDone() {
         }
 	}
 	for (var g in ldapprojects) {
-		// get PMCs from projects
-		if (ldapprojects[g]['pmc']) {
-            ldapcttees[g]={}
-            ldapcttees[g].roster=ldapprojects[g].owners            	
-		}
 		// get podlings from projects
 		if (ldapprojects[g]['podling'] == 'current') {
 		    podlings[g] = {}

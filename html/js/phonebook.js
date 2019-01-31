@@ -2,7 +2,7 @@ var pmcs = [] // array of PMC names (excludes non-PMC committees)
 var people = {} // public_ldap_people.json
 var ldapauth = {} // public_ldap_authgroups.json
 var ldapgroups = {} //  public_ldap_groups.json
-var ldapcttees = {} // public_ldap_committees.json
+var ldapcttees = {} // From ldap_projects where pmc is true
 var ldapservices = {} // public_ldap_services.json
 var ldapprojects = {} // public_ldap_projects.json
 
@@ -813,7 +813,6 @@ function preRender() {
         ['/public/icla-info.json',              "iclainfo",   function(json) { iclainfo = json.committers; saveInfo(json,'iclainfo');}],
         ['/public/public_ldap_groups.json',     "ldapgroups", function(json) { ldapgroups = json.groups; saveInfo(json,'ldapgroups'); }],
         ['/public/public_ldap_authgroups.json', "ldapauth",   function(json) { ldapauth = json.auth; saveInfo(json,'ldapauth'); }],
-        ['/public/public_ldap_committees.json', "ldapcttees", function(json) { ldapcttees = json.committees; saveInfo(json,'ldapcttees'); }],
         ['/public/public_ldap_services.json',   "services",   function(json) { ldapservices = json.services; saveInfo(json,'services'); }],
         ],
         allDone);
@@ -827,15 +826,15 @@ function allDone() {
 	for (var k in committees) { // actual committees, not LDAP committee groups
 	    if (committees[k].pmc) { // skip non-PMCs
             pmcs.push(k)
-            ldapcttees[k]={}
-            ldapcttees[k].roster=[]
-            if (k in ldapprojects) { // allow for missing project - e.g. misspelt - or LDAP not yet created
-                ldapcttees[k].roster=ldapprojects[k].owners            	
-            }
         }
 	}
-	// get podlings from projects
 	for (var g in ldapprojects) {
+		// get PMCs from projects
+		if (ldapprojects[g]['pmc']) {
+            ldapcttees[g]={}
+            ldapcttees[g].roster=ldapprojects[g].owners            	
+		}
+		// get podlings from projects
 		if (ldapprojects[g]['podling'] == 'current') {
 		    podlings[g] = {}
 			podlings[g].roster = ldapprojects[g].members

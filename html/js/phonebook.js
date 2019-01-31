@@ -1,6 +1,7 @@
 var pmcs = [] // array of PMC names (excludes non-PMC committees)
 var people = {} // public_ldap_people.json
 var ldapauth = {} // public_ldap_authgroups.json
+// TODO don't rely on ldap_groups containing PMC :members groups
 var ldapgroups = {} //  public_ldap_groups.json
 var ldapservices = {} // public_ldap_services.json
 var ldapprojects = {} // public_ldap_projects.json

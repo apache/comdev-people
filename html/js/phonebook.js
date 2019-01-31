@@ -2,7 +2,7 @@ var pmcs = [] // array of PMC names (excludes non-PMC committees)
 var people = {} // public_ldap_people.json
 var ldapauth = {} // public_ldap_authgroups.json
 var ldapgroups = {} //  public_ldap_groups.json
-var ldapcttees = {} // From ldap_projects where pmc is true
+var ldapcttees = {} // From ldap_projects.owners where pmc is true
 var ldapservices = {} // public_ldap_services.json
 var ldapprojects = {} // public_ldap_projects.json
 

@@ -47,7 +47,7 @@ def getJson(file, stamp=None):
 members = getJson('member-info.json', 'last_updated')['members']
 ldap_people = getJson('public_ldap_people.json', 'lastCreateTimestamp')['people']
 
-ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups']
+ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups'] # only used for apsite, members, committers
 ldap_services = getJson('public_ldap_services.json', 'lastTimestamp')['services']
 icla_info = getJson('icla-info.json', 'last_updated')['committers']
 projects = getJson('public_ldap_projects.json')['projects'] # nothing

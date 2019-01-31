@@ -16,7 +16,6 @@ getNewer committee-info.json
 getNewer icla-info.json
 getNewer member-info.json
 getNewer public_ldap_authgroups.json
-getNewer public_ldap_committees.json
 getNewer public_ldap_groups.json
 getNewer public_ldap_people.json
 getNewer public_ldap_services.json

@@ -24,8 +24,7 @@ log:write(os.date(),"\n")
 --PGP interface
 
 -- using --batch causes gpg to write some output to log-file instead of stderr
--- See https://issues.apache.org/jira/browse/WHIMSY-274 for details of keyserver
-local GPG_ARGS = "gpg --keyserver keys.openpgp.org --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+local GPG_ARGS = "gpg --keyserver hkps.pool.sks-keyservers.net --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 
 -- Unfortunately GPG writes messages to stderr and Lua does not handle that in io.popen
 -- --logger-fd/logger-file can be used to redirect the progress (and some error-related) messages

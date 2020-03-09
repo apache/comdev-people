@@ -107,7 +107,7 @@ local dbkeyct = 0
 local ok, fps = pgpfunc('--fingerprint') -- fetch all the fingerprints
 if ok then
     -- scan the output looking for fps
-    for key in fps:gmatch("fingerprint = ([0-9a-fA-F ]+)") do
+    for key in fps:gmatch("      ([0-9a-fA-F ]+)\n") do
         dbkeys[(key:gsub(' ',''))]=1 -- extra () are to throw away the subs count
         dbkeyct = dbkeyct + 1
     end
@@ -152,7 +152,7 @@ for uid, entry in pairs(people.people) do
             local found = false
             local ok, data = pgpfunc('--fingerprint', skey)
             if ok then
-                local id,_ = data:match("fingerprint = ([0-9a-fA-F ]+)")
+                local id,_ = data:match("      ([0-9a-fA-F ]+)\n")
                 if id then
                     local ok, body = pgpfunc('--export', '--armor', skey)
                     if ok then

@@ -29,11 +29,6 @@
       Any such entries are shown as links in the Name column. 
 </p>
 <p>
-    There is also a list of <a href="unlistedclas.html">Persons with signed CLAs but who are not (yet) committers.</a>
-    This is useful for checking if a CLA has been received and recorded in the 
-    <a href="https://svn.apache.org/repos/private/foundation/officers/iclas.txt">iclas.txt</a> file which is maintained by the secretary.
-</p>
-<p>
     If the committers has a <a href="/keys/committer/">PGP key</a> then it is linked from the SVN Id column
 </p>
 <p>

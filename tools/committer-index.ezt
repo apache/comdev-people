@@ -29,6 +29,9 @@
       Any such entries are shown as links in the Name column. 
 </p>
 <p>
+    There is also a Whimsy tool to <a href="https://whimsy.apache.org/officers/unlistedclas.cgi">check if a CLA has been recorded.</a>
+</p>
+<p>
     If the committers has a <a href="/keys/committer/">PGP key</a> then it is linked from the SVN Id column
 </p>
 <p>

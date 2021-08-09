@@ -25,6 +25,7 @@ log:write(os.date(),"\n")
 
 -- using --batch causes gpg to write some output to log-file instead of stderr
 local GPG_ARGS = "gpg --keyserver hkps.pool.sks-keyservers.net --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+local GPG_BACKUP_ARGS = "gpg --keyserver keys.openpgp.org --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 
 -- Unfortunately GPG writes messages to stderr and Lua does not handle that in io.popen
 -- --logger-fd/logger-file can be used to redirect the progress (and some error-related) messages
@@ -46,9 +47,27 @@ local function pgpfunc(func, ...)
     local gp = io.popen(command)
     local grv = gp:read("*a") -- slurp result
     local success, exitOrSignal, code = gp:close()
+    if not success then
+        success, grv = pgpfunc_backup(func, ...)
+    end
 --    log:write(tostring(success), " ", exitOrSignal, " ",  code, "\n")
     return success, grv
 end
+
+
+function pgpfunc_backup(func, ...)
+    local command = GPG_BACKUP_ARGS .." " .. func
+    for _, v in ipairs({...}) do
+        command = command .. " " .. v
+    end
+    command = command .. " 2>&1"
+    print(command)
+    local gp = io.popen(command)
+    local grv = gp:read("*a") -- slurp result
+    local success, exitOrSignal, code = gp:close()
+    return success, grv
+end
+
 
 local PUBLIC_JSON = "/var/www/html/public/"
 

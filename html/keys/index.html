@@ -12,7 +12,8 @@
 <!-- Text is difficult to read if the lines are too long -->
 <div style="max-width: 90ch;">
 <p>
-ASF committers can add key fingerprints to their LDAP record using the <a href="https://id.apache.org/">SelfServe</a> web application.
+ASF committers can add key fingerprints to their LDAP record using the <a href="https://id.apache.org/">SelfServe</a> or
+<a href="https://whimsy.apache.org/roster/committer/__self__">Whimsy</a> web application.
 <br/>
 Only the fingerprints are stored in the LDAP record.
 <br/>
@@ -24,7 +25,7 @@ The files in the <a href="committer">Committer keys</a> directory are autogenera
 <br/>
 (The public keys are downloaded from a public key server using the fingerprints from LDAP)
 <br/>
-Note that the SelfServe web app currently contains some entries which are the short key id (8 hex chars)
+Note that LDAP currently contains some entries which are the short key id (8 hex chars)
 rather than the full fingerprint (40 chars).
 <br/>
 These <b>key id entries are ignored</b> because they are not guaranteed unique; and it has been shown that they can be spoofed.

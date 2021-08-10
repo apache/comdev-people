@@ -22,7 +22,7 @@ log:write(os.date(),"\n")
 --PGP interface
 
 -- using --batch causes gpg to write some output to log-file instead of stderr
-local GPG_ARGS = "gpg --keyserver hkps.pool.sks-keyservers.net --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+local GPG_ARGS = "gpg --keyserver keyserver.ubuntu.com --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 local GPG_BACKUP_ARGS = "gpg --keyserver keys.openpgp.org --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 
 -- Unfortunately GPG writes messages to stderr and Lua does not handle that in io.popen

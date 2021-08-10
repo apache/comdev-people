@@ -1,6 +1,6 @@
 --[[
    Script to generate files of PGP keys for committers
-   Also creates indexes by committer name and by PMC/committee group membership
+   Also creates indexes by committer name
 
    It reads the following files from /var/www/html/public/:
    public_ldap_projects.json - projects and podlings
@@ -9,8 +9,6 @@
    It creates:
    /var/www/html/keys/committer/{uid}.asc
    /var/www/html/keys/committer/index.html
-   /var/www/html/keys/group/index.html
-   /var/www/html/keys/group/{group}.asc
 ]]
 
 local JSON = require 'cjson'
@@ -76,34 +74,6 @@ local function readJSON(file)
     local contents = f:read("*a")
     f:close()
     return JSON.decode(contents)
-end
-
-local ldapProjects = readJSON("public_ldap_projects.json").projects
-
--- Return all members of a project + PMC separately and as a set
-local function getMembers(project)
-    print("Getting the members of project " .. project)
-
-    local committers = ldapProjects[project].members
-    local pmc = ldapProjects[project].owners
-    
-    local set = {}
-    for _, v in ipairs(pmc) do set[v] = 1 end
-    for _, v in ipairs(committers) do set[v] = 1 end
-    return committers, pmc, set
-end
-
-
--- Return all PMCs
-local function getCommittees()
-    print("Getting all committees ")
-    local pmcs = {}
-    for k, _ in pairs(ldapProjects) do
-        if ldapProjects[k]['pmc'] == true then
-            table.insert(pmcs, k)
-        end
-    end
-    return pmcs
 end
 
 function pairsByKeys (t, f)
@@ -244,57 +214,6 @@ f:write(("\nlastCreateTimestamp: %s\n"):format(people.lastCreateTimestamp or '?'
 f:write(("Failed fetches: %d\n"):format(failed))
 f:write(("Invalid keys: %d\n"):format(invalid))
 f:write(("New keys: %d\n"):format(newkeys))
-f:write("</pre></body></html>")
-f:close()
-
--- Add Project ASCs
-print("Creating project key files")
-local f = io.open("/var/www/html/keys/group/index.html", "w")
-f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
-f:write("<h3>Project signatures:</h3>\n")
-local projects = getCommittees()
-table.sort(projects)
-for _, project in pairs(projects) do
-    -- use the set so we get all the project members (e.g. tac has no Unix group)
-    local _, _, set = getMembers(project)
-    local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
-    for uid, _ in pairsByKeys(set) do
-        local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
-        if cf then
-            local data = cf:read("*a")
-            af:write(data)
-            cf:close()
-        end
-    end
-    af:close()
-    f:write(("%40s <a id='%s' href='%s.asc'>%s signatures</a>\n"):format(project, project, project, project))
-end
-
-print("Creating podling key files")
-f:write("\n<h3>Podling signatures:</h3>\n")
-local pods = {}
-for project, entry in pairs(ldapProjects) do
-    if entry.podling and entry.podling == "current" then
-        local committers = entry.members
-        local af = io.open("/var/www/html/keys/group/" .. project .. ".asc", "w")
-        for _, uid in pairs(committers) do
-            local cf = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "r")
-            if cf then
-                local data = cf:read("*a")
-                af:write(data)
-                cf:close()
-            end
-        end
-        af:close()
-        table.insert(pods, project)
-    end
-end
-table.sort(pods)
-for _,project in pairs(pods) do
-    f:write(("%40s <a href='%s.asc'>%s signatures</a>\n"):format(project, project, project))
-end
-
-f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
 f:write("</pre></body></html>")
 f:close()
 

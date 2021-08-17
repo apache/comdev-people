@@ -15,7 +15,7 @@
 <h1><img src='img/asf_logo_small.png' alt='Apache feather logo with text' style='vertical-align: middle;'/> ASF Committers by auth group</h1>
 <p>
   This page lists all LDAP groups and the SVN authorization groups found in
-  the SVN authorization file and shows the membership of the corresponding groups.
+  the SVN authorization file, and shows the membership of the corresponding groups.
 </p>
 <p>
 <!-- TODO
@@ -26,11 +26,11 @@
   Entries in <b>bold</b> are ASF members. 
 </p>
 <p>
-  Please note that the authorisation groups are used to provide access to certain services.
-  For example membership of the <a href="#pmc-chairs">pmc-chairs</a> group allows the holder to update
+  Authorization groups are used to provide access to certain services.
+  For example ,membership of the <a href="#pmc-chairs">pmc-chairs</a> group allows the holder to update
   the Unix and committee LDAP groups.
   However, membership of the pmc-chairs group does not necessarily mean that the holder is currently the chair of a PMC.
-  Similarly, membership of the commons-pmc LDAP group does not necessarily imply that the holder is a member of the Commons PMC.
+  Similarly, membership of the commons-pmc LDAP group does not necessarily mean that the holder is a member of the Commons PMC.
 </p>
 <p>
   The official documentation for membership of PMCs is the 
@@ -39,21 +39,21 @@
 </p>
 <p>
   Membership of the Unix LDAP groups (e.g. tomcat) generally gives write access to SVN.
-  Memership of the LDAP committee groups (e.g. tomcat-pmc) generally gives write access to the dist/release area for releasing files.
-  The PMC may also have a private area under https://svn.apache.org/repos/private/pmc/{pmc} in which case
+  Membership of the LDAP committee groups (e.g. tomcat-pmc) generally gives write access to the dist/release area for releasing files.
+  The PMC may also have a private area under https://svn.apache.org/repos/private/pmc/{pmc}, in which case
   membership of the corresponding LDAP committee group gives both read and write access.
 </p>
 <p>
-  Entries in the "SVN id" column link back to the corresponding entry in the <a href="committer-index.html">Committer Index</a>.
+  Entries in the "SVN ID" column link to the corresponding entry in the <a href="committer-index.html">Committer Index</a>.
 </p>
 <p>
   Committers may provide homepage URLs in LDAP.
   <br>
-  Login to https://id.apache.org/ and populate the "Homepage URL:" field.
+  Log in to https://id.apache.org/ and populate the "Homepage URL:" field.
   <br>
-  Any such entries are shown as links in the Name column. 
+  Any such entries appear as links in the Name column. 
 </p>
-<p>Last updated at: [lastupdate]</p>
+<p>Last updated on: [lastupdate]</p>
 <hr size="1" noshade>
 <!--bodyContent-->
 <table border="0">

@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 """
 Generates:
@@ -11,9 +11,7 @@ from json files under html/public and keys/committer/
 
 Expected usage in cron job:
 
-python /var/www/tools/committers.py
-
-Note: ezt does not appear to support Python3
+python3 /var/www/tools/committers.py
 
 """
 
@@ -213,8 +211,8 @@ template.generate(open(join(HTML_DIR,'committer-index.html'), mode='w'),
 
 ###############################
 
-import cStringIO
-g = cStringIO.StringIO()
+from io import StringIO
+g = StringIO()
 
 
 # Create the index

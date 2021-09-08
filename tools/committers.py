@@ -184,7 +184,7 @@ letter='' # Alpha index
 roster = [ ]
 # iterate over committers (should be sorted already)
 for id in ldap_groups['committers']['roster']:
-    person = _item(id=id, name=nameStyle(id).encode('utf-8'), linkkey=linkKey(id),
+    person = _item(id=id, name=nameStyle(id), linkkey=linkKey(id),
                    is_member=ezt.boolean(isMember(id)),
                    has_icla=ezt.boolean(hasICLA(id)),
                    letter=None, groups=None)
@@ -255,7 +255,7 @@ for group in sorted(groupData):
         # SVN id
         g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</td>""" % (id, id, idStyle(id)))
         # Name
-        g.write("<td>%s</td></tr>\n" % nameStyle(id).encode('utf-8'))
+        g.write("<td>%s</td></tr>\n" % nameStyle(id))
     g.write("""</table>\n""")
     if col > 0:
         g.write("""</td>\n""")

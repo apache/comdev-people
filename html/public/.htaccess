@@ -1,0 +1,2 @@
+# COMDEV-328 - don't publish 2nd-hand data
+Redirect /public https://whimsy.apache.org/public/

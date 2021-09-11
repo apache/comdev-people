@@ -34,8 +34,8 @@ KEYS_GRP=join(KEYS_DIR,'group')
 versions = {}
 
 def getJson(file, stamp=None):
-    with open(join(JSON_DIR, file), "r") as f:
-        j = json.loads(f.read(), encoding='utf-8')
+    with open(join(JSON_DIR, file), "r", encoding='utf-8') as f:
+        j = json.loads(f.read())
         if stamp != None:
             versions[file] = [stamp, j[stamp]]
         else:

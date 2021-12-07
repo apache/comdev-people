@@ -616,7 +616,7 @@ function showPodlingRoster(obj, name) {
 // Show an LDAP Unix group
 
 function showGroup(obj, name) {
-    showJsonRoster(obj, 'group', ldapgroups, name)
+    showJsonRoster(obj, 'group', ldapprojects, name, 'members', true)
 }
 
 // Show an LDAP Commiteee group
@@ -696,7 +696,7 @@ function showPMC(pmc) {
 function showUNIX(unix) {
     var obj = document.getElementById('phonebook')
     var id = 'group_' + unix
-    if (unix in ldapgroups) {
+    if (unix in ldapprojects) {
         obj.innerHTML = "<div id='" + id + "' class='group'><h3 onclick=\"showGroup(this.parentNode, '" + unix + "');\">" + unix + " (LDAP unix group)</h3></div>"
         showGroup(document.getElementById(id), unix)
     } else {

@@ -3,12 +3,12 @@
    Also creates indexes by committer name
 
    It reads the following files from /var/www/html/public/:
-   public_ldap_projects.json - projects and podlings
    public_ldap_people.json - uids and fingerPrints
    
    It creates:
    /var/www/html/keys/committer/{uid}.asc
    /var/www/html/keys/committer/index.html
+   /var/www/tools/pgpkeys - keyring
 ]]
 
 local JSON = require 'cjson'
@@ -22,8 +22,9 @@ log:write(os.date(),"\n")
 --PGP interface
 
 -- using --batch causes gpg to write some output to log-file instead of stderr
-local GPG_ARGS = "gpg --keyserver keyserver.ubuntu.com --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
-local GPG_BACKUP_ARGS = "gpg --keyserver keys.openpgp.org --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+local GPG_ARGS = "gpg --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+local GPG_SERVER_1 = "keyserver.ubuntu.com"
+local GPG_SERVER_2 = "keys.openpgp.org"
 
 -- Unfortunately GPG writes messages to stderr and Lua does not handle that in io.popen
 -- --logger-fd/logger-file can be used to redirect the progress (and some error-related) messages
@@ -35,34 +36,31 @@ local GPG_BACKUP_ARGS = "gpg --keyserver keys.openpgp.org --keyring /var/www/too
 -- ditto refresh; most useful output is on stderr
 -- It looks like redirecting stderr to stdout in combination with logger-file will work.
 -- If command status is failure, then output is the error message otherwise it is the result (if any)
+-- Some failures don't set error status, e.g. --recv-key can report success with the message:
+-- gpg: key xxxxxxx: new key but contains no user ID - skipped
 local function pgpfunc(func, ...)
-    local command = GPG_ARGS .." 2>&1 " .. func
-    for _, v in ipairs({...}) do
-        command = command .. " " .. v
-    end
-    -- just log the function and its params
---    log:write(table.concat({func,...},' '),"\n")
-    local gp = io.popen(command)
-    local grv = gp:read("*a") -- slurp result
-    local success, exitOrSignal, code = gp:close()
+    local success, grv = pgpfunc_one(GPG_SERVER_1, func, ...)
     if not success then
-        success, grv = pgpfunc_backup(func, ...)
+        log:write("Main server failed, trying backup\n")
+        success, grv = pgpfunc_one(GPG_SERVER_2, func, ...)
     end
---    log:write(tostring(success), " ", exitOrSignal, " ",  code, "\n")
     return success, grv
 end
 
 
-function pgpfunc_backup(func, ...)
-    local command = GPG_BACKUP_ARGS .." " .. func
+function pgpfunc_one(gpg_server, func, ...)
+    log:write(("Server: %s command %s\n"):format(gpg_server, table.concat({func,...},' ')))
+    local command = GPG_ARGS .. "--keyserver " .. gpg_server .. " " .. func
     for _, v in ipairs({...}) do
         command = command .. " " .. v
     end
     command = command .. " 2>&1"
-    print(command)
     local gp = io.popen(command)
     local grv = gp:read("*a") -- slurp result
     local success, exitOrSignal, code = gp:close()
+    if not success then
+        log:write(tostring(success), " ", exitOrSignal, " ",  code, " ", grv, "\n")
+    end
     return success, grv
 end
 
@@ -129,13 +127,14 @@ for uid, entry in pairs(people.people) do
         if string.len(skey) == 40 then
             validkeys[skey:upper()] = 1 -- fps in pgp database are upper case
             if not dbkeys[skey:upper()] then
-                print("Fetching key " .. skey .. " for " .. uid .. "...")
+                log:write("Fetching key " .. skey .. " for " .. uid .. "...\n")
                 local ok, res = pgpfunc('--recv-keys', skey)
-                if ok then
+                -- there should be no output from a successful fetch
+                if ok and string.len(res) == 0 then
                     log:write(("User: %s key %s - fetched from remote\n"):format(uid, skey))
                     newkeys = newkeys +1
                 else
-                    log:write(("User: %s key %s - fetch failed: %s\n"):format(uid, skey, res))
+                    log:write(("User: %s key %s - fetch failed: (%s) %s\n"):format(uid, skey, tostring(ok), res))
                 end
             end
             local found = false
@@ -149,7 +148,7 @@ for uid, entry in pairs(people.people) do
                         found = true
                         keys[uid] = keys[uid] or {}
                         table.insert(keys[uid], key)
-                        print("Writing key " .. key .. " for " .. uid .. "...")
+                        log:write("Writing key " .. key .. " for " .. uid .. "...\n")
                         local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
                         f:write("ASF ID: " .. uid .. "\n")
                         f:write("LDAP PGP key: " .. key .. "\n\n")

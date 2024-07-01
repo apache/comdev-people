@@ -279,6 +279,9 @@ template.generate(open(join(HTML_DIR,'committers-by-project.html'), mode='w'),
 
 ##############################################################################
 
+# These keys are referenced from
+# https://infra.apache.org/infra-contact.html
+
 SERVICE='infrastructure-root'
 infra_root = getJson('public_ldap_services.json')['services'][SERVICE]['roster']
 IROOT=join(KEYS_GRP,'%s.asc' % SERVICE)

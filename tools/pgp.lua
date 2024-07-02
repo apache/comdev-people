@@ -40,9 +40,17 @@ local GPG_SERVER_2 = "keys.openpgp.org"
 -- gpg: key xxxxxxx: new key but contains no user ID - skipped
 local function pgpfunc(func, ...)
     local success, grv = pgpfunc_one(GPG_SERVER_1, func, ...)
+    -- only retry recv-keys:
+    -- does not make sense to retry --refresh (takes too long)
+    -- other functions don't use the server
     if not success then
-        log:write("Main server failed, trying backup\n")
-        success, grv = pgpfunc_one(GPG_SERVER_2, func, ...)
+        if func == '--recv-keys' then
+            log:write("Main server failed, trying backup\n")
+            success, grv = pgpfunc_one(GPG_SERVER_2, func, ...)
+            if success then -- does this ever happen?
+                log:write("** Backup server success! **\n")
+            end
+        end
     end
     return success, grv
 end
@@ -58,6 +66,10 @@ function pgpfunc_one(gpg_server, func, ...)
     local gp = io.popen(command)
     local grv = gp:read("*a") -- slurp result
     local success, exitOrSignal, code = gp:close()
+    if success and func == '--recv-keys' then
+        -- there should be no output from a successful fetch
+        success = string.len(grv) == 0
+    end
     if not success then
         log:write(tostring(success), " ", exitOrSignal, " ",  code, " ", grv, "\n")
     end
@@ -129,8 +141,7 @@ for uid, entry in pairs(people.people) do
             if not dbkeys[skey:upper()] then
                 log:write("Fetching key " .. skey .. " for " .. uid .. "...\n")
                 local ok, res = pgpfunc('--recv-keys', skey)
-                -- there should be no output from a successful fetch
-                if ok and string.len(res) == 0 then
+                if ok then
                     log:write(("User: %s key %s - fetched from remote\n"):format(uid, skey))
                     newkeys = newkeys +1
                 else

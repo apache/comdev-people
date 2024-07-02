@@ -16,6 +16,7 @@ local JSON = require 'cjson'
 local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
 local LOG = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
 os.remove(LOG)
+print("Log file" .. LOG)
 local log = io.open(LOG, "w")
 log:write(os.date(),"\n")
 
@@ -123,9 +124,11 @@ local invalid = 0 -- how many keys did not validate
 local newkeys = 0 -- how many new keys fetched
 
 -- refresh is expensive, only do it once a week
-if DOW == 4 then
+if DOW == 4 and arg[1] ~= '--no-refresh' then
+    print("Refreshing the pgp database...")
     log:write("Refreshing the pgp database\n")
     pgpfunc('--refresh') -- does not seem to have useful status/stderr output
+    print("...done")
 end
 
 for uid, entry in pairs(people.people) do

@@ -1,0 +1,6 @@
+services:
+  home:
+    image: home
+    build: .
+    volumes:
+      - ${PWD}:/var/www

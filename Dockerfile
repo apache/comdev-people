@@ -13,6 +13,10 @@ RUN apt-get --assume-yes install \
 
 RUN pip3 install ezt
 
+RUN apt-get install --assume-yes apache2
+
+RUN echo "ServerName home.local" > /etc/apache2/conf-enabled/servername.conf
+
 WORKDIR /var/www
 
-ENTRYPOINT ["/bin/bash"]
+CMD apache2ctl -DFOREGROUND

@@ -2,5 +2,7 @@ services:
   home:
     image: home
     build: .
+    ports:
+      - "1080:80"
     volumes:
       - ${PWD}:/var/www

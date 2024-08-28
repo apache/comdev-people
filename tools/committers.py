@@ -138,7 +138,7 @@ def hasICLA(id):
     return id in icla_info
 
 
-lastupdate = '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.utcnow())
+lastupdate = '{:%Y-%m-%d %H:%M UTC}'.format(datetime.datetime.now(datetime.UTC))
 
 class _item(object):
     def __init__(self, **kw):

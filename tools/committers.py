@@ -15,7 +15,6 @@ python3 /var/www/tools/committers.py
 
 """
 
-import sys
 from os.path import dirname, abspath, join, isfile
 from inspect import getsourcefile
 import datetime

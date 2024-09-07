@@ -282,14 +282,14 @@ template.generate(open(join(HTML_DIR,'committers-by-project.html'), mode='w'),
 ############################################################################
 
 # Generate redirects for personal directories
-SELF_RE = r"/(home|people)\.apache\.org/" # self
+SELF_RE = r"://(home|people)\.apache\.org/" # self
 if isfile(HTACCESS):
     with open(HTACCESS, 'w') as hta:
         for id in ldap_people:
             person = ldap_people[id]
             if 'urls' in person:
                 for url in person['urls']:
-                    if not re.search(SELF_RE, url):
+                    if not re.search(SELF_RE, url, re.IGNORECASE):
                         hta.write(f"RedirectMatch ^/~{id}(/.*)?$ {url}$1\n")
                         break
 

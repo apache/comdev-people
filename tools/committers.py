@@ -4,7 +4,9 @@
 Generates:
 html/committer-index.html 
 html/committers-by-project.html
+html/.htaccess (if present)
 from json files under html/public
+
 
 keys/groups/infrastructure-root.asc
 from json files under html/public and keys/committer/
@@ -19,6 +21,7 @@ from os.path import dirname, abspath, join, isfile
 from inspect import getsourcefile
 import datetime
 import json
+import re
 
 import ezt
 
@@ -29,6 +32,7 @@ JSON_DIR=join(HTML_DIR,'public')
 KEYS_DIR=join(HTML_DIR,'keys')
 KEYS_UID=join(KEYS_DIR,'committer')
 KEYS_GRP=join(KEYS_DIR,'group')
+HTACCESS = join(HTML_DIR,'.htaccess')
 
 versions = {}
 
@@ -274,6 +278,20 @@ template.generate(open(join(HTML_DIR,'committers-by-project.html'), mode='w'),
                     'versions': vsn_data,
                     'content': content,
                     })
+
+############################################################################
+
+# Generate redirects for personal directories
+SELF_RE = r"/(home|people)\.apache\.org/" # self
+if isfile(HTACCESS):
+    with open(HTACCESS, 'w') as hta:
+        for id in ldap_people:
+            person = ldap_people[id]
+            if 'urls' in person:
+                for url in person['urls']:
+                    if not re.search(SELF_RE, url):
+                        hta.write(f"RedirectMatch ^/~{id}(/.*)?$ {url}$1\n")
+                        break
 
 
 ##############################################################################

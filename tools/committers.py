@@ -8,9 +8,6 @@ html/.htaccess (if present)
 from json files under html/public
 
 
-keys/groups/infrastructure-root.asc
-from json files under html/public and keys/committer/
-
 Expected usage in cron job:
 
 python3 /var/www/tools/committers.py
@@ -37,6 +34,7 @@ HTACCESS = join(HTML_DIR,'.htaccess')
 versions = {}
 
 def getJson(file, stamp=None):
+    print(file)
     with open(join(JSON_DIR, file), "r", encoding='utf-8') as f:
         j = json.loads(f.read())
         if stamp != None:
@@ -44,7 +42,7 @@ def getJson(file, stamp=None):
         else:
             versions[file] = ['(No timestamp info)', '']
         return j
-
+print('xx')
 members = getJson('member-info.json', 'last_updated')['members']
 ldap_people = getJson('public_ldap_people.json', 'lastCreateTimestamp')['people']
 
@@ -52,6 +50,7 @@ ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups'] # on
 ldap_services = getJson('public_ldap_services.json', 'lastTimestamp')['services']
 icla_info = getJson('icla-info.json', 'last_updated')['committers']
 projects = getJson('public_ldap_projects.json', 'lastTimestamp')['projects']
+exit()
 
 idData = {} # hash of ids; entries are group type and name
 groupData = {} # hash of group names; entries are lists of committer ids
@@ -295,19 +294,3 @@ if isfile(HTACCESS):
 
 
 ##############################################################################
-
-# These keys are referenced from
-# https://infra.apache.org/infra-contact.html
-
-SERVICE='infrastructure-root'
-infra_root = getJson('public_ldap_services.json')['services'][SERVICE]['roster']
-IROOT=join(KEYS_GRP,'%s.asc' % SERVICE)
-h = open(IROOT, mode='w')
-for root in infra_root:
-    try:
-        j = open(join(KEYS_UID,'%s.asc' % root), mode='r', encoding='utf-8')
-        h.write(j.read())
-        j.close()
-    except:
-        pass
-h.close()

@@ -34,7 +34,6 @@ HTACCESS = join(HTML_DIR,'.htaccess')
 versions = {}
 
 def getJson(file, stamp=None):
-    print(file)
     with open(join(JSON_DIR, file), "r", encoding='utf-8') as f:
         j = json.loads(f.read())
         if stamp != None:
@@ -42,7 +41,7 @@ def getJson(file, stamp=None):
         else:
             versions[file] = ['(No timestamp info)', '']
         return j
-print('xx')
+
 members = getJson('member-info.json', 'last_updated')['members']
 ldap_people = getJson('public_ldap_people.json', 'lastCreateTimestamp')['people']
 

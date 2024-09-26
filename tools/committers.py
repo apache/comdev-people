@@ -49,7 +49,6 @@ ldap_groups = getJson('public_ldap_groups.json', 'lastTimestamp')['groups'] # on
 ldap_services = getJson('public_ldap_services.json', 'lastTimestamp')['services']
 icla_info = getJson('icla-info.json', 'last_updated')['committers']
 projects = getJson('public_ldap_projects.json', 'lastTimestamp')['projects']
-exit()
 
 idData = {} # hash of ids; entries are group type and name
 groupData = {} # hash of group names; entries are lists of committer ids

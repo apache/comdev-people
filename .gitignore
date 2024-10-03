@@ -1,0 +1,29 @@
+
+# /
+/.project
+/*.tmp
+/*.log
+/.pydevproject
+
+# /html/
+/html/*.json
+/html/.htaccess
+/html/committer-index.html
+/html/committers-by-project.html
+
+# /html/keys/
+/html/keys/*.log
+
+# /html/keys/committer/
+/html/keys/committer/.*
+/html/keys/committer/*.*
+
+# /html/keys/group/
+/html/keys/group/*.asc
+
+# /html/public/
+/html/public/*.json
+
+# /tools/
+/tools/pgpkeys
+/tools/pgpkeys~

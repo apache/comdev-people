@@ -5,6 +5,9 @@
 /*.log
 /.pydevproject
 
+# maintained by puppet
+.forward
+
 # /html/
 /html/*.json
 /html/.htaccess

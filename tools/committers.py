@@ -286,7 +286,8 @@ if isfile(HTACCESS):
             person = ldap_people[id]
             if 'urls' in person:
                 for url in person['urls']:
-                    if not re.search(SELF_RE, url, re.IGNORECASE):
+                    # Must be an http[s] URL and must not be self reference
+                    if re.match(r"^https?://", url) and not re.search(SELF_RE, url, re.IGNORECASE):
                         hta.write(f"RedirectMatch ^/~{id}(/.*)?$ {url}$1\n")
                         break
 

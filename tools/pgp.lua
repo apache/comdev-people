@@ -152,35 +152,45 @@ for uid, entry in pairs(people.people) do
                 end
             end
             local found = false
+            local badkey = false
             local ok, data = pgpfunc('--fingerprint', skey)
             if ok then
-                local id,_ = data:match("      ([0-9a-fA-F ]+)\n")
-                if id then
-                    local ok, body = pgpfunc('--export', '--armor', skey)
-                    if ok then
-                        -- only store the key id if it was found
-                        found = true
-                        keys[uid] = keys[uid] or {}
-                        table.insert(keys[uid], key)
-                        log:write("Writing key " .. key .. " for " .. uid .. "...\n")
-                        local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
-                        f:write("ASF ID: " .. uid .. "\n")
-                        f:write("LDAP PGP key: " .. key .. "\n\n")
-                        f:write(id)
-                        f:write("\n")
-                        f:write(body)
-                        f:write("\n")
-                        f:close()
-                    else
-                        log:write(("User: %s key %s - export failed:\n%s\n"):format(uid, skey, body))
-                    end
+                -- Lua does not have alternation '(revoked|expired)'', so match 1st letter and last 2
+                badkey,_ = data:match("pub   .+%[([re].+ed): ")
+                if badkey then
+                    log:write(("User: %s key %s - invalid (%s)\n"):format(uid, key, badkey))
+                    invalid = invalid + 1
+                    badkeys[uid][key] = ("invalid key (%s)"):format(badkey)
                 else
-                    log:write(("User: %s key %s - could not extract fingerprint:\n%s\n"):format(uid, skey, data))
+                    local id,_ = data:match("      ([0-9a-fA-F ]+)\n")
+                    if id then
+                        local ok, body = pgpfunc('--export', '--armor', skey)
+                        if ok then
+                            -- only store the key id if it was found
+                            found = true
+                            keys[uid] = keys[uid] or {}
+                            table.insert(keys[uid], key)
+                            log:write("Writing key " .. key .. " for " .. uid .. "...\n")
+                            local f = io.open("/var/www/html/keys/committer/" .. uid .. ".asc", "a")
+                            f:write("ASF ID: " .. uid .. "\n")
+                            f:write("LDAP PGP key: " .. key .. "\n\n")
+                            f:write(data)
+                            f:write("\n")
+                            f:write(body)
+                            f:write("\n")
+                            f:close()
+                        else
+                            log:write(("User: %s key %s - export failed:\n%s\n"):format(uid, skey, body))
+                        end
+                    else
+                        log:write(("User: %s key %s - could not extract fingerprint:\n%s\n"):format(uid, skey, data))
+                    end
                 end
             else
                 log:write(("User: %s key %s - fingerprint failed:\n%s\n"):format(uid, skey, data))
             end
-            if not found then
+            -- if badkey, then it has already been reported
+            if not found and not badkey then
                 log:write(("User: %s key %s - not found\n"):format(uid, skey))
                 failed = failed + 1
                 badkeys[uid][key] = 'key not found'

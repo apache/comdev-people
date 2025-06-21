@@ -16,7 +16,7 @@ local JSON = require 'cjson'
 local DOW = math.floor(os.time()/86400)%7 -- generate rolling logs over 7 days
 local LOG = ([[/var/www/html/keys/pgp%d.log]]):format(DOW)
 os.remove(LOG)
-print("Log file" .. LOG)
+print("Log file " .. LOG)
 local log = io.open(LOG, "w")
 log:write(os.date(),"\n")
 

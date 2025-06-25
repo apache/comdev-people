@@ -17,12 +17,9 @@
 # /html/keys/
 /html/keys/*.log
 
-# /html/keys/committer/
-/html/keys/committer/.*
-/html/keys/committer/*.*
-
-# /html/keys/group/
-/html/keys/group/*.asc
+# /html/keys/committer/ - mostly generated files
+/html/keys/committer/index.html
+/html/keys/committer/*.asc
 
 # /html/public/
 /html/public/*.json

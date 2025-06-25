@@ -8,6 +8,10 @@
 # maintained by puppet
 .forward
 
+# Local work files
+.bash_history
+.gnupg/
+
 # /html/
 /html/*.json
 /html/.htaccess

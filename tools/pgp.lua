@@ -122,9 +122,11 @@ local committers = {}
 local failed = 0 -- how many keys did not fetch OK
 local invalid = 0 -- how many keys did not validate
 local newkeys = 0 -- how many new keys fetched
+local noRefresh = arg[1] == '--no-refresh' -- skip refresh
+local gpgLocal = arg[1] == '--gpg-local' -- don't try to download keys (for local testing)
 
 -- refresh is expensive, only do it once a week
-if DOW == 4 and arg[1] ~= '--no-refresh' then
+if DOW == 4 and not noRefresh and not gpgLocal then
     print("Refreshing the pgp database...")
     log:write("Refreshing the pgp database\n")
     pgpfunc('--refresh') -- does not seem to have useful status/stderr output
@@ -141,7 +143,7 @@ for uid, entry in pairs(people.people) do
         -- Note: 32 char keys are obsolete V3 ones which aren't available over HKP anyway
         if string.len(skey) == 40 then
             validkeys[skey:upper()] = 1 -- fps in pgp database are upper case
-            if not dbkeys[skey:upper()] then
+            if not dbkeys[skey:upper()] and not gpgLocal then
                 log:write("Fetching key " .. skey .. " for " .. uid .. "...\n")
                 local ok, res = pgpfunc('--recv-keys', skey)
                 if ok then
@@ -153,6 +155,7 @@ for uid, entry in pairs(people.people) do
             end
             local found = false
             local badkey = false
+             -- recheck the key in case it was downloaded OK (not very efficient!)
             local ok, data = pgpfunc('--fingerprint', skey)
             if ok then
                 -- Lua does not have alternation '(revoked|expired)'', so match 1st letter and last 2
@@ -214,6 +217,10 @@ for key, _ in pairs(dbkeys) do
     end
 end
 
+log:write(("lastCreateTimestamp: %s\n"):format(people.lastCreateTimestamp or '?'))
+log:write(("Failed fetches: %d\n"):format(failed))
+log:write(("Invalid keys: %d\n"):format(invalid))
+log:write(("New keys: %d\n"):format(newkeys))
 log:write(os.date(),"\n")
 log:close()
 

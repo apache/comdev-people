@@ -225,20 +225,60 @@ log:write(os.date(),"\n")
 log:close()
 
 local f = io.open("/var/www/html/keys/committer/index.html", "w")
-f:write("<html><head><title>ASF PGP Keys</title></head><body><pre>")
-f:write("<h3>committer signatures:</h3>\n")
+f:write([[
+<html>
+<head><title>ASF PGP Keys</title>
+  <style>
+    tr :nth-child(1) {text-align: right;}
+    tr :nth-child(2) {text-align: center;}
+    tr :nth-child(3) {text-align: left;}
+    tbody > tr :nth-child(1) {font-family: monospace;}
+    tbody > tr :nth-child(2) {font-family: monospace;}
+  </style>
+</head>
+<body>
+<h3>committer signatures:</h3>
+<table>
+  <thead>
+    <tr>
+      <th>id</th>
+      <th>fingerprint</th>
+      <th>comment</th>
+    </tr>
+  </thead>
+  <tbody>
+]])
 
+local entryok = [[
+    <tr>
+      <td><a href='/phonebook.html?uid=%s'>%s</a></td>
+      <td><a id='%s' href='%s.asc'>%s</a></td>
+      <td>&nbsp;</td>
+    </tr>
+]]
+local entrybad = [[
+    <tr>
+      <td><a href='/phonebook.html?uid=%s'>%s</a></td>
+      <td><a id='%s'>%s</a></td>
+      <td>%s</td>
+    </tr>
+]]
 table.sort(committers)
 for _, v in pairs(committers) do
     if keys[v] then
         for _, y in pairs(keys[v]) do
-            f:write(("%30s <a id='%s' href='%s.asc'>%s</a>\n"):format(v, v, v, y))
+            f:write(entryok:format(v,v,v,v,(y:gsub(' ','&nbsp;'))))
         end
     end
     for k, r in pairs(badkeys[v]) do
-        f:write(("%30s <a id='%s'>%s</a> - %s\n"):format(v,v,k,r))
+        f:write(entrybad:format(v,v,v,k,r))
     end
 end
+f:write([[
+  </tbody>
+</table>
+<pre>
+]])
 f:write(("\nGenerated: %s UTC\n"):format(os.date("!%Y-%m-%d %H:%M")))
 f:write(("\nlastCreateTimestamp: %s\n"):format(people.lastCreateTimestamp or '?'))
 f:write(("Failed fetches: %d\n"):format(failed))

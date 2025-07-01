@@ -27,8 +27,9 @@ def fremove(file):
     if os.path.isfile(file):
         os.remove(file)
 
+BASE = '/var/www' # default base (overrideable for local testing)
 DOW = math.floor(time.time()/86400)%7 # generate rolling logs over 7 days
-LOG = f"/var/www/html/keys/pgp{DOW}.log"
+LOG = f"{BASE}/html/keys/pgp{DOW}.log"
 fremove(LOG)
 print(f"Log file {LOG}")
 log = open(LOG, "w")
@@ -37,7 +38,7 @@ log.write(time.asctime()+"\n")
 #PGP interface
 
 # using --batch causes gpg to write some output to log-file instead of stderr
-GPG_ARGS = "gpg --keyring /var/www/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
+GPG_ARGS = f"gpg --keyring {BASE}/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 GPG_SERVER_1 = "keyserver.ubuntu.com"
 GPG_SERVER_2 = "keys.openpgp.org"
 
@@ -79,8 +80,8 @@ def pgpfunc_one(gpg_server, func, *args):
 
     return success, grv.decode('utf-8')
 
-PUBLIC_JSON = "/var/www/html/public/"
-COMMITTER_KEYS = "/var/www/html/keys/committer"
+PUBLIC_JSON = f"{BASE}/html/public/"
+COMMITTER_KEYS = f"{BASE}/html/keys/committer"
 
 def readJSON(file):
     with open(os.path.join(PUBLIC_JSON, file), 'r') as r:

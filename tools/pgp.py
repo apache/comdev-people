@@ -6,7 +6,7 @@
 
    It reads the following files from /var/www/html/public/:
    public_ldap_people.json - uids and fingerPrints
-   
+
    It creates:
    /var/www/html/keys/committer/{uid}.asc
    /var/www/html/keys/committer/index.html
@@ -32,7 +32,7 @@ DOW = math.floor(time.time()/86400)%7 # generate rolling logs over 7 days
 LOG = f"{BASE}/html/keys/pgp{DOW}.log"
 fremove(LOG)
 print(f"Log file {LOG}")
-log = open(LOG, "w")
+log = open(LOG, "w", encoding='utf-8')
 log.write(time.asctime()+"\n")
 
 #PGP interface
@@ -69,7 +69,7 @@ def pgpfunc_one(gpg_server, func, *args):
     params = " ".join([func] + list(args))
     log.write(f"Server: {gpg_server} command {params}\n")
     command = GPG_ARGS + "--keyserver " + gpg_server + " " + params
-    cpi = subprocess.run(command.split(' '), capture_output=True)
+    cpi = subprocess.run(command.split(' '), capture_output=True, check=False, encoding='utf-8')
     grv = cpi.stdout
     success = cpi.returncode == 0
     if success and func == '--recv-keys':
@@ -84,8 +84,8 @@ PUBLIC_JSON = f"{BASE}/html/public/"
 COMMITTER_KEYS = f"{BASE}/html/keys/committer"
 
 def readJSON(file):
-    with open(os.path.join(PUBLIC_JSON, file), 'r') as r:
-        return json.load(r)
+    with open(os.path.join(PUBLIC_JSON, file), 'r', encoding='utf-8') as i:
+        return json.load(i)
 
 # get the current set of keys in the database
 dbkeys={} # fingerprint entries from pgp database
@@ -101,7 +101,7 @@ if ok:
 
 people = readJSON("public_ldap_people.json")
 keys = defaultdict(list) # user keys with data in pgp database
-validkeys = {} # user keys with valid syntax 
+validkeys = {} # user keys with valid syntax
 badkeys = {} # [uid][key]=failure reason
 committers = {}
 
@@ -158,15 +158,15 @@ for uid, entry in people['people'].items():
                     badkeys[uid][key] = "invalid key (%s)" % badkey.group(1)
                 else:
                     # Note: Python multi-line search with ^ and $ is noticeably slower
-                    id = re.search("\n      [0-9a-fA-F ]+\n", data)
-                    if id:
+                    foundkey = re.search("\n      [0-9a-fA-F ]+\n", data)
+                    if foundkey:
                         ok, body = pgpfunc('--export', '--armor', skey)
                         if ok:
                             # only store the key id if it was found
                             found = True
                             keys[uid].append(key)
                             log.write("Writing key " + key + " for " + uid + "...\n")
-                            with open(ascfile, "a") as f:
+                            with open(ascfile, "a", encoding='utf-8') as f:
                                 f.write("ASF ID: " + uid + "\n")
                                 f.write("LDAP PGP key: " + key + "\n\n")
                                 f.write(data)
@@ -205,7 +205,7 @@ log.write("New keys: %d\n" % (newkeys))
 log.write(time.asctime()+"\n")
 log.close()
 
-f = open(os.path.join(COMMITTER_KEYS, "index.html"), "w")
+f = open(os.path.join(COMMITTER_KEYS, "index.html"), "w", encoding='utf-8')
 f.write("""<html>
 <head><title>ASF PGP Keys</title>
 <link rel="stylesheet" type="text/css" href="../../css/keys.css">
@@ -240,7 +240,6 @@ for v in sorted(committers):
     if v in keys:
         for y in keys[v]:
             f.write(entryok % (v,v,v,v,(y.replace(' ','&nbsp;'))))
-            pass
     for k, r in badkeys[v].items():
         f.write(entrybad % (v,v,v,k,r))
 

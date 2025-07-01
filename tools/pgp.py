@@ -78,7 +78,7 @@ def pgpfunc_one(gpg_server, func, *args):
     if not success:
         log.write(f"{success} {cpi.stderr} {grv}\n")
 
-    return success, grv.decode('utf-8')
+    return success, grv
 
 PUBLIC_JSON = f"{BASE}/html/public/"
 COMMITTER_KEYS = f"{BASE}/html/keys/committer"

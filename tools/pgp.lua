@@ -228,13 +228,7 @@ local f = io.open("/var/www/html/keys/committer/index.html", "w")
 f:write([[
 <html>
 <head><title>ASF PGP Keys</title>
-  <style>
-    tr :nth-child(1) {text-align: right;}
-    tr :nth-child(2) {text-align: center;}
-    tr :nth-child(3) {text-align: left;}
-    tbody > tr :nth-child(1) {font-family: monospace;}
-    tbody > tr :nth-child(2) {font-family: monospace;}
-  </style>
+<link rel="stylesheet" type="text/css" href="../../css/keys.css">
 </head>
 <body>
 <h3>committer signatures:</h3>

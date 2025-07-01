@@ -1,0 +1,7 @@
+/* aligh columns */
+tr > :nth-child(1) {text-align: right;}
+tr > :nth-child(2) {text-align: center;}
+tr > :nth-child(3) {text-align: left;}
+/* font for table body */
+tbody > tr > :nth-child(1) {font-family: monospace;}
+tbody > tr > :nth-child(2) {font-family: monospace;}

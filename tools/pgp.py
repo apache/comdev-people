@@ -126,6 +126,8 @@ for uid, entry in people['people'].items():
     badkeys[uid] = {}
     for key in entry.get('key_fingerprints', []):
         skey = re.sub("[^0-9a-fA-F]",'', key) # Why strip all invalid chars?
+        data = None
+        ok = False
         # INFRA-12042 use only full fingerprints
         # Note: 32 char keys are obsolete V3 ones which aren't available over HKP anyway
         if len(skey) == 40:

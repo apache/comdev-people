@@ -11,7 +11,8 @@ RUN apt-get --assume-yes install \
     lua5.2-sec \
     python3-pip
 
-RUN pip3 install ezt --break-system-packages
+# These are present on the live system
+RUN pip3 install ezt more_itertools --break-system-packages
 
 RUN apt-get install --assume-yes apache2
 

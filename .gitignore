@@ -23,6 +23,7 @@
 
 # /html/keys/committer/ - mostly generated files
 /html/keys/committer/index.html
+/html/keys/committer/keys.json
 /html/keys/committer/*.asc
 
 # /html/public/

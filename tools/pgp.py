@@ -141,7 +141,7 @@ for uid, entry in people['people'].items():
     badkeys[uid] = {}
     for key in entry.get('key_fingerprints', []):
         skey = re.sub("[^0-9a-fA-F]",'', key) # Why strip all invalid chars?
-        data = None
+        data = 'key not found in database'
         ok = False
         # INFRA-12042 use only full fingerprints
         # Note: 32 char keys are obsolete V3 ones which aren't available over HKP anyway
@@ -159,6 +159,7 @@ for uid, entry in people['people'].items():
                     newkeys = newkeys +1
                     ok, data = pgpfunc('--fingerprint', skey)
                     data = data.strip() # strip to match cached data
+                    # LATER? dbkeys[skey.upper()] = data.split("\n") # update the fps cache
                 else:
                     log.write("User: %s key %s - fetch failed: (%s) %s\n" % (uid, skey, str(ok), res))
             found = False
@@ -250,12 +251,19 @@ entrybad = """
       <td>%s</td>
     </tr>"""
 
+# Generate a summary for external use (e.g. Whimsy)
+summary = defaultdict(dict)
 for v in sorted(committers):
     if v in keys:
         for y in keys[v]:
             f.write(entryok % (v,v,v,v,(y.replace(' ','&nbsp;'))))
+            summary[v][y] = 'ok'
     for k, r in badkeys[v].items():
         f.write(entrybad % (v,v,v,k,r))
+        summary[v][k] = r
+
+with open(os.path.join(COMMITTER_KEYS, "keys.json"), 'w', encoding='utf-8') as s:
+    json.dump(summary, s, indent=2, sort_keys=True)
 
 f.write("""
   </tbody>

@@ -120,6 +120,19 @@ if DOW == 4 and not noRefresh and not gpgLocal:
     log.write("Refreshing the pgp database\n")
     pgpfunc('--refresh') # does not seem to have useful status/stderr output
     print("...done")
+    
+# Drop any .asc files older than a couple of days
+# They are presumably for uids that no longer exist
+# Current files are recreated each time
+log.write("Scanning for outdated .asc files")
+now = time.time()
+for filename in os.listdir(COMMITTER_KEYS):
+    if filename.endswith('asc'):
+        filepath = os.path.join(COMMITTER_KEYS, filename)
+        if os.path.getmtime(filepath) < now - 2 * 86400:
+            if os.path.isfile(filepath):
+                log.write(f"Dropping old file {filename}\n")
+                os.remove(filepath)
 
 for uid, entry in people['people'].items():
     ascfile = os.path.join(COMMITTER_KEYS, uid + ".asc")

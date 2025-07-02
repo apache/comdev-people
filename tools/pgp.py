@@ -10,6 +10,9 @@
    It creates:
    /var/www/html/keys/committer/{uid}.asc
    /var/www/html/keys/committer/index.html
+   /var/www/html/keys/committer/keys.json
+
+    It updates:
    /var/www/tools/pgpkeys - keyring
 """
 

@@ -77,6 +77,7 @@ def pgpfunc_one(gpg_server, func, *args):
         success = len(cpi.stderr) == 0 and len(grv) == 0
     if not success:
         log.write(f"{success} {cpi.stderr} {grv}\n")
+        grv = grv or cpi.stderr # ensure we return the error message
 
     return success, grv
 

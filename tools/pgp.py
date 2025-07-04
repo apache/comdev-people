@@ -19,7 +19,6 @@
 import os
 import sys
 import time
-import math
 import re
 import json
 import subprocess
@@ -31,7 +30,7 @@ def fremove(file):
         os.remove(file)
 
 BASE = '/var/www' # default base (overrideable for local testing)
-DOW = math.floor(time.time()/86400)%7 # generate rolling logs over 7 days
+DOW = time.strftime('%w') # generate rolling logs over 7 days (0 = Sunday)
 LOG = f"{BASE}/html/keys/pgp{DOW}.log"
 fremove(LOG)
 print(f"Log file {LOG}")
@@ -118,10 +117,11 @@ noRefresh = hasArg1 and sys.argv[1] == '--no-refresh' # skip refresh
 gpgLocal = hasArg1 and sys.argv[1] == '--gpg-local' # don't try to download keys (for testing)
 
 # refresh is expensive, only do it once a week
-if DOW == 4 and not noRefresh and not gpgLocal:
+if DOW == "1" and not noRefresh and not gpgLocal:
     print("Refreshing the pgp database...")
     log.write("Refreshing the pgp database\n")
     pgpfunc('--refresh') # does not seem to have useful status/stderr output
+    log.write(f"{time.asctime()} ...done\n")
     print("...done")
     
 # Drop any .asc files older than a couple of days

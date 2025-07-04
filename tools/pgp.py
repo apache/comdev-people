@@ -127,7 +127,7 @@ if DOW == 4 and not noRefresh and not gpgLocal:
 # Drop any .asc files older than a couple of days
 # They are presumably for uids that no longer exist
 # Current files are recreated each time
-log.write("Scanning for outdated .asc files")
+log.write("Scanning for outdated .asc files\n")
 now = time.time()
 for filename in os.listdir(COMMITTER_KEYS):
     if filename.endswith('asc'):

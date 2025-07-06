@@ -256,6 +256,7 @@ entrybad = """
 
 # Generate a summary for external use (e.g. Whimsy)
 summary = defaultdict(dict)
+summary['_info_']['epochsecs'] = int(time.time())
 for v in sorted(committers):
     if v in keys:
         for y in keys[v]:

@@ -93,12 +93,12 @@ def readJSON(file):
 # get the current set of keys in the database
 dbkeys={} # fingerprint entries from pgp database
 dbkeyct = 0
-ok, fps = pgpfunc('--fingerprint') # fetch all the fingerprints
+ok, fps = pgpfunc('--fingerprint', '--keyid-format', 'long') # fetch all the fingerprints
 if ok:
     # scan the output looking for fps
     lines = fps.split("\n")[2:] # Drop the header
     for keyblock in split_before(lines, lambda l: l.startswith('pub')):
-        fp = keyblock[1].replace(' ', '')
+        fp = keyblock[1].replace(' ', '').replace('Keyfingerprint=', '')
         dbkeys[fp] = [ l for l in keyblock if len(l) > 0]
         dbkeyct += 1
 
@@ -160,7 +160,8 @@ for uid, entry in people['people'].items():
                 if ok:
                     log.write("User: %s key %s - fetched from remote\n" % (uid, skey))
                     newkeys = newkeys +1
-                    ok, data = pgpfunc('--fingerprint', skey)
+                    # Options must agree with main fingerprint export at start
+                    ok, data = pgpfunc('--fingerprint', '--keyid-format', 'long', skey)
                     data = data.strip() # strip to match cached data
                     # LATER? dbkeys[skey.upper()] = data.split("\n") # update the fps cache
                 else:
@@ -176,7 +177,8 @@ for uid, entry in people['people'].items():
                     badkeys[uid][key] = "invalid key (%s)" % badkey.group(1)
                 else:
                     # Note: Python multi-line search with ^ and $ is noticeably slower
-                    foundkey = re.search("\n      [0-9a-fA-F ]+\n", data)
+                    # Allow for --keyid-format which adds prefix to fingerprint
+                    foundkey = re.search("\n      (Key fingerprint = )?[0-9a-fA-F ]+\n", data)
                     if foundkey:
                         ok, body = pgpfunc('--export', '--armor', skey)
                         if ok:

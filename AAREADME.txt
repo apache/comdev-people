@@ -37,6 +37,6 @@ To create the committer listings:
 # python3 tools/committers.py
 
 To download the keys:
-# lua tools/pgp.lua --no-refresh
+# python3 tools/pgp.py --no-refresh
 Note that refresh takes a long time, so it is only run once a week
 The --no-refresh flag skips the refresh entirely

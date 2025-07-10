@@ -6,8 +6,11 @@ RUN apt-get update \
 RUN apt-get --assume-yes install \
     python3-pip
 
-# These are present on the live system
-RUN pip3 install ezt more_itertools --break-system-packages
+RUN apt-get --assume-yes install \
+    python3-more-itertools
+
+# Not available in python3
+RUN pip3 install ezt --break-system-packages
 
 RUN apt-get install --assume-yes apache2
 

@@ -91,22 +91,21 @@ def readJSON(file):
         return json.load(i)
 
 # get the current set of keys in the database
-dbkeys={} # fingerprint entries from pgp database
-dbkeyct = 0
-ok, fps = pgpfunc('--fingerprint', '--keyid-format', 'long') # fetch all the fingerprints
+dbkeyfps={} # fingerprint entries from pgp database: key=fingerprint, value = lines from gpg display, e.g. pub:, sub: etc
+
+ok, fps = pgpfunc('--fingerprint', '--keyid-format', 'long', '--with-subkey-fingerprints') # fetch all the fingerprints
 if ok:
     # scan the output looking for fps
     lines = fps.split("\n")[2:] # Drop the header
     for keyblock in split_before(lines, lambda l: l.startswith('pub')):
         fp = keyblock[1].replace(' ', '').replace('Keyfingerprint=', '')
-        dbkeys[fp] = [ l for l in keyblock if len(l) > 0]
-        dbkeyct += 1
+        dbkeyfps[fp] = [ l for l in keyblock if len(l) > 0]
 
 people = readJSON("public_ldap_people.json")
-keys = defaultdict(list) # user keys with data in pgp database
-validkeys = {} # user keys with valid syntax
-badkeys = {} # [uid][key]=failure reason
-committers = {}
+ # per user key LDAP fingerprints found in pgp database
+ldapkeyfps = defaultdict(list) # key=uid,value=list of fingerprints for the user
+validfps = {} # user fingerprints with valid syntax (40 chars) key=fingerprint, value=1
+badldapkeyfps = defaultdict(lambda: defaultdict(dict)) # [uid][keyfp]=failure reason
 
 failed = 0 # how many keys did not fetch OK
 invalid = 0 # how many keys did not validate
@@ -140,17 +139,16 @@ for filename in os.listdir(COMMITTER_KEYS):
 for uid, entry in people['people'].items():
     ascfile = os.path.join(COMMITTER_KEYS, uid + ".asc")
     fremove(ascfile)
-    committers[uid] = 1
-    badkeys[uid] = {}
-    for key in entry.get('key_fingerprints', []):
-        skey = re.sub("[^0-9a-fA-F]",'', key) # Why strip all invalid chars?
-        data = 'key not found in database'
+    # badldapkeyfps[uid] = {}
+    for ldapfp in entry.get('key_fingerprints', []):
+        skey = re.sub("[^0-9a-fA-F]",'', ldapfp) # Why strip all invalid chars?
+        data = 'LDAP fingerprint not found in database'
         ok = False
         # INFRA-12042 use only full fingerprints
         # Note: 32 char keys are obsolete V3 ones which aren't available over HKP anyway
         if len(skey) == 40:
-            validkeys[skey.upper()] = 1  # fps in pgp database are upper case
-            entry = dbkeys.get(skey.upper())
+            validfps[skey.upper()] = 1  # fps in pgp database are upper case
+            entry = dbkeyfps.get(skey.upper())
             if entry: # we already have the fingerprint data
                 ok = True
                 data = "\n".join(entry)
@@ -161,9 +159,9 @@ for uid, entry in people['people'].items():
                     log.write("User: %s key %s - fetched from remote\n" % (uid, skey))
                     newkeys = newkeys +1
                     # Options must agree with main fingerprint export at start
-                    ok, data = pgpfunc('--fingerprint', '--keyid-format', 'long', skey)
+                    ok, data = pgpfunc('--fingerprint', '--keyid-format', 'long', '--with-subkey-fingerprints', skey)
                     data = data.strip() # strip to match cached data
-                    # LATER? dbkeys[skey.upper()] = data.split("\n") # update the fps cache
+                    # LATER? dbkeyfps[skey.upper()] = data.split("\n") # update the fps cache
                 else:
                     log.write("User: %s key %s - fetch failed: (%s) %s\n" % (uid, skey, str(ok), res))
             found = False
@@ -172,9 +170,9 @@ for uid, entry in people['people'].items():
             if ok:
                 badkey = re.match("pub   .+\\[(revoked|expired): ", data)
                 if badkey:
-                    log.write("User: %s key %s - invalid (%s)\n" % (uid, key, badkey.group(1)))
+                    log.write("User: %s key %s - invalid (%s)\n" % (uid, ldapfp, badkey.group(1)))
                     invalid = invalid + 1
-                    badkeys[uid][key] = "invalid key (%s)" % badkey.group(1)
+                    badldapkeyfps[uid][ldapfp] = "invalid key (%s)" % badkey.group(1)
                 else:
                     # Note: Python multi-line search with ^ and $ is noticeably slower
                     # Allow for --keyid-format which adds prefix to fingerprint
@@ -184,11 +182,11 @@ for uid, entry in people['people'].items():
                         if ok:
                             # only store the key id if it was found
                             found = True
-                            keys[uid].append(key)
-                            log.write("Writing key " + key + " for " + uid + "...\n")
+                            ldapkeyfps[uid].append(ldapfp)
+                            log.write("Writing key " + ldapfp + " for " + uid + "...\n")
                             with open(ascfile, "a", encoding='utf-8') as f:
                                 f.write("ASF ID: " + uid + "\n")
-                                f.write("LDAP PGP key: " + key + "\n\n")
+                                f.write("LDAP PGP key: " + ldapfp + "\n\n")
                                 f.write(data)
                                 f.write("\n\n\n")
                                 f.write(body)
@@ -203,20 +201,20 @@ for uid, entry in people['people'].items():
             if not found and not badkey:
                 log.write("User: %s key %s - not found\n" % (uid, skey))
                 failed = failed + 1
-                badkeys[uid][key] = 'key not found'
+                badldapkeyfps[uid][ldapfp] = 'key not found'
         else:
-            log.write("User: %s key %s - invalid (expecting 40 hex chars)\n" % (uid, key))
+            log.write("User: %s key %s - invalid key fingerprint (expecting 40 hex chars)\n" % (uid, ldapfp))
             invalid = invalid + 1
-            badkeys[uid][key] = 'invalid key (expecting 40 hex chars)'
+            badldapkeyfps[uid][ldapfp] = 'invalid key fingerprint (expecting 40 hex chars)'
 
 
-for key in dbkeys:
-    if not key in validkeys:
-        ok, res = pgpfunc('--delete-keys', key)
+for keyfp in dbkeyfps:
+    if not keyfp in validfps:
+        ok, res = pgpfunc('--delete-keys', keyfp)
         if ok:
-            log.write("Dropped unused key %s\n" % (key))
+            log.write("Dropped unused key fingeprint %s\n" % (keyfp))
         else:
-            log.write("Failed to drop unused key %s - %s\n" % (key, res))
+            log.write("Failed to drop unused key %s - %s\n" % (keyfp, res))
 
 log.write("lastCreateTimestamp: %s\n" % (people.get('lastCreateTimestamp','?')))
 log.write("Failed fetches: %d\n" % (failed))
@@ -259,14 +257,16 @@ entrybad = """
 # Generate a summary for external use (e.g. Whimsy)
 summary = defaultdict(dict)
 summary['_info_']['epochsecs'] = int(time.time())
-for v in sorted(committers):
-    if v in keys:
-        for y in keys[v]:
-            f.write(entryok % (v,v,v,v,(y.replace(' ','&nbsp;'))))
-            summary[v][y] = 'ok'
-    for k, r in badkeys[v].items():
-        f.write(entrybad % (v,v,v,k,r))
-        summary[v][k] = r
+
+# write the index entry
+for uid in sorted(people['people'].keys()):
+    if uid in ldapkeyfps:
+        for fp in ldapkeyfps[uid]:
+            f.write(entryok % (uid,uid,uid,uid,(fp.replace(' ','&nbsp;'))))
+            summary[uid][fp] = 'ok'
+    for fp, reason in badldapkeyfps[uid].items():
+        f.write(entrybad % (uid,uid,uid,fp,reason))
+        summary[uid][fp] = reason
 
 with open(os.path.join(COMMITTER_KEYS, "keys.json"), 'w', encoding='utf-8') as s:
     json.dump(summary, s, indent=2, sort_keys=True)

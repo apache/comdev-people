@@ -43,6 +43,8 @@ log.write(time.asctime()+"\n")
 GPG_ARGS = f"gpg --keyring {BASE}/tools/pgpkeys --no-default-keyring --no-tty --quiet --batch --no-secmem-warning --display-charset utf-8 --keyserver-options no-honor-keyserver-url "
 GPG_SERVER_1 = "keyserver.ubuntu.com"
 GPG_SERVER_2 = "keys.openpgp.org"
+# Need to include expired subkeys so we can match them to the main key
+FP_OPTIONS = "--keyid-format long --with-subkey-fingerprints --list-options show-unusable-subkeys"
 
 # GPG exits with status 2 if just one of the refresh fetches fails
 # list-keys/--fingerprint only fails if all specified keys are unavailable; does not write to logger; reports to stderr
@@ -90,16 +92,24 @@ def readJSON(file):
     with open(os.path.join(PUBLIC_JSON, file), 'r', encoding='utf-8') as i:
         return json.load(i)
 
+def canon_fp(fp):
+    return fp.replace(' ', '').replace('Keyfingerprint=', '').upper()
+
 # get the current set of keys in the database
 dbkeyfps={} # fingerprint entries from pgp database: key=fingerprint, value = lines from gpg display, e.g. pub:, sub: etc
+subkeyfps = {} # sub fingerprint entries from pgp database: key=fingerprint for subkey, value = fingerprint for main key
 
-ok, fps = pgpfunc('--fingerprint', '--keyid-format', 'long', '--with-subkey-fingerprints') # fetch all the fingerprints
+ok, fps = pgpfunc('--fingerprint', FP_OPTIONS) # fetch all the fingerprints
 if ok:
     # scan the output looking for fps
     lines = fps.split("\n")[2:] # Drop the header
     for keyblock in split_before(lines, lambda l: l.startswith('pub')):
-        fp = keyblock[1].replace(' ', '').replace('Keyfingerprint=', '')
+        fp = canon_fp(keyblock[1])
         dbkeyfps[fp] = [ l for l in keyblock if len(l) > 0]
+        for subblock in split_before(keyblock, lambda l: l.startswith('sub')):
+            if subblock[0].startswith('sub'): # skip the prefix
+                subfp = canon_fp(subblock[1])
+                subkeyfps[subfp] = fp
 
 people = readJSON("public_ldap_people.json")
  # per user key LDAP fingerprints found in pgp database
@@ -139,16 +149,17 @@ for filename in os.listdir(COMMITTER_KEYS):
 for uid, entry in people['people'].items():
     ascfile = os.path.join(COMMITTER_KEYS, uid + ".asc")
     fremove(ascfile)
-    # badldapkeyfps[uid] = {}
     for ldapfp in entry.get('key_fingerprints', []):
         skey = re.sub("[^0-9a-fA-F]",'', ldapfp) # Why strip all invalid chars?
+        skeycanon = canon_fp(skey)
         data = 'LDAP fingerprint not found in database'
         ok = False
         # INFRA-12042 use only full fingerprints
         # Note: 32 char keys are obsolete V3 ones which aren't available over HKP anyway
         if len(skey) == 40:
-            validfps[skey.upper()] = 1  # fps in pgp database are upper case
-            entry = dbkeyfps.get(skey.upper())
+            pubfps = subkeyfps.get(skeycanon, skeycanon) # convert sub key to pub key
+            validfps[pubfps] = 1  # fps in pgp database are upper case
+            entry = dbkeyfps.get(pubfps)
             if entry: # we already have the fingerprint data
                 ok = True
                 data = "\n".join(entry)
@@ -159,9 +170,8 @@ for uid, entry in people['people'].items():
                     log.write("User: %s key %s - fetched from remote\n" % (uid, skey))
                     newkeys = newkeys +1
                     # Options must agree with main fingerprint export at start
-                    ok, data = pgpfunc('--fingerprint', '--keyid-format', 'long', '--with-subkey-fingerprints', skey)
+                    ok, data = pgpfunc('--fingerprint', FP_OPTIONS, skey)
                     data = data.strip() # strip to match cached data
-                    # LATER? dbkeyfps[skey.upper()] = data.split("\n") # update the fps cache
                 else:
                     log.write("User: %s key %s - fetch failed: (%s) %s\n" % (uid, skey, str(ok), res))
             found = False
@@ -263,7 +273,13 @@ for uid in sorted(people['people'].keys()):
     if uid in ldapkeyfps:
         for fp in ldapkeyfps[uid]:
             f.write(entryok % (uid,uid,uid,uid,(fp.replace(' ','&nbsp;'))))
-            summary[uid][fp] = 'ok'
+            fpc = canon_fp(fp)
+            if fpc in dbkeyfps:
+                summary[uid][fp] = 'ok'
+            elif fpc in subkeyfps:
+                summary[uid][fp] = f"subkey of {subkeyfps[fpc]}"
+            else:
+                summary[uid][fp] = 'unknown error - should not happen'
     for fp, reason in badldapkeyfps[uid].items():
         f.write(entrybad % (uid,uid,uid,fp,reason))
         summary[uid][fp] = reason

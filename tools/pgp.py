@@ -99,18 +99,6 @@ def canon_fp(fp):
 dbkeyfps={} # fingerprint entries from pgp database: key=fingerprint, value = lines from gpg display, e.g. pub:, sub: etc
 subkeyfps = {} # sub fingerprint entries from pgp database: key=fingerprint for subkey, value = fingerprint for main key
 
-ok, fps = pgpfunc('--fingerprint', FP_OPTIONS) # fetch all the fingerprints
-if ok:
-    # scan the output looking for fps
-    lines = fps.split("\n")[2:] # Drop the header
-    for keyblock in split_before(lines, lambda l: l.startswith('pub')):
-        fp = canon_fp(keyblock[1])
-        dbkeyfps[fp] = [ l for l in keyblock if len(l) > 0]
-        for subblock in split_before(keyblock, lambda l: l.startswith('sub')):
-            if subblock[0].startswith('sub'): # skip the prefix
-                subfp = canon_fp(subblock[1])
-                subkeyfps[subfp] = fp
-
 people = readJSON("public_ldap_people.json")
  # per user key LDAP fingerprints found in pgp database
 ldapkeyfps = defaultdict(list) # key=uid,value=list of fingerprints for the user
@@ -132,7 +120,19 @@ if DOW == "1" and not noRefresh and not gpgLocal:
     pgpfunc('--refresh') # does not seem to have useful status/stderr output
     log.write(f"{time.asctime()} ...done\n")
     print("...done")
-    
+
+ok, fps = pgpfunc('--fingerprint', FP_OPTIONS) # fetch all the fingerprints
+if ok:
+    # scan the output looking for fps
+    lines = fps.split("\n")[2:] # Drop the header
+    for keyblock in split_before(lines, lambda l: l.startswith('pub')):
+        fp = canon_fp(keyblock[1])
+        dbkeyfps[fp] = [ l for l in keyblock if len(l) > 0]
+        for subblock in split_before(keyblock, lambda l: l.startswith('sub')):
+            if subblock[0].startswith('sub'): # skip the prefix
+                subfp = canon_fp(subblock[1])
+                subkeyfps[subfp] = fp
+
 # Drop any .asc files older than a couple of days
 # They are presumably for uids that no longer exist
 # Current files are recreated each time

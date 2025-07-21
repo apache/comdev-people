@@ -113,8 +113,8 @@ hasArg1 = len(sys.argv) > 1
 noRefresh = hasArg1 and sys.argv[1] == '--no-refresh' # skip refresh
 gpgLocal = hasArg1 and sys.argv[1] == '--gpg-local' # don't try to download keys (for testing)
 
-# refresh is expensive, only do it once a week
-if DOW == "1" and not noRefresh and not gpgLocal:
+# refresh is expensive, don't do it every day
+if DOW in ['1', '3', '5'] and not noRefresh and not gpgLocal:
     print("Refreshing the pgp database...")
     log.write("Refreshing the pgp database\n")
     pgpfunc('--refresh') # does not seem to have useful status/stderr output

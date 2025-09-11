@@ -6,7 +6,7 @@
 </head>
 <body>
 <div id="content">
-<h1><img src='img/asf_logo_small.png' alt='Apache feather logo with text' style='vertical-align: middle;'/> ASF Committers by ID</h1>
+<h1><img src='img/asf_logo_small.png' alt='Apache logo with text' style='vertical-align: middle;'/> ASF Committers by ID</h1>
 <p>
       This page lists all known committers by login ID.
       Each entry shows the full name and any LDAP groups / SVN groups to which the committer belongs.

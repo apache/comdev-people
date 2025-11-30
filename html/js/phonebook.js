@@ -223,24 +223,24 @@ function showCommitter(obj, uid) {
         var pl = roles[0] // pmc membership
         var ch = roles[1] // chairs
         if (isNologin(uid)) {
-            details.innerHTML += "<b>Login is currently disabled</b><br/><br/>"
+            details.innerHTML += "<b>Login is currently disabled</b><br><br>"
         }
 		if (isMember(uid)) {
-			details.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
+			details.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'> <i>Foundation member</i><br><br>"
 		}
         if (ch.length > 0) {
             details.innerHTML += "<b>Chair of:</b> " + linkifyList(Q_PMC, ch)
             if (!isChair(uid)) {
                 details.innerHTML += " <b>Not a member of pmc-chairs!</b>"
             }
-            details.innerHTML += "<br/><br/>"
+            details.innerHTML += "<br><br>"
         }
         var purls = urls(uid)
         if (purls.length > 0) {
-			details.innerHTML += "<b>Personal URLs:</b> " + linkifyURLs(purls) + "<br/><br/>"        	
+			details.innerHTML += "<b>Personal URLs:</b> " + linkifyURLs(purls) + "<br><br>"        	
         }
 		if (cl.length > 0) {
-			details.innerHTML += "<b>Committer on:</b> " + linkifyList(Q_UNIX, cl) + "<br/><br/>"
+			details.innerHTML += "<b>Committer on:</b> " + linkifyList(Q_UNIX, cl) + "<br><br>"
 		}
 		var nc = [] // On PMC but not in LDAP unix
 		var nl = [] // On PMC but not in LDAP committee
@@ -248,7 +248,7 @@ function showCommitter(obj, uid) {
 		var nu = [] // In LDAP committee but not in LDAP unix
 		var pn;
 		if (pl.length > 0) {
-			details.innerHTML += "<b>PMC member of:</b> " + linkifyList(Q_PMC, pl) + "<br/><br/>"
+			details.innerHTML += "<b>PMC member of:</b> " + linkifyList(Q_PMC, pl) + "<br><br>"
 			for (p in pl) {
 			    pn = pl[p]
 			    // There is an LDAP PMC group but the uid is not in the committer(:members) group
@@ -274,34 +274,34 @@ function showCommitter(obj, uid) {
                     nu.push(pn)
                 }
             }
-            details.innerHTML += "<b>LDAP committee group membership:</b> " + linkifyList(Q_CTTE, cttees) + "<br/><br/>"
+            details.innerHTML += "<b>LDAP committee group membership:</b> " + linkifyList(Q_CTTE, cttees) + "<br><br>"
         }
 
         var services = getRoster(ldapservices, uid)
         if (services.length > 0) {
-            details.innerHTML += "<b>Service group membership:</b> " + linkifyList(Q_SERVICE, services) + "<br/><br/>"
+            details.innerHTML += "<b>Service group membership:</b> " + linkifyList(Q_SERVICE, services) + "<br><br>"
         }
         var auths = getRoster(ldapauth, uid)
         if (auths.length > 0) {
-            details.innerHTML += "<b>Auth group membership:</b> " + linkifyList(Q_AUTH, auths) + "<br/><br/>"
+            details.innerHTML += "<b>Auth group membership:</b> " + linkifyList(Q_AUTH, auths) + "<br><br>"
         }
         var pods = getRoster(podlings, uid)
         if (pods.length > 0) {
-            details.innerHTML += "<b>Podling membership:</b> " + linkifyList(Q_PODLING, pods) + "<br/><br/>"
+            details.innerHTML += "<b>Podling membership:</b> " + linkifyList(Q_PODLING, pods) + "<br><br>"
         }
 
         // Note any discrepancies
         if (np.length > 0) {
-            details.innerHTML += "<span class='error'>In LDAP committee group, but <b>not a PMC member</b>:</span> " + linkifyList(Q_CTTE, np) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>In LDAP committee group, but <b>not a PMC member</b>:</span> " + linkifyList(Q_CTTE, np) + "<br><br>"
         }
         if (nc.length > 0) {
-            details.innerHTML += "<span class='error'>On PMC, but not a member of the committer group:</span> " + linkifyList(Q_PMC, nc) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>On PMC, but not a member of the committer group:</span> " + linkifyList(Q_PMC, nc) + "<br><br>"
         }
         if (nl.length > 0) {
-            details.innerHTML += "<span class='error'>On PMC, but not member of the LDAP committee group:</span> " + linkifyList(Q_CTTE, nl) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>On PMC, but not member of the LDAP committee group:</span> " + linkifyList(Q_CTTE, nl) + "<br><br>"
         }
         if (nu.length > 0) {
-            details.innerHTML += "<span class='error'>In LDAP committee group but not a member of the committer group:</span> " + linkifyList(Q_UNIX, nu) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>In LDAP committee group but not a member of the committer group:</span> " + linkifyList(Q_UNIX, nu) + "<br><br>"
         }
 		obj.appendChild(details)
 	} else {
@@ -340,10 +340,10 @@ function hoverCommitter(parent, uid) {
         var pl = roles[0]
         var ch = roles[1]
 		if (isMember(uid) == true) {
-			div.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'/> <i>Foundation member</i><br/><br/>"
+			div.innerHTML += "<img src='img/asfmember.png' style='vertical-align: middle;'> <i>Foundation member</i><br><br>"
 		}
         if (isNologin(uid)) {
-            div.innerHTML += "<b>Login is currently disabled</b><br/><br/>"
+            div.innerHTML += "<b>Login is currently disabled</b><br><br>"
         }
         if (ch.length > 0) {
             ch.sort()
@@ -351,16 +351,16 @@ function hoverCommitter(parent, uid) {
             if (!isChair(uid)) {
                 div.innerHTML += " <b>Not a member of pmc-chairs!</b>"
             }
-            div.innerHTML += "<br/><br/>"
+            div.innerHTML += "<br><br>"
         }
 		if (cl.length > 0) {
 		    cl.sort()
-			div.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br/><br/>"
+			div.innerHTML += "<b>Committer on:</b> " + cl.join(", ") + "<br><br>"
 		}
         var nc = []
 		if (pl.length > 0) {
 		    pl.sort()
-			div.innerHTML += "<b>PMC member of:</b> " + pl.join(", ") + "<br/><br/>"
+			div.innerHTML += "<b>PMC member of:</b> " + pl.join(", ") + "<br><br>"
             for (p in pl) {
                 var pn = pl[p]
                 if (pn != 'member' && cl.indexOf(pn) < 0) {
@@ -369,7 +369,7 @@ function hoverCommitter(parent, uid) {
             }
 		}
         if (nc.length > 0) {
-            div.innerHTML += "<i>On PMC, but not a Committer on:</i> " + nc.join(", ") + "<br/><br/>"
+            div.innerHTML += "<i>On PMC, but not a Committer on:</i> " + nc.join(", ") + "<br><br>"
         }
 
 
@@ -440,13 +440,13 @@ function showProject(obj, prj) {
 		}
 		var chair = getChair(prj)
 		if (chair) {
-            details.innerHTML += "<b>Chair:</b> " + chair + "<br/><br/>"
+            details.innerHTML += "<b>Chair:</b> " + chair + "<br><br>"
         }
         var url = committees[prj].site
         if (url) {
-            details.innerHTML += "<a href='"+url+"' target='_blank'><b>Description:</b></a><br/><br/>" + desc + "<br/><br/>"
+            details.innerHTML += "<a href='"+url+"' target='_blank'><b>Description:</b></a><br><br>" + desc + "<br><br>"
         } else {
-            details.innerHTML += "<b>Description:</b><br/><br/>" + desc + "<br/><br/>"
+            details.innerHTML += "<b>Description:</b><br><br>" + desc + "<br><br>"
         }
 		var cl
 		var clExists = false // Does the unix group exist?
@@ -509,42 +509,42 @@ function showProject(obj, prj) {
 
 		if (pl.length > 0) {
 			if (prj == 'member') {
-				details.innerHTML += "<b>ASF members</b><br><br><table>" + pl.join("\n") + "</table><br/>"
+				details.innerHTML += "<b>ASF members</b><br><br><table>" + pl.join("\n") + "</table><br>"
 			} else {
-				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a> - unless noted below):</b> "+ pl.length + " <br><br><table>" + pl.join("\n") + "</table><br/>"				
+				details.innerHTML += "<b>PMC members (also in the <a href='?ctte="+prj+"'>committee group</a> - unless noted below):</b> "+ pl.length + " <br><br><table>" + pl.join("\n") + "</table><br>"				
 			}
 		}
 		
 		if (cl && cl.length > 0) {
-			details.innerHTML += "<b>Committers (i.e. <a href='?unix="+prj+"'>unix group</a>):</b> "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br/>"
+			details.innerHTML += "<b>Committers (i.e. <a href='?unix="+prj+"'>unix group</a>):</b> "+ cl.length + " <br><br><table>" + cl.join("\n") + "</table><br>"
             if (podlings[prj]) {
-                details.innerHTML += "<span class='error'>WARNING: <a href='?podling="+prj+"'>"+prj+" podling group</a> also exists - this can cause authentication issues</span><br/><br/>"
+                details.innerHTML += "<span class='error'>WARNING: <a href='?podling="+prj+"'>"+prj+" podling group</a> also exists - this can cause authentication issues</span><br><br>"
             }
 		} else {
 		    if (!clExists) {
-                details.innerHTML += "<span class='error'>LDAP unix group not present!</span><br/><br/>"
+                details.innerHTML += "<span class='error'>LDAP unix group not present!</span><br><br>"
 		    }
 		}
 
         if (pmcnoctte.length) {
             if (ctteeExists) {
-                details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + userList(pmcnoctte) + "<br/><br/>"
+                details.innerHTML += "<span class='error'>PMC members not in LDAP committee group:</span> " + userList(pmcnoctte) + "<br><br>"
             } else {
-                details.innerHTML += "<span class='error'>LDAP committee group not present!</span><br/><br/>"
+                details.innerHTML += "<span class='error'>LDAP committee group not present!</span><br><br>"
             }
         }
         if (pmcnounix.length) {
         	if (prj == 'member') {
-                details.innerHTML += "<span class='error'>ASF members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"
+                details.innerHTML += "<span class='error'>ASF members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br><br>"
         	} else {
-                details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br/><br/>"        		
+                details.innerHTML += "<span class='error'>PMC members not in committers(unix) group:</span> " + userList(pmcnounix) + "<br><br>"        		
         	}
         }
         if (cttenounix.length) {
-            details.innerHTML += "<span class='error'>LDAP committee group members not in committers(unix) group:</span> " + userList(cttenounix) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>LDAP committee group members not in committers(unix) group:</span> " + userList(cttenounix) + "<br><br>"
         }
         if (cttenopmc.length) {
-            details.innerHTML += "<span class='error'>LDAP committee group members not on PMC:</span> " + userList(cttenopmc) + "<br/><br/>"
+            details.innerHTML += "<span class='error'>LDAP committee group members not on PMC:</span> " + userList(cttenopmc) + "<br><br>"
         }
 
 		
@@ -591,7 +591,7 @@ function showJsonRoster(obj, type, json, name, attr, checkUnix) {
         }
 
         if (cl && cl.length > 0) {
-            details.innerHTML += "<b>Roster:</b><br><br><table>" + cl.join("\n") + "</table><br/>"
+            details.innerHTML += "<b>Roster:</b><br><br><table>" + cl.join("\n") + "</table><br>"
         }
         obj.appendChild(details)
     } else {
@@ -628,7 +628,7 @@ function showCommittee(obj, name) {
 function searchProjects(keyword, open) {
 	var obj = document.getElementById('phonebook')
 	if (keyword != '') {
-	   obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	   obj.innerHTML = "<h3>Search results:</h3><hr>"
 	} else {
 	   obj.innerHTML = ''
 	}
@@ -647,7 +647,7 @@ function searchProjects(keyword, open) {
 function searchService(keyword, open) {
 	var obj = document.getElementById('phonebook')
 	if (keyword != '') {
-	   obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	   obj.innerHTML = "<h3>Search results:</h3><hr>"
 	} else {
 	   obj.innerHTML = ''
 	}
@@ -664,7 +664,7 @@ function searchService(keyword, open) {
 function searchAuth(keyword, open) {
     var obj = document.getElementById('phonebook')
     if (keyword != '') {
-       obj.innerHTML = "<h3>Search results:</h3><hr/>"
+       obj.innerHTML = "<h3>Search results:</h3><hr>"
     } else {
        obj.innerHTML = ''
     }
@@ -752,7 +752,7 @@ function showPOD(name) {
 
 function searchPodlings(keyword, open) {
 	var obj = document.getElementById('phonebook')
-    obj.innerHTML = "<h3>Search results:</h3><hr/>"
+    obj.innerHTML = "<h3>Search results:</h3><hr>"
 	for (var name in podlings) {
 		if (name.search(keyword.toLowerCase()) != -1) {
 		    var id = 'podling_' + name
@@ -792,10 +792,10 @@ function showError(error) {
         obj.innerHTML += error
     } else { // assume it's an error object
         obj.innerHTML = "<h3>Javascript Error detected</h3>"
-        obj.innerHTML += "<hr/>"
+        obj.innerHTML += "<hr>"
         obj.innerHTML += "<pre>"+ error.message + "</pre>"
         obj.innerHTML += "<pre>"+ error.stack + "</pre>"
-        obj.innerHTML += "<hr/>"
+        obj.innerHTML += "<hr>"
     }
 }
 
@@ -805,7 +805,7 @@ function searchCommitters(keyword, open) {
 	}
 	var n = 0
 	var obj = document.getElementById('phonebook')
-	obj.innerHTML = "<h3>Search results:</h3><hr/>"
+	obj.innerHTML = "<h3>Search results:</h3><hr>"
 	for (var uid in people) {
 	  if (!people[uid].noLogin) { // don't display disabled logins
 		var name = getCommitterName(uid)

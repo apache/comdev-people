@@ -234,7 +234,8 @@ log.write(time.asctime()+"\n")
 log.close()
 
 f = open(os.path.join(COMMITTER_KEYS, "index.html"), "w", encoding='utf-8')
-f.write("""<html>
+f.write("""<!DOCTYPE html>
+<html lang="en">
 <head><title>ASF PGP Keys</title>
 <link rel="stylesheet" type="text/css" href="../../css/keys.css">
 </head>

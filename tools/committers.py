@@ -253,7 +253,7 @@ for group in sorted(groupData):
     g.write("""<table><tr><th>SVN id</th><th>Name</th></tr>\n""")
     for id in groupData[group]:
         # SVN id
-        g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</td>""" % (id, id, idStyle(id)))
+        g.write("""<tr><td id='%s'><a href="committer-index.html#%s">%s</a></td>""" % (f"{group}-{id}", id, idStyle(id)))
         # Name
         g.write("<td>%s</td></tr>\n" % nameStyle(id))
     g.write("""</table>\n""")

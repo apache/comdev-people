@@ -271,9 +271,13 @@ summary['_info_']['epochsecs'] = int(time.time())
 
 # write the index entry
 for uid in sorted(people['people'].keys()):
+    num = 0
+    suff = ''
     if uid in ldapkeyfps:
         for fp in ldapkeyfps[uid]:
-            f.write(entryok % (uid,uid,uid,uid,(fp.replace(' ','&nbsp;'))))
+            if num > 0:
+                suff = f"-{num}"
+            f.write(entryok % (uid,uid,uid+suff,uid,(fp.replace(' ','&nbsp;'))))
             fpc = canon_fp(fp)
             if fpc in dbkeyfps:
                 summary[uid][fp] = 'ok'
@@ -281,9 +285,13 @@ for uid in sorted(people['people'].keys()):
                 summary[uid][fp] = f"subkey of {subkeyfps[fpc]}"
             else:
                 summary[uid][fp] = 'unknown error - should not happen'
+            num += 1
     for fp, reason in badldapkeyfps[uid].items():
-        f.write(entrybad % (uid,uid,uid,fp,reason))
+        if num > 0:
+            suff = f"-{num}"
+        f.write(entrybad % (uid,uid,uid+suff,fp,reason))
         summary[uid][fp] = reason
+        num += 1
 
 with open(os.path.join(COMMITTER_KEYS, "keys.json"), 'w', encoding='utf-8') as s:
     json.dump(summary, s, indent=2, sort_keys=True)

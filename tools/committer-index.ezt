@@ -41,7 +41,7 @@ These characters are no longer permitted.
 IDs must be lower-case alphanumeric (ASCII) only, with at least three characters, and must start with a letter.
 </p>
 <p>Last updated on: [lastupdate]</p>
-<hr size="1" noshade>
+<hr>
       <a href='#A'>A</a>
       <a href='#B'>B</a>
       <a href='#C'>C</a>
@@ -68,7 +68,7 @@ IDs must be lower-case alphanumeric (ASCII) only, with at least three characters
       <a href='#X'>X</a>
       <a href='#Y'>Y</a>
       <a href='#Z'>Z</a>
-<hr size="1" noshade>
+<hr>
 <table>
 <tr>
 <th>SVN ID</th>

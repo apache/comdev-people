@@ -235,7 +235,7 @@ if needTr:
     g.write("</tr>\n")
 
 g.write("""</table>
-<hr size="1" noshade>\n""")   
+<hr>\n""")   
 
 # create the individual listings
 # put the unix and pmc groups side by side to reduce page length

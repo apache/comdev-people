@@ -55,9 +55,9 @@
   Any such entries appear as links in the Name column. 
 </p>
 <p>Last updated on: [lastupdate]</p>
-<hr size="1" noshade>
+<hr>
 <!--bodyContent-->
-<table border="0">
+<table>
 [content]
 <hr>
 <p>Created from the following versions of the files:</p>

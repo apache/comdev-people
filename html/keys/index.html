@@ -41,12 +41,14 @@ Project group files are no longer created.
 They are <b>not suitable</b> for use as KEYS files for authenticating releases
 <br> 
 This is because:
+</p>
 <ul>
 <li>The KEYS file are needed to check signatures of archived releases. 
 Thus keys should only ever be added to the KEYS file, and never normally removed.
 Now the LDAP group for a project will change over time, and a committer who signed one or more releases may no longer be in the group.
 Also if a project moves to the Attic, its LDAP group will be removed.</li>
 </ul>
+<p>
 Individual committer key details can be copied from the committer or group files into the project KEYS file.<br>
 To keep the KEYS file manageable, it's recommended to only add the keys of committers who have signed releases.
 </p>

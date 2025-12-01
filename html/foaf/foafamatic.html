@@ -100,8 +100,8 @@
 <br><b>Please choose one, and only one of the following:</b></p>
 <ol>
 <li>Commit it to the committers/info directory with a filename of your ASF ID with an extension of '.rdf'.<br>e.g. if your ASF ID is <em>bloggs</em> save the file as <em>bloggs.rdf</em>
+  <p><b>-- or --</b></p>
 </li>
-<p><b>-- or --</b></p>
 <li>Put the file on the web and add a link to it in the file 'external.xml' (found in the committers/info directory). Your file can have any filename and any extension if you use this option.</li>
 </ol>
 <p>However you tell us about your file, your details should shortly appear on
@@ -146,74 +146,75 @@ If not, it will be listed using the URL as the title.</p>
 </ul>
 
 <p><em>Only those fields marked with a '*' are required.</em></p>
-<form action="" name="details" onSubmit="return false;">
-<table width="100%"><tr class="public">
-<td width="70%"><table width="100%">
+<form name="details" onSubmit="return false;">
+<table style="width: 100%"><tr class="public">
+<td style="width: 70%"><table style="width: 100%">
 <tr class="public">
-<td width="30%">ASF  ID *</td>
+<td style="width: 30%">ASF  ID *</td>
 <td><input type="text" name="avail"></td>
 </tr>
 <tr class="public">
-<td width="30%">Title</td>
+<td style="width: 30%">Title</td>
 <td><input type="text" name="title"></td>
 </tr>
 <tr class="public">
-<td width="30%">First name *</td>
+<td style="width: 30%">First name *</td>
 <td><input type="text" name="firstName"></td>
 </tr>
 <tr class="public">
-<td width="30%">Last name *</td>
+<td style="width: 30%">Last name *</td>
 <td><input type="text" name="lastName"></td>
 </tr>
 </table></td>
-<td width="30%" align="center">
+<td style="width: 30%; text-align: center">
 <img id="iMyImg" width="100" height="100" class="animage" onClick="SelectImg(this, 100, 100)" alt="Click to Change" title="Click to Change" src="../cicons/noimage.gif"><br><small>Click Image to Change</small>
 </td>
 </tr></table>
-<table width="100%">
+<table style="width: 100%">
 <tr class="public">
-<td width="25%">Homepage</td>
+<td style="width: 25%">Homepage</td>
 <td><input type="text" name="homepage" value="http://" size="50"></td>
 </tr>
 <tr class="public">
-<td width="25%">Location<br>(decimal degrees)</td>
+<td style="width: 25%">Location<br>(decimal degrees)</td>
 <td>
       Latitude <input type="text" name="lat" size="8" onChange="calcLocation(lat.value, lng.value, 'geolocation')">
-      Longitude <input type="text" name="lng" size="8" onChange="calcLocation(lat.value, lng.value, 'geolocation')"><span name="geolocation" id="geolocation"></span>
+      Longitude <input type="text" name="lng" size="8" onChange="calcLocation(lat.value, lng.value, 'geolocation')">
+      <span id="geolocation"></span>
 </td>
 </tr>
 <!-- TODO: OpenID, skypeID -->
 <!-- TODO: Get IRC done as an account -->
 <tr class="public">
-<td width="25%">Weblogs</td>
+<td style="width: 25%">Weblogs</td>
 <td>
 <table><tbody id="weblog"></tbody></table>
 <input type="button" value="Add Weblog" onClick="addWeblogField()">
 </td>
 </tr>
 <tr class="public">
-<td width="25%">Twitter ID</td>
+<td style="width: 25%">Twitter ID</td>
 <td>
 <table><tbody id="twitterTable"></tbody></table>
 <input type="button" value="Add Twitter ID" onClick="addTwitterField()">
 </td>
 </tr>
 <tr class="private">
-<td width="25%">IRC (Freenode) ID</td>
+<td style="width: 25%">IRC (Freenode) ID</td>
 <td>
 <table><tbody id="ircTable"></tbody></table>
 <input type="button" value="Add IRC ID" onClick="addIRCField()">
 </td>
 </tr>
 <tr class="public">
-<td width="25%">PGP Key<br>Fingerprints</td>
+<td style="width: 25%">PGP Key<br>Fingerprints</td>
 <td>
 <table><tbody id="pgpTable"></tbody></table>
 <input type="button" value="Add Key" onClick="addPGPField()">
 </td>
 </tr>
 <tr class="public">
-<td width="25%">Projects<br><small><a href="#projectNotes">notes</a></small>
+<td style="width: 25%">Projects<br><small><a href="#projectNotes">notes</a></small>
 </td>
 <td>
 <table><tbody id="projectTable"></tbody></table>
@@ -221,7 +222,7 @@ If not, it will be listed using the URL as the title.</p>
 </td>
 </tr>
 <tr class="private">
-<td width="25%">Email Addresses</td>
+<td style="width: 25%">Email Addresses</td>
 <td>
 <table><tbody id="emailTable"></tbody></table>
 <input type="button" value="Add Email Address" onClick="addEmailField()">
@@ -232,7 +233,7 @@ If not, it will be listed using the URL as the title.</p>
 </form>
 
 <h2>Your generated FOAF file</h2>
-<form action="" name="results"><textarea name="rdf" cols="80" rows="20"></textarea></form>
+<form name="results"><textarea name="rdf" cols="80" rows="20"></textarea></form>
 
   <div id="footer">
       (c) 2020 Apache Software Foundation
